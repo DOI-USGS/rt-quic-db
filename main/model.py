@@ -13,8 +13,8 @@ class ManageUser:
         else:
             return False
 
-    def get_roles(self, name):
-        return self.userDao.get_roles(name)
+    def authenticate(self, username, password):
+        return self.userDao.check_user(username, password)
 
 
 class ManagePlate:

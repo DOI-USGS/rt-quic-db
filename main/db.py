@@ -11,7 +11,7 @@ config = {
 
 Q_CREATE_USER = ("INSERT INTO USERS"
                  "(NAME, ROLE) VALUES (%s, %s)")
-Q_SELECT_USER = 'SELECT NAME, ROLE FROM USERS WHERE NAME = %s'
+Q_SELECT_USER = 'SELECT NAME, ROLE FROM USERS WHERE USERNAME = %s AND PASSWORD = %s'
 
 
 class UsersDao:
@@ -24,16 +24,15 @@ class UsersDao:
         self.cursor.execute(Q_CREATE_USER, (name, role))
         self.cnx.commit()
 
-    def get_roles(self, name):
-        if name is not None and name != "":
-            self.cursor.execute(Q_SELECT_USER, (name,))
-            if self.cursor.with_rows:
-                roles = []
-                for r_name, r_role in self.cursor:
-                    roles.append(r_role)
-                return roles
-            else:
-                return None
+    def check_user(self, username, password):
+        self.cursor.execute(Q_SELECT_USER, (username, password), multi=False)
+        row = self.cursor.fetchone()
+        if row:
+            r_name, r_role = row
+            return {"name": r_name, "role": r_role}
+        else:
+            return None
+
 
 class PlateDao:
     def __init__(self):
@@ -41,10 +40,10 @@ class PlateDao:
         self.cursor = self.cnx.cursor()
 
     def create_plate(self, rows):
-        None
+        pass
 
 
 if __name__ == "__main__":
     users_dao = UsersDao()
     # users_dao.create_user("jojo", "ADMIN")
-    users_dao.get_user("jojo")
+    users_dao.check_user("chit", "chit")
