@@ -9,9 +9,9 @@ config = {
     'raise_on_warnings': True
 }
 
-Q_CREATE_USER = ("INSERT INTO USERS"
+Q_CREATE_USER = ("INSERT INTO Users"
                  "(NAME, ROLE) VALUES (%s, %s)")
-Q_SELECT_USER = 'SELECT NAME, ROLE FROM USERS WHERE USERNAME = %s AND PASSWORD = %s'
+Q_SELECT_USER = 'SELECT NAME, ROLE FROM Users WHERE USERNAME = %s AND PASSWORD = %s'
 
 
 class UsersDao:
