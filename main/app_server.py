@@ -31,6 +31,13 @@ def index():
     else:
         return render_template("login.html")
 
+@app.route('/testchart')
+def testchart():
+    if 'username' not in session:
+        return render_template("login.html")
+    return render_template("testchart.html", name=session['username'])
+"""I don't really know what I'm doing, sorry if I make it messy :( - Jojo
+"""
 
 @app.route('/authenticate', methods=['GET', 'POST'])
 def login():
