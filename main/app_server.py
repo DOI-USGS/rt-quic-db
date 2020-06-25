@@ -1,5 +1,5 @@
 from flask_login import LoginManager
-from model import ManageUser
+from model import ManageUser, ManagePlate
 import os
 from flask import Flask, escape, request, render_template, send_from_directory, session
 from flask import flash, redirect, url_for
@@ -21,8 +21,7 @@ login_manager = LoginManager()
 @app.route('/favicon.ico', methods=['GET'])
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'connection.png', mimetype='images/favicon.ico')
-
-
+    
 @app.route('/')
 @app.route('/index')
 def index():
@@ -71,23 +70,26 @@ def allowed_file(filename):
 @app.route('/loadPlate', methods=['GET', 'POST'])
 def upload_plate():
     if request.method == 'POST':
-        print("check 1")
-        # check if the post request has the file part
-        if 'plateData' not in request.files:
-            print("check 2")
-            flash('No file part')
-            print("request.files", request.files)
-            return "file not detected"
-        f = request.files['plateData']
-        # if user does not select file, browser also
-        # submit an empty part without filename
-        print(f.filename)
-        print(f)
+        # get form data
+        form_data = dict(request.form)
+        
+        # check if the post request has the file
+        if 'plate_file' not in request.files:
+            flash('No file entered')
+            return "No file entered"
+        
+        # get file
+        f = request.files['plate_file']
         if f.filename == '':
-            return "file name not detected"
+            flash('File not detected')
+            return redirect(url_for('new_project'))
 
-        print(f.read())
-        return 'file uploaded successfully'
+        # process file
+        plateModel = ManagePlate()
+        plateModel.create_plate(f=f, data=form_data)
+        flash('File uploaded successfully')
+        
+        return redirect(url_for('new_project'))
 
 
 if __name__ == '__main__':
