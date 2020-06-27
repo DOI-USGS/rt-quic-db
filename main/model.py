@@ -1,6 +1,6 @@
 from db import UsersDao, PlateDao
-from data_upload_util import parse_rt_quic_csv
-
+from data_upload_util import parse_rt_quic_csv, UploadObsCSV
+import os
 
 class ManageUser:
     def __init__(self):
@@ -43,7 +43,10 @@ class ManagePlate:
             well_data['well_name'] = well_name
             self.plateDao.create_wc(data, well_data)
             
-            # create observations
+            # create UploadObsCSV object
+            uploadObsCSV = UploadObsCSV()
+            
+            # process observations
             for i in range(len(fluorescence_series)):
                 obs_data = {}
                 obs_data['fluorescence'] = fluorescence_series[i]
@@ -53,4 +56,20 @@ class ManagePlate:
                 obs_data['well_name'] = well_name
                 obs_data['index_in_well'] = i
 
-                self.plateDao.create_observation(data, well_data, obs_data)
+                # Insert one observation record at a time - very slow
+                #self.plateDao.create_observation(data, well_data, obs_data)
+                
+                # Add observation to UploadObsCSV object
+                uploadObsCSV.add_observation(data, well_data, obs_data)
+            
+            # insert observations as a batch
+            temp_csv = uploadObsCSV.write_csv()
+            self.plateDao.load_observations(file = temp_csv)
+            os.remove(temp_csv.name)
+                
+                
+                
+                
+                
+                
+                

@@ -1,5 +1,6 @@
 import mysql.connector
 from datetime import date, datetime, timedelta
+import os
 
 config = {
     'user': 'quicdbadmin',
@@ -28,6 +29,10 @@ Q_CREATE_WC = ("INSERT INTO Well_Condition (salt_type, salt_conc, substrate_type
 Q_CREATE_OBS = ("INSERT INTO Observation (fluorescence, time_s, x_coord, y_coord," 
                                         "plate_ID, wc_ID, index_in_well) "
                                         "VALUES (%s, %s, %s, %s, %s, %s, %s)")
+
+Q_LOAD_OBS = ("LOAD DATA LOCAL INFILE %s INTO TABLE Observation FIELDS TERMINATED BY ',' "
+              "ENCLOSED BY '\"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (fluorescence, time_s, "
+              "x_coord, y_coord, plate_ID, wc_ID, index_in_well);")
 
 class UsersDao:
 
@@ -122,6 +127,11 @@ class PlateDao:
         
         # create new observation record
         self.cursor.execute(Q_CREATE_OBS, (fluorescence, time_s, x_coord, y_coord, plate_ID, wc_ID, index_in_well))        
+        self.cnx.commit()
+    
+    def load_observations(self, file):
+        path = file.name
+        self.cursor.execute(Q_LOAD_OBS, (path,))
         self.cnx.commit()
 
 if __name__ == "__main__":
