@@ -1,4 +1,4 @@
-from db import UsersDao, PlateDao
+from db import UsersDao, PlateDao, SampleDao, LocationDao
 from data_upload_util import parse_rt_quic_csv, UploadObsCSV
 import os
 
@@ -66,6 +66,23 @@ class ManagePlate:
             temp_csv = uploadObsCSV.write_csv()
             self.plateDao.load_observations(file = temp_csv)
             os.remove(temp_csv.name)
+
+    def get_plates(self):
+        return self.plateDao.get_plates()
+
+class ManageSample:
+    def __init__(self):
+        self.sampleDao = SampleDao()
+    
+    def get_samples(self):
+        return self.sampleDao.get_samples()
+
+class ManageLocation:
+    def __init__(self):
+        self.locationDao = LocationDao()
+    
+    def get_locations(self):
+        return self.locationDao.get_locations()
                 
                 
                 

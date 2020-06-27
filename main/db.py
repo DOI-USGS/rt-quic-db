@@ -34,6 +34,12 @@ Q_LOAD_OBS = ("LOAD DATA LOCAL INFILE %s INTO TABLE Observation FIELDS TERMINATE
               "ENCLOSED BY '\"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (fluorescence, time_s, "
               "x_coord, y_coord, plate_ID, wc_ID, index_in_well);")
 
+Q_GET_PLATES = "SELECT plate_ID, plate_type FROM Plate;"
+
+Q_GET_SAMPLES = "SELECT sample_ID, name FROM Sample;"
+
+Q_GET_LOCATIONS = "SELECT loc_ID, name FROM Location;"
+
 class UsersDao:
 
     def __init__(self):
@@ -133,6 +139,55 @@ class PlateDao:
         path = file.name
         self.cursor.execute(Q_LOAD_OBS, (path,))
         self.cnx.commit()
+    
+    """
+    Return a dictionary of the form:
+        dict[plate_ID] = plate_type
+    """
+    def get_plates(self):
+        self.cursor.execute(Q_GET_PLATES, multi=False)
+        rows = self.cursor.fetchall()
+        d = {}
+        for row in rows:
+            d[row[0]] = row[1]
+        self.cnx.commit()
+        return d  
+
+class SampleDao:
+    def __init__(self):
+        self.cnx = mysql.connector.connect(**config)
+        self.cursor = self.cnx.cursor()
+    
+    """
+    Return a dictionary of the form:
+        dict[sample_ID] = name
+    """
+    def get_samples(self):
+        self.cursor.execute(Q_GET_SAMPLES, multi=False)
+        rows = self.cursor.fetchall()
+        d = {}
+        for row in rows:
+            d[row[0]] = row[1]
+        self.cnx.commit()
+        return d 
+
+class LocationDao:
+    def __init__(self):
+        self.cnx = mysql.connector.connect(**config)
+        self.cursor = self.cnx.cursor()
+    
+    """
+    Return a dictionary of the form:
+        dict[loc_ID] = name
+    """
+    def get_locations(self):
+        self.cursor.execute(Q_GET_LOCATIONS, multi=False)
+        rows = self.cursor.fetchall()
+        d = {}
+        for row in rows:
+            d[row[0]] = row[1]
+        self.cnx.commit()
+        return d 
 
 if __name__ == "__main__":
     users_dao = UsersDao()

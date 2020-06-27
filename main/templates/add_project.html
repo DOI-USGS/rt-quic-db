@@ -69,7 +69,6 @@
 	      <!-- /.container -->
 	  </nav>
 
-
 <div class="container">
 
   <div class="page-header">
@@ -78,15 +77,15 @@
   <form method="post" action="/loadPlate" enctype="multipart/form-data">
   <div class="form-group">
     <label for="plate">Plate</label>
-    <input type="text" class="form-control" id="plate" name="plate" placeholder="" required>
+    <select class="form-control" id="plate" name="plate" required></select>
   </div>
   <div class="form-group">
   	<label for="sample">Default sample</label>
-    <input type="text" class="form-control" id="sample" name="sample" placeholder="" required>
+    <select class="form-control" id="sample" name="sample" required></select>
   </div>
   <div class="form-group">
     <label for="location">Location</label>
-    <input type="text" class="form-control" id="location" name="location" placeholder="" required>
+    <select class="form-control" id="location" name="location" required></select>
   </div>
   <div class="form-group">
   	<label for="assay_name">Assay name</label>
@@ -109,6 +108,28 @@
 	{% endwith %}
 	
 	</div>
+
+	<script>
+		var plates = JSON.parse('{{ plates | tojson | safe}}');
+		var samples = JSON.parse('{{ samples | tojson | safe}}');
+		var locations = JSON.parse('{{ locations | tojson | safe}}');
+			
+		var plate_selector = document.getElementById("plate");
+		for(index in plates) {
+		    plate_selector.options[plate_selector.options.length] = new Option(plates[index], index);
+		}
+		
+		var sample_selector = document.getElementById("sample");
+		for(index in samples) {
+		    sample_selector.options[sample_selector.options.length] = new Option(samples[index], index);
+		}
+		
+		var location_selector = document.getElementById("location");
+		for(index in locations) {
+		    location_selector.options[location_selector.options.length] = new Option(locations[index], index);
+		}
+	</script>
+
 
    <!-- jQuery -->
     <script src="/static/js/jquery-1.11.3.min.js"></script>

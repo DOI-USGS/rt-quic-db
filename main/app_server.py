@@ -1,5 +1,5 @@
 from flask_login import LoginManager
-from model import ManageUser, ManagePlate
+from model import ManageUser, ManagePlate, ManageSample, ManageLocation
 import os
 from flask import Flask, escape, request, render_template, send_from_directory, session
 from flask import flash, redirect, url_for
@@ -66,7 +66,21 @@ def logout():
 def new_project():
     if 'username' not in session:
         return render_template("login.html")
-    return render_template("add_project.html", name=session['username'])
+    else:
+        # get current plate ID and names from the databasde
+        plateModel = ManagePlate()
+        plates = plateModel.get_plates()
+        
+        # get current samples
+        sampleModel = ManageSample()
+        samples = sampleModel.get_samples()
+        
+        # get current locations
+        locationModel = ManageLocation()
+        locations = locationModel.get_locations()
+        
+        # display form
+        return render_template("add_project.html", name=session['username'], plates=plates, samples=samples, locations=locations)
 
 
 def allowed_file(filename):
