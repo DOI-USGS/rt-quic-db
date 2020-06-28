@@ -10,10 +10,10 @@
     <title>Load Plate</title>
     <link rel="icon" type="image/png" href="/static/images/favicon.ico"/>
     <!-- Bootstrap Core CSS -->
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 
     <!-- Custom CSS: You can use this stylesheet to override any Bootstrap styles and/or apply your own styles -->
-    <link href="/static/css/custom.css" rel="stylesheet">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
 
     <!--    main style-->
     <link href="/static/css/main.css" rel="stylesheet">
@@ -28,68 +28,125 @@
 
 </head>
 
+<!-- Navigation -->
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <!-- Logo -->
+        <div class="navbar-header">
+        		<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+        		</button>
+            <a class="navbar-brand" href="#">
+            	<span class="glyphicon glyphicon-fire"></span>
+            	QuakeDB
+            </a>
+        </div>
+        <!-- Navbar links -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="navbar-nav mr-auto">
+                <li class="dropdown">
+					        <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					          Edit<span class="caret"></span></a>
+					        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+					          <li class="nav-item"><a class = "nav-link" href="/newProject">Upload Assay</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/newProject">Edit Assay Metadata</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/newProject">Manage Samples</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/newProject">Manage Locations</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/newProject">Manage Users</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/newProject">Manage Plate Templates</a></li>
+					        </ul>
+					      </li>
+                <li class="nav-item">
+                    <a href="#">Analytics</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#">About</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav navbar-right ">
+                <li>
+                    <a href="#">{% if name %} {{ name }}{% else %} {{Guest}} {% endif %}</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
 <body>
-	  <!-- Navigation -->
-	  <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-	      <div class="container">
-	          <!-- Logo and responsive toggle -->
-	          <div class="navbar-header">
-	              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
-	                  <span class="sr-only">Toggle navigation</span>
-	                  <span class="icon-bar"></span>
-	                  <span class="icon-bar"></span>
-	                  <span class="icon-bar"></span>
-	              </button>
-	              <a class="navbar-brand" href="#">
-	              	<span class="glyphicon glyphicon-fire"></span>
-	              	UW-Madison
-	              </a>
-	          </div>
-	          <!-- Navbar links -->
-	          <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-	              <ul class="nav navbar-nav">
-	                  <li class="active">
-	                      <a href="/newProject">Projects</a>
-	                  </li>
-	                  <li>
-	                      <a href="#">Analytics</a>
-	                  </li>
-	                  <li>
-	                      <a href="#">About</a>
-	                  </li>
-	              </ul>
-	              <ul class="nav navbar-nav navbar-right ">
-	                  <li>
-	                      <a href="#">{% if name %} {{ name }}{% else %} {{Guest}} {% endif %}</a>
-	                  </li>
-	              </ul>
-	          </div>
-	          <!-- /.navbar-collapse -->
-	      </div>
-	      <!-- /.container -->
-	  </nav>
-
 <div class="container">
-
   <div class="page-header">
     <h1>Upload Assay</h1>
+    <h5>* Required Fields</h5>
   </div>
   <form method="post" action="/loadPlate" enctype="multipart/form-data">
   <div class="form-group">
-    <label for="plate">Plate</label>
+    <label for="plate">Plate template*</label>
     <select class="form-control" id="plate" name="plate" required></select>
   </div>
   <div class="form-group">
-  	<label for="sample">Default sample</label>
+  	<label for="sample">Default sample*</label>
     <select class="form-control" id="sample" name="sample" required></select>
   </div>
   <div class="form-group">
-    <label for="location">Location</label>
+    <label for="location">Location*</label>
     <select class="form-control" id="location" name="location" required></select>
   </div>
   <div class="form-group">
-  	<label for="assay_name">Assay name</label>
+  	<label for="assay_name">Assay name*</label>
     <input type="text" class="form-control" id="assay_name" name="assay_name" placeholder="" required>
+  </div>
+  <div class="form-group">
+  	<label for="assay_name">Temperature</label>
+    <input type="text" class="form-control" id="temperature" name="temperature" placeholder="">
+  </div>
+  <div class="form-group">
+  	<label for="assay_name">Shake interval (min)</label>
+    <input type="text" class="form-control" id="shake_interval_min" name="shake_interval_min" placeholder="">
+  </div>
+  <div class="form-group">
+  	<label for="assay_name">Scan interval (min)</label>
+    <input type="text" class="form-control" id="scan_interval_min" name="scan_interval_min" placeholder="">
+  </div>
+  <div class="form-group">
+  	<label for="assay_name">Duration (min)</label>
+    <input type="text" class="form-control" id="duration_min" name="duration_min" placeholder="">
+  </div>
+  <div class="form-group">
+  	<label for="assay_name">Salt type</label>
+    <input type="text" class="form-control" id="salt_type" name="salt_type" placeholder="">
+  </div>
+  <div class="form-group">
+  	<label for="assay_name">Salt concentration</label>
+    <input type="text" class="form-control" id="salt_conc" name="salt_conc" placeholder="">
+  </div>
+  <div class="form-group">
+  	<label for="assay_name">Substrate type</label>
+    <input type="text" class="form-control" id="substrate_type" name="substrate_type" placeholder="">
+  </div>
+  <div class="form-group">
+  	<label for="assay_name">Substrate concentration</label>
+    <input type="text" class="form-control" id="substrate_conc" name="substrate_conc" placeholder="">
+  </div>
+  <div class="form-group">
+  	<label for="assay_name">Surfactant type</label>
+    <input type="text" class="form-control" id="surfact_type" name="surfact_type" placeholder="">
+  </div>
+  <div class="form-group">
+  	<label for="assay_name">Surfactant concentration</label>
+    <input type="text" class="form-control" id="surfact_conc" name="surfact_conc" placeholder="">
+  </div>
+  <div class="form-group">
+  	<label for="assay_name">Start date and time</label>
+    <input type="text" class="form-control" id="start_date_time" name="start_date_time" placeholder="">
+  </div>
+  <div class="form-group">
+  	<label for="assay_name">Other</label>
+    <input type="text" class="form-control" id="other_assay_attr" name="other_assay_attr" placeholder="">
   </div>
 	<div class="form-group">
 	  	<input id="input-b1" name="plate_file" type="file" class="file" data-browse-on-zone-click="true" accept=".csv">

@@ -66,19 +66,19 @@ class PlateDao:
         self.cursor = self.cnx.cursor()
 
     def create_assay(self, data):
-        temperature = None
-        shake_interval_min = None
-        scan_interval_min = None
-        duration_min = None
-        salt_type = None
-        salt_conc = None
-        substrate_type = None
-        substrate_conc = None
-        surfact_type = None
-        surfact_conc = None
-        start_date_time = None
+        temperature = data['temperature']
+        shake_interval_min = data['shake_interval_min']
+        scan_interval_min = data['scan_interval_min']
+        duration_min = data['duration_min']
+        salt_type = data['salt_type']
+        salt_conc = data['salt_conc']
+        substrate_type = data['substrate_type']
+        substrate_conc = data['substrate_conc']
+        surfact_type = data['surfact_type']
+        surfact_conc = data['surfact_conc']
+        start_date_time = data['start_date_time']
         name = data['assay_name']
-        other_assay_attr = None
+        other_assay_attr = data['other_assay_attr']
         sample_ID = data['sample']
         loc_ID = data['location']
         
