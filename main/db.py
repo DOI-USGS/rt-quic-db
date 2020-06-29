@@ -40,6 +40,12 @@ Q_GET_SAMPLES = "SELECT sample_ID, name FROM Sample;"
 
 Q_GET_LOCATIONS = "SELECT loc_ID, name FROM Location;"
 
+Q_GET_ASSAYS = "SELECT assay_ID, name FROM Assay;"
+
+Q_GET_ASSAY = ("SELECT temperature, shake_interval_min, scan_interval_min, duration_min, "
+            "salt_type, salt_conc, substrate_type, substrate_conc, start_date_time, other_assay_attr, sample_ID, loc_ID, name "
+            "FROM Assay WHERE assay_ID = %s;")
+
 class UsersDao:
 
     def __init__(self):
@@ -60,27 +66,31 @@ class UsersDao:
             return None
 
 
-class PlateDao:
+class AssayDao:
     def __init__(self):
         self.cnx = mysql.connector.connect(**config)
         self.cursor = self.cnx.cursor()
 
     def create_assay(self, data):
-        temperature = data['temperature']
-        shake_interval_min = data['shake_interval_min']
-        scan_interval_min = data['scan_interval_min']
-        duration_min = data['duration_min']
-        salt_type = data['salt_type']
-        salt_conc = data['salt_conc']
-        substrate_type = data['substrate_type']
-        substrate_conc = data['substrate_conc']
-        surfact_type = data['surfact_type']
-        surfact_conc = data['surfact_conc']
-        start_date_time = data['start_date_time']
-        name = data['assay_name']
-        other_assay_attr = data['other_assay_attr']
-        sample_ID = data['sample']
-        loc_ID = data['location']
+        for key in data.keys():
+            if data[key] == '':
+                data[key] = None
+        
+        temperature = data.get('temperature')
+        shake_interval_min = data.get('shake_interval_min')
+        scan_interval_min = data.get('scan_interval_min')
+        duration_min = data.get('duration_min')
+        salt_type = data.get('salt_type')
+        salt_conc = data.get('salt_conc')
+        substrate_type = data.get('substrate_type')
+        substrate_conc = data.get('substrate_conc')
+        surfact_type = data.get('surfact_type')
+        surfact_conc = data.get('surfact_conc')
+        start_date_time = data.get('start_date_time')
+        name = data.get('assay_name')
+        other_assay_attr = data.get('other_assay_attr')
+        sample_ID = data.get('sample')
+        loc_ID = data.get('location')
         
         # create new assay
         self.cursor.execute(Q_CREATE_ASSAY, (temperature, shake_interval_min, scan_interval_min, 
@@ -139,6 +149,49 @@ class PlateDao:
         path = file.name
         self.cursor.execute(Q_LOAD_OBS, (path,))
         self.cnx.commit()
+    
+    """
+    Return a dictionary of the form:
+        dict[assay_ID] = name
+    """
+    def get_assays(self):
+        self.cursor.execute(Q_GET_ASSAYS, multi=False)
+        rows = self.cursor.fetchall()
+        d = {}
+        for row in rows:
+            d[row[0]] = row[1]
+        self.cnx.commit()
+        return d
+    
+    def get_data(self, assay_ID):
+        assay_ID = str(assay_ID)
+        self.cursor.execute(Q_GET_ASSAY, (assay_ID,))
+        row = self.cursor.fetchone()
+        print(row)
+        
+        data = {}
+        data['temperature'] = row[0]
+        data['shake_interval_min'] = row[1]
+        data['scan_interval_min'] = row[2]
+        data['duration_min'] = row[3]
+        data['salt_type'] = row[4]
+        data['salt_conc'] = row[5]
+        data['substrate_type'] = row[6]
+        data['substrate_conc'] = row[7]
+        data['start_date_time'] = row[8]
+        data['other_assay_attr'] = row[9]
+        data['sample_ID'] = row[10]
+        data['loc_ID'] = row[11]
+        data['name'] = row[12]
+        
+        self.cnx.commit()
+        return data        
+        
+        
+class PlateDao:
+    def __init__(self):
+        self.cnx = mysql.connector.connect(**config)
+        self.cursor = self.cnx.cursor()
     
     """
     Return a dictionary of the form:

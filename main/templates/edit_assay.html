@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-    <title>Upload Assay</title>
+    <title>Edit Assay Metadata</title>
     <link rel="icon" type="image/png" href="/static/images/favicon.ico"/>
     <!-- Bootstrap Core CSS -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
@@ -25,7 +25,33 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    
+    <script>
+    function post(path, params, method='post') {
 
+		  // The rest of this code assumes you are not using a library.
+		  // It can be made less wordy if you use one.
+		  const form = document.createElement('form');
+		  form.method = method;
+		  form.action = path;
+
+		  for (const key in params) {
+		    if (params.hasOwnProperty(key)) {
+		      const hiddenField = document.createElement('input');
+		      hiddenField.type = 'hidden';
+		      hiddenField.name = key;
+		      hiddenField.value = params[key];
+
+		      form.appendChild(hiddenField);
+		    }
+		  }
+
+		  document.body.appendChild(form);
+		  form.submit();
+		}
+		</script>
+
+    
 </head>
 
 <!-- Navigation -->
@@ -70,9 +96,6 @@
                 <li>
                     <a href="#">{% if name %} {{ name }}{% else %} {{Guest}} {% endif %}</a>
                 </li>
-                <li>
-                		<a href="/logout">Logout</a>
-                </li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
@@ -81,24 +104,29 @@
 </nav>
 
 <body>
+
 <div class="container">
   <div class="page-header">
-    <h1>Upload Assay</h1>
+    <h1>Edit Assay Metadata</h1>
     <h5>* Required Fields</h5>
   </div>
-  <form method="post" action="/loadPlate" enctype="multipart/form-data">
+  <form method="post" action="/doEditAssay">
   	<div class="col-md-6 col-sm-6">
 		  <div class="form-group">
+		  	<label for="assay">Assay*</label>
+		  	<select class="form-control" id="assay" name="assay_ID" placeholder="" value required><option value="empty" disabled> -- select an option -- </option></select>
+		  </div>
+		  <div class="form-group">
 		    <label for="plate">Plate template*</label>
-		    <select class="form-control" id="plate" name="plate" required></select>
+		    <select class="form-control" id="plate" name="plate" placeholder="" required></select>
 		  </div>
 		  <div class="form-group">
 		  	<label for="sample">Default sample*</label>
-		    <select class="form-control" id="sample" name="sample" required></select>
+		    <select class="form-control" id="sample" name="sample" placeholder="" required></select>
 		  </div>
 		  <div class="form-group">
 		    <label for="location">Location*</label>
-		    <select class="form-control" id="location" name="location" required></select>
+		    <select class="form-control" id="location" name="location" placeholder="" required></select>
 		  </div>
 		  <div class="form-group">
 		  	<label for="assay_name">Assay name*</label>
@@ -154,13 +182,10 @@
 		  	<label for="assay_name">Other</label>
 		    <input type="text" class="form-control" id="other_assay_attr" name="other_assay_attr" placeholder="">
 		  </div>
-		  <div class="form-group">
-			  	<input id="input-b1" name="plate_file" type="file" class="file" data-browse-on-zone-click="true" accept=".csv">
-			</div>
 		</div>
 		<div class="col-md-12 text-right">
 			<div class="form-group">
-			    <button class="btn btn-primary" type="submit">Submit form</button>
+				<button class="btn btn-primary" type="submit">Submit form</button>
 			</div>
 		</div>
 	</form>
@@ -177,11 +202,31 @@
 	
 	</div>
 
+
 	<script>
+		var assay_selector = document.getElementById('assay');
+		assay_selector.addEventListener('change', function() {
+		    post('/editAssay', {assay_ID: assay_selector.value});
+		});
+	
+		var assays = JSON.parse('{{ assays | tojson | safe}}');
 		var plates = JSON.parse('{{ plates | tojson | safe}}');
 		var samples = JSON.parse('{{ samples | tojson | safe}}');
 		var locations = JSON.parse('{{ locations | tojson | safe}}');
 			
+		var assay_selector = document.getElementById("assay");
+		for(index in assays) {
+		    assay_selector.options[assay_selector.options.length] = new Option(assays[index], index);
+		}	
+		
+		if (typeof assay_ID !== 'undefined') {
+			assay_selector.value = assay_ID;
+		} else {
+			assay_selector.value = "empty";
+		}
+		
+		document.write(assay_selector.value)
+		
 		var plate_selector = document.getElementById("plate");
 		for(index in plates) {
 		    plate_selector.options[plate_selector.options.length] = new Option(plates[index], index);
@@ -196,6 +241,11 @@
 		for(index in locations) {
 		    location_selector.options[location_selector.options.length] = new Option(locations[index], index);
 		}
+		
+		document.getElementById('assay').onchange = function() {
+    	var newaction = this.value;
+    	document.getElementById('store').action = newaction;
+		};
 	</script>
 
 

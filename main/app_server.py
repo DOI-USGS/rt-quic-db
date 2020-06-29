@@ -1,5 +1,5 @@
 from flask_login import LoginManager
-from model import ManageUser, ManagePlate, ManageSample, ManageLocation
+from model import ManageUser, ManagePlate, ManageAssay, ManageSample, ManageLocation
 import os
 from flask import Flask, escape, request, render_template, send_from_directory, session
 from flask import flash, redirect, url_for
@@ -61,25 +61,30 @@ def logout():
     session.pop('username', None)
     return redirect(url_for('index'))
 
+# =============================================================================
+# Edit Menu
+# =============================================================================
+def get_plates_samples_locations():
+    # get current plate ID and names from the databasde
+    plateModel = ManagePlate()
+    plates = plateModel.get_plates()
+    
+    # get current samples
+    sampleModel = ManageSample()
+    samples = sampleModel.get_samples()
+    
+    # get current locations
+    locationModel = ManageLocation()
+    locations = locationModel.get_locations()
+    
+    return plates, samples, locations
 
 @app.route('/newProject')
 def new_project():
     if 'username' not in session:
         return render_template("login.html")
     else:
-        # get current plate ID and names from the databasde
-        plateModel = ManagePlate()
-        plates = plateModel.get_plates()
-        
-        # get current samples
-        sampleModel = ManageSample()
-        samples = sampleModel.get_samples()
-        
-        # get current locations
-        locationModel = ManageLocation()
-        locations = locationModel.get_locations()
-        
-        # display form
+        plates, samples, locations = get_plates_samples_locations()
         return render_template("add_project.html", name=session['username'], plates=plates, samples=samples, locations=locations)
 
 
@@ -106,12 +111,85 @@ def upload_plate():
             return redirect(url_for('new_project'))
 
         # process file
-        plateModel = ManagePlate()
-        plateModel.create_plate(f=f, data=form_data)
+        assayModel = ManageAssay()
+        assayModel.create_assay(f=f, data=form_data)
         flash('File uploaded successfully')
         
         return redirect(url_for('new_project'))
 
+@app.route('/editAssay', methods=['GET', 'POST'])
+def load_edit_assay():
+    if 'username' in session:
+        plates, samples, locations = get_plates_samples_locations()
+        assayModel = ManageAssay()
+        assays = assayModel.get_assays()
+
+        assay_ID = dict(request.form).get('assay_ID')
+        
+        if assay_ID != None:
+            data = assayModel.get_data(int(assay_ID))
+            return render_template("edit_assay.html", name=session['name'], plates=plates, samples=samples, locations=locations, assays = assays, assay_ID = assay_ID, data=data)
+        else:
+            return render_template("edit_assay.html", name=session['name'], plates=plates, samples=samples, locations=locations, assays = assays)
+    else:
+        return render_template("login.html")
+
+@app.route('/doEditAssay')
+def edit_assay():
+    if request.method == 'POST':
+        # get form data
+        form_data = dict(request.form)
+        
+        # check if the post request has the file
+        if 'plate_file' not in request.files:
+            flash('No file entered')
+            return "No file entered"
+        
+        # get file
+        f = request.files['plate_file']
+        if f.filename == '':
+            flash('File not detected')
+            return redirect(url_for('new_project'))
+
+        # process file
+        assayModel = ManageAssay()
+        assayModel.create_assay(f=f, data=form_data)
+        flash('File uploaded successfully')
+        
+        return redirect(url_for('new_project'))
+
+@app.route('/manageSample')
+def load_manage_sample():
+    if 'username' in session:
+        return render_template("index.html", name=session['name'])
+    else:
+        return render_template("login.html")
+
+@app.route('/manageLocation')
+def load_manage_location():
+    if 'username' in session:
+        return render_template("index.html", name=session['name'])
+    else:
+        return render_template("login.html")
+
+@app.route('/manageUser')
+def load_manage_user():
+    if 'username' in session:
+        return render_template("index.html", name=session['name'])
+    else:
+        return render_template("login.html")
+
+@app.route('/managePlate')
+def load_manage_plate():
+    if 'username' in session:
+        return render_template("index.html", name=session['name'])
+    else:
+        return render_template("login.html")
+
+
+# =============================================================================
+# 
+# =============================================================================
 
 if __name__ == '__main__':
     os.environ["FLASK_ENV"] = 'development'

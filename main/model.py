@@ -1,4 +1,4 @@
-from db import UsersDao, PlateDao, SampleDao, LocationDao
+from db import UsersDao, PlateDao, AssayDao, SampleDao, LocationDao
 from data_upload_util import parse_rt_quic_csv, UploadObsCSV
 import os
 
@@ -18,13 +18,13 @@ class ManageUser:
         return self.userDao.check_user(username, password)
 
 
-class ManagePlate:
+class ManageAssay:
     def __init__(self):
-        self.plateDao = PlateDao()
+        self.assayDao = AssayDao()
 
-    def create_plate(self, f, data):
+    def create_assay(self, f, data):
         # Create assay
-        self.plateDao.create_assay(data)
+        self.assayDao.create_assay(data)
         
         # Parse file into a dictionary of the following format:
         #       rows[well_name] = [content, fluorescence_series]
@@ -41,7 +41,7 @@ class ManagePlate:
             well_data = {}
             well_data['contents'] = content
             well_data['well_name'] = well_name
-            self.plateDao.create_wc(data, well_data)
+            self.assayDao.create_wc(data, well_data)
             
             # create UploadObsCSV object
             uploadObsCSV = UploadObsCSV()
@@ -57,18 +57,29 @@ class ManagePlate:
                 obs_data['index_in_well'] = i
 
                 # Insert one observation record at a time - very slow
-                #self.plateDao.create_observation(data, well_data, obs_data)
+                #self.assayDao.create_observation(data, well_data, obs_data)
                 
                 # Add observation to UploadObsCSV object
                 uploadObsCSV.add_observation(data, well_data, obs_data)
             
             # insert observations as a batch
             temp_csv = uploadObsCSV.write_csv()
-            self.plateDao.load_observations(file = temp_csv)
+            self.assayDao.load_observations(file = temp_csv)
             os.remove(temp_csv.name)
+    
+    def get_assays(self):
+        return self.assayDao.get_assays()
+    
+    def get_data(self, assay_ID):
+        return self.assayDao.get_data(assay_ID)
 
+class ManagePlate:
+    def __init__(self):
+        self.plateDao = PlateDao() 
+    
     def get_plates(self):
         return self.plateDao.get_plates()
+    
 
 class ManageSample:
     def __init__(self):
