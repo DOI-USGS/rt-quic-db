@@ -26,9 +26,16 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+   	<!-- jQuery -->
+    <script type="text/javascript" src="/static/js/jquery-1.11.3.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/static/js/bootstrap.min.js"></script>
+
 </head>
 
-<!-- Navigation -->
+<body>
+
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container">
         <!-- Logo -->
@@ -52,7 +59,7 @@
 					          Edit<span class="caret"></span></a>
 					        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
 					          <li class="nav-item"><a class = "nav-link" href="/newProject">Upload Assay</a></li>
-										<li class="nav-item"><a class = "nav-link" href="/editAssay">Edit Assay Metadata</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/editAssay">Edit Assay</a></li>
 										<li class="nav-item"><a class = "nav-link" href="/manageSample">Manage Samples</a></li>
 										<li class="nav-item"><a class = "nav-link" href="/manageLocation">Manage Locations</a></li>
 										<li class="nav-item"><a class = "nav-link" href="/manageUser">Manage Users</a></li>
@@ -80,7 +87,8 @@
     <!-- /.container -->
 </nav>
 
-<body>
+
+
 <div class="container">
   <div class="page-header">
     <h1>Upload Assay</h1>
@@ -160,7 +168,7 @@
 		</div>
 		<div class="col-md-12 text-right">
 			<div class="form-group">
-			    <button class="btn btn-primary" type="submit">Submit form</button>
+			    <button class="btn btn-primary" type="submit">Submit</button>
 			</div>
 		</div>
 	</form>
@@ -197,13 +205,6 @@
 		    location_selector.options[location_selector.options.length] = new Option(locations[index], index);
 		}
 	</script>
-
-
-   <!-- jQuery -->
-    <script src="/static/js/jquery-1.11.3.min.js"></script>
-
-    <!-- Bootstrap Core JavaScript -->
-    <script src="/static/js/bootstrap.min.js"></script>
 
 </body>
 

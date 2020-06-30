@@ -128,35 +128,24 @@ def load_edit_assay():
         
         if assay_ID != None:
             data = assayModel.get_data(int(assay_ID))
-            return render_template("edit_assay.html", name=session['name'], plates=plates, samples=samples, locations=locations, assays = assays, assay_ID = assay_ID, data=data)
+            return render_template("edit_assay.html", name=session['name'], plates=plates, samples=samples, locations=locations, assays = assays, assay_ID = assay_ID, assay_data=data)
         else:
-            return render_template("edit_assay.html", name=session['name'], plates=plates, samples=samples, locations=locations, assays = assays)
+            return render_template("edit_assay.html", name=session['name'], plates=plates, samples=samples, locations=locations, assays = assays, assay_data = '')
     else:
         return render_template("login.html")
 
-@app.route('/doEditAssay')
+@app.route('/doEditAssay', methods=['GET', 'POST'])
 def edit_assay():
     if request.method == 'POST':
         # get form data
         form_data = dict(request.form)
         
-        # check if the post request has the file
-        if 'plate_file' not in request.files:
-            flash('No file entered')
-            return "No file entered"
-        
-        # get file
-        f = request.files['plate_file']
-        if f.filename == '':
-            flash('File not detected')
-            return redirect(url_for('new_project'))
-
-        # process file
+        # update assay
         assayModel = ManageAssay()
-        assayModel.create_assay(f=f, data=form_data)
-        flash('File uploaded successfully')
+        assayModel.update_assay(data=form_data)
+        flash('Updated successfully')
         
-        return redirect(url_for('new_project'))
+        return redirect(url_for('load_edit_assay'))
 
 @app.route('/manageSample')
 def load_manage_sample():

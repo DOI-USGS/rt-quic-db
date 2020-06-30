@@ -73,6 +73,9 @@ class ManageAssay:
     def get_data(self, assay_ID):
         return self.assayDao.get_data(assay_ID)
 
+    def update_assay(self, data):
+        self.assayDao.update_assay(data)
+
 class ManagePlate:
     def __init__(self):
         self.plateDao = PlateDao() 
