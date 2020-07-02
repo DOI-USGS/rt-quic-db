@@ -322,13 +322,14 @@ class SampleDao:
         self.cursor.execute(Q_DELETE_SAMPLE, (sample_ID,))
         self.cnx.commit()
 
-class VizDao:
+class ObsDao:
     def __init__(self):
         self.cnx = mysql.connector.connect(**config)
         self.cursor = self.cnx.cursor()
 
     def load_plate(self):
         self.cursor.execute(Q_SELECT_OBS)
+        #  need to change this to allow for different plates
 
         """ row = self.cursor.fetchone()
         
@@ -338,6 +339,23 @@ class VizDao:
 
         rows = self.cursor.fetchall()
         print(rows)
+        self.cnx.commit()
+
+    def get_data(self, sample_ID):
+        sample_ID = str(sample_ID)
+        self.cursor.execute(Q_GET_SAMPLE, (sample_ID,))
+        row = self.cursor.fetchone()
+        
+        data = {}
+        data['species'] = xstr(row[0])
+        data['sex'] = xstr(row[1])
+        data['age'] = xstr(row[2])
+        data['tissue_matrix'] = xstr(row[3])
+        data['other_sample_attr'] = xstr(row[4])
+        data['name'] = xstr(row[5])
+        
+        self.cnx.commit()
+        return data
 
 class LocationDao:
     def __init__(self):
