@@ -222,11 +222,55 @@ def delete_sample():
 # =============================================================================
 
 @app.route('/manageLocation', methods=['GET', 'POST'])
-def load_manage_location():
+def load_manage_loc():
     if 'username' in session:
-        return render_template("index.html", name=session['name'])
+        locationModel = ManageLocation()
+        locations = locationModel.get_locations()
+        
+        loc_ID = dict(request.form).get('loc_ID')
+    
+        if loc_ID != None:
+            loc_data = locationModel.get_data(int(loc_ID))
+            return render_template("manage_loc.html", name=session['name'],loc_ID = loc_ID, loc_data=loc_data, locations=locations)
+        else:
+            return render_template("manage_loc.html", name=session['name'], loc_data = '', locations=locations)
     else:
         return render_template("login.html")
+
+@app.route('/editLoc', methods=['GET', 'POST'])
+def edit_loc():
+    if request.method == 'POST':
+        # get form data
+        form_data = dict(request.form)
+        
+        # update location
+        locationModel = ManageLocation()
+        locationModel.update_loc(data=form_data)
+        flash('Updated successfully')
+        
+        return redirect(url_for('load_manage_loc'))
+
+@app.route('/createLoc', methods=['GET', 'POST'])
+def create_loc():
+    locationModel = ManageLocation()
+    loc_ID, data = locationModel.create_loc()
+    data['name'] = '' #blank out form field to force user to enter new name
+    data['create_active'] = True
+    locations = locationModel.get_locations()
+    return render_template("manage_loc.html", name=session['name'], loc_ID = loc_ID, loc_data=data, locations=locations)
+
+@app.route('/deleteLoc', methods=['GET', 'POST'])
+def delete_loc():
+    if request.method == 'POST':
+        # get form data
+        loc_ID = dict(request.form).get('loc_ID')
+        
+        # delete location
+        locationModel = ManageLocation()
+        locationModel.delete_loc(loc_ID)
+        flash('Location deleted')
+        
+        return redirect(url_for('load_manage_loc'))
 
 # =============================================================================
 # Manage Users

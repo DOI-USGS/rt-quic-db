@@ -72,6 +72,11 @@ Q_GET_USER_LOC = "SELECT L.loc_ID FROM Users U, LocAffiliatedWithUser L WHERE U.
 Q_DELETE_USER_LOC = "DELETE FROM LocAffiliatedWithUser WHERE user_ID = %s;"
 Q_ADD_USER_LOC = "INSERT INTO LocAffiliatedWithUser (loc_ID, user_ID) VALUES (%s, %s);"
 
+Q_GET_LOCATION = "SELECT name from Location WHERE loc_ID=%s;"
+Q_UPDATE_LOCATION = "UPDATE Location SET name=%s WHERE loc_ID = %s;"
+Q_CREATE_LOCATION = "INSERT INTO Location (name) VALUES ('"+TEMP_NEW_RECORD_NAME+"');"
+Q_DELETE_LOCATION = "DELETE FROM Location WHERE loc_ID = %s;"
+
 class UsersDao:
 
     def __init__(self):
@@ -421,6 +426,43 @@ class LocationDao:
             d[row[0]] = row[1]
         self.cnx.commit()
         return d 
+    
+    def get_data(self, loc_ID):
+        loc_ID = str(loc_ID)
+        self.cursor.execute(Q_GET_LOCATION, (loc_ID,))
+        row = self.cursor.fetchone()
+        
+        data = {}
+        data['name'] = xstr(row[0])
+        
+        self.cnx.commit()
+        return data
+    
+    def update_loc(self, data):
+        loc_ID = nstr(data['loc_ID'])
+        name = nstr(data['location_name'])
+
+        self.cursor.execute(Q_UPDATE_LOCATION, (name, loc_ID))
+        self.cnx.commit()
+        
+    def create_loc(self):
+        # create new record
+        self.cursor.execute(Q_CREATE_LOCATION)
+        
+        # retrieve ID of new record
+        self.cursor.execute(Q_LAST_ID)
+        row = self.cursor.fetchone()
+        
+        self.cnx.commit()
+        
+        data = {}
+        data['name'] = TEMP_NEW_RECORD_NAME
+        
+        return row[0], data
+    
+    def delete_loc(self, loc_ID):
+        self.cursor.execute(Q_DELETE_LOCATION, (loc_ID,))
+        self.cnx.commit()
 
 if __name__ == "__main__":
     users_dao = UsersDao()

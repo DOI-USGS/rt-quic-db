@@ -115,6 +115,18 @@ class ManageLocation:
     
     def get_locations(self):
         return self.locationDao.get_locations()
+    
+    def get_data(self, loc_ID):
+        return self.locationDao.get_data(loc_ID)
+    
+    def update_loc(self, data):
+        self.locationDao.update_loc(data)
+        
+    def create_loc(self):
+        return self.locationDao.create_loc()
+    
+    def delete_loc(self, loc_ID):
+        return self.locationDao.delete_loc(loc_ID)
                 
                 
                 
