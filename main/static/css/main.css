@@ -1,15 +1,13 @@
 nav ul {
     padding:0;
     display: flex;
-    justify-content: space-around;
-    border:1px solid white;
 
     }
 
 nav ul li {
-    border-left:1px solid white;
+
     list-style-type:none;
-    padding:10px;
+    padding:14px;
     width:100%;                                   /*this is the line that helped me get rid of the white space at the start of my nav */
     }
 nav ul li a {
@@ -17,5 +15,5 @@ nav ul li a {
     }
 
 body {
-    padding-top: 100px; /* Padding for .navbar-fixed-top. Change value if navbar height changes. Remove if using .navbar-static-top. */
+    padding-top: 50px; /* Padding for .navbar-fixed-top. Change value if navbar height changes. Remove if using .navbar-static-top. */
 }

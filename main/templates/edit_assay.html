@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-    <title>Upload Assay</title>
+    <title>Edit Assay</title>
     <link rel="icon" type="image/png" href="/static/images/favicon.ico"/>
     <!-- Bootstrap Core CSS -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
@@ -25,17 +25,36 @@
         <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
+    
+    <script>
+    function post(path, params, method='post') {
 
-   	<!-- jQuery -->
-    <script type="text/javascript" src="/static/js/jquery-1.11.3.min.js"></script>
+		  // The rest of this code assumes you are not using a library.
+		  // It can be made less wordy if you use one.
+		  const form = document.createElement('form');
+		  form.method = method;
+		  form.action = path;
 
-    <!-- Bootstrap Core JavaScript -->
-    <script src="/static/js/bootstrap.min.js"></script>
+		  for (const key in params) {
+		    if (params.hasOwnProperty(key)) {
+		      const hiddenField = document.createElement('input');
+		      hiddenField.type = 'hidden';
+		      hiddenField.name = key;
+		      hiddenField.value = params[key];
 
+		      form.appendChild(hiddenField);
+		    }
+		  }
+
+		  document.body.appendChild(form);
+		  form.submit();
+		}
+		</script>
+
+    
 </head>
 
-<body>
-
+<!-- Navigation -->
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container">
         <!-- Logo -->
@@ -77,9 +96,6 @@
                 <li>
                     <a href="#">{% if name %} {{ name }}{% else %} {{Guest}} {% endif %}</a>
                 </li>
-                <li>
-                		<a href="/logout">Logout</a>
-                </li>
             </ul>
         </div>
         <!-- /.navbar-collapse -->
@@ -87,29 +103,29 @@
     <!-- /.container -->
 </nav>
 
-
+<body>
 
 <div class="container">
   <div class="page-header">
-    <h1>Upload Assay</h1>
+    <h1>Edit Assay</h1>
     <h5>* Required Fields</h5>
   </div>
-  <form method="post" action="/loadPlate" enctype="multipart/form-data">
+  <form method="post" action="/doEditAssay">
   	<div class="col-md-6 col-sm-6">
 		  <div class="form-group">
-		    <label for="plate">Plate template*</label>
-		    <select class="form-control" id="plate" name="plate" required></select>
+		  	<label for="assay">Assay*</label>
+		  	<select class="form-control" id="assay" name="assay_ID" placeholder="" value required><option value="empty" disabled hidden> -- select an option -- </option></select>
 		  </div>
 		  <div class="form-group">
 		  	<label for="sample">Default sample*</label>
-		    <select class="form-control" id="sample" name="sample" required></select>
+		    <select class="form-control" id="sample" name="sample" placeholder="" required><option value="empty" disabled hidden></option></select>
 		  </div>
 		  <div class="form-group">
 		    <label for="location">Location*</label>
-		    <select class="form-control" id="location" name="location" required></select>
+		    <select class="form-control" id="location" name="location" placeholder="" required><option value="empty" disabled hidden></option></select>
 		  </div>
 		  <div class="form-group">
-		  	<label for="assay_name">Assay name*</label>
+		  	<label for="assay_name">New assay name*</label>
 		    <input type="text" class="form-control" id="assay_name" name="assay_name" placeholder="" required>
 		  </div>
 		  <div class="form-group">
@@ -162,13 +178,10 @@
 		  	<label for="assay_name">Other</label>
 		    <input type="text" class="form-control" id="other_assay_attr" name="other_assay_attr" placeholder="">
 		  </div>
-		  <div class="form-group">
-			  	<input id="input-b1" name="plate_file" type="file" class="file" data-browse-on-zone-click="true" accept=".csv">
-			</div>
 		</div>
 		<div class="col-md-12 text-right">
 			<div class="form-group">
-			    <button class="btn btn-primary" type="submit">Submit</button>
+				<button class="btn btn-primary" type="submit">Update assay</button>
 			</div>
 		</div>
 	</form>
@@ -184,15 +197,31 @@
 	{% endwith %}
 	
 	</div>
+	
 
 	<script>
+		var assay_selector = document.getElementById('assay');
+		assay_selector.addEventListener('change', function() {
+		    post('/editAssay', {assay_ID: assay_selector.value});
+		});
+	
+		var assays = JSON.parse('{{ assays | tojson | safe}}');
 		var plates = JSON.parse('{{ plates | tojson | safe}}');
 		var samples = JSON.parse('{{ samples | tojson | safe}}');
 		var locations = JSON.parse('{{ locations | tojson | safe}}');
-			
-		var plate_selector = document.getElementById("plate");
-		for(index in plates) {
-		    plate_selector.options[plate_selector.options.length] = new Option(plates[index], index);
+		var assay_ID = '{{assay_ID}}'
+	
+		var assay_selector = document.getElementById("assay");
+		for(index in assays) {
+		    assay_selector.options[assay_selector.options.length] = new Option(assays[index], index);
+		}	
+		
+		if (assay_ID !== '') {
+			assay_selector.value = assay_ID;
+			var assay_data = {{ assay_data | tojson}};
+		} else {
+			assay_selector.value = "empty";
+			var assay_data = '';
 		}
 		
 		var sample_selector = document.getElementById("sample");
@@ -200,11 +229,126 @@
 		    sample_selector.options[sample_selector.options.length] = new Option(samples[index], index);
 		}
 		
+		if (typeof assay_data['sample_ID'] !== 'undefined') {
+			sample_selector.value = assay_data['sample_ID'];
+		} else {
+			sample_selector.value = "empty";
+		}
+		
 		var location_selector = document.getElementById("location");
 		for(index in locations) {
 		    location_selector.options[location_selector.options.length] = new Option(locations[index], index);
 		}
+		
+		if (typeof assay_data['loc_ID'] !== 'undefined') {
+			location_selector.value = assay_data['loc_ID'];
+		} else {
+			location_selector.value = "empty";
+		}
+		
+		var assay_name_text = document.getElementById("assay_name");
+		if (typeof assay_data['name'] !== 'undefined') {
+			assay_name_text.value = assay_data['name'];
+		} else {
+			assay_name_text.value = "";
+		}
+		
+		var temperature_text = document.getElementById("temperature");
+		if (typeof assay_data['temperature'] !== 'undefined') {
+			temperature_text.value = assay_data['temperature'];
+		} else {
+			temperature_text.value = "";
+		}
+		
+		var shake_int_text = document.getElementById("shake_interval_min");
+		if (typeof assay_data['shake_interval_min'] !== 'undefined') {
+			shake_int_text.value = assay_data['shake_interval_min'];
+		} else {
+			shake_int_text.value = "";
+		}
+		
+		var scan_int_text = document.getElementById("scan_interval_min");
+		if (typeof assay_data['scan_interval_min'] !== 'undefined') {
+			scan_int_text.value = assay_data['scan_interval_min'];
+		} else {
+			scan_int_text.value = "";
+		}
+		
+		var duration_text = document.getElementById("duration_min");
+		if (typeof assay_data['duration_min'] !== 'undefined') {
+			duration_text.value = assay_data['duration_min'];
+		} else {
+			duration_text.value = "";
+		}
+		
+		var salt_type_text = document.getElementById("salt_type");
+		if (typeof assay_data['salt_type'] !== 'undefined') {
+			salt_type_text.value = assay_data['salt_type'];
+		} else {
+			salt_type_text.value = "";
+		}
+		
+		var salt_conc_text = document.getElementById("salt_conc");
+		if (typeof assay_data['salt_conc'] !== 'undefined') {
+			salt_conc_text.value = assay_data['salt_conc'];
+		} else {
+			salt_conc_text.value = "";
+		}
+		
+		var substrate_type_text = document.getElementById("substrate_type");
+		if (typeof assay_data['substrate_type'] !== 'undefined') {
+			substrate_type_text.value = assay_data['substrate_type'];
+		} else {
+			substrate_type_text.value = "";
+		}
+		
+		var substrate_conc_text = document.getElementById("substrate_conc");
+		if (typeof assay_data['substrate_conc'] !== 'undefined') {
+			substrate_conc_text.value = assay_data['substrate_conc'];
+		} else {
+			substrate_conc_text.value = "";
+		}
+		
+		var surfact_type_text = document.getElementById("surfact_type");
+		if (typeof assay_data['surfact_type'] !== 'undefined') {
+			surfact_type_text.value = assay_data['surfact_type'];
+		} else {
+			surfact_type_text.value = "";
+		}
+		
+		var surfact_conc_text = document.getElementById("surfact_conc");
+		if (typeof assay_data['surfact_conc'] !== 'undefined') {
+			surfact_conc_text.value = assay_data['surfact_conc'];
+		} else {
+			surfact_conc_text.value = "";
+		}
+		
+		var date_text = document.getElementById("start_date_time");
+		if (typeof assay_data['start_date_time'] !== 'undefined') {
+			date_text.value = assay_data['start_date_time'];
+		} else {
+			date_text.value = "";
+		}
+		
+		var other_text = document.getElementById("other_assay_attr");
+		if (typeof assay_data['other_assay_attr'] !== 'undefined') {
+			other_text.value = assay_data['other_assay_attr'];
+		} else {
+			other_text.value = "";
+		}
+		
+		document.getElementById('assay').onchange = function() {
+    	var newaction = this.value;
+    	document.getElementById('store').action = newaction;
+		};
 	</script>
+
+
+   <!-- jQuery -->
+    <script src="/static/js/jquery-1.11.3.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/static/js/bootstrap.min.js"></script>
 
 </body>
 

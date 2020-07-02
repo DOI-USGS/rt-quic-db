@@ -1,6 +1,6 @@
-from db import UsersDao, PlateDao
-from data_upload_util import parse_rt_quic_csv
-
+from db import UsersDao, PlateDao, AssayDao, SampleDao, LocationDao
+from data_upload_util import parse_rt_quic_csv, UploadObsCSV
+import os
 
 class ManageUser:
     def __init__(self):
@@ -18,13 +18,13 @@ class ManageUser:
         return self.userDao.check_user(username, password)
 
 
-class ManagePlate:
+class ManageAssay:
     def __init__(self):
-        self.plateDao = PlateDao()
+        self.assayDao = AssayDao()
 
-    def create_plate(self, f, data):
+    def create_assay(self, f, data):
         # Create assay
-        self.plateDao.create_assay(data)
+        self.assayDao.create_assay(data)
         
         # Parse file into a dictionary of the following format:
         #       rows[well_name] = [content, fluorescence_series]
@@ -41,9 +41,12 @@ class ManagePlate:
             well_data = {}
             well_data['contents'] = content
             well_data['well_name'] = well_name
-            self.plateDao.create_wc(data, well_data)
+            self.assayDao.create_wc(data, well_data)
             
-            # create observations
+            # create UploadObsCSV object
+            uploadObsCSV = UploadObsCSV()
+            
+            # process observations
             for i in range(len(fluorescence_series)):
                 obs_data = {}
                 obs_data['fluorescence'] = fluorescence_series[i]
@@ -53,4 +56,51 @@ class ManagePlate:
                 obs_data['well_name'] = well_name
                 obs_data['index_in_well'] = i
 
-                self.plateDao.create_observation(data, well_data, obs_data)
+                # Insert one observation record at a time - very slow
+                #self.assayDao.create_observation(data, well_data, obs_data)
+                
+                # Add observation to UploadObsCSV object
+                uploadObsCSV.add_observation(data, well_data, obs_data)
+            
+            # insert observations as a batch
+            temp_csv = uploadObsCSV.write_csv()
+            self.assayDao.load_observations(file = temp_csv)
+            os.remove(temp_csv.name)
+    
+    def get_assays(self):
+        return self.assayDao.get_assays()
+    
+    def get_data(self, assay_ID):
+        return self.assayDao.get_data(assay_ID)
+
+    def update_assay(self, data):
+        self.assayDao.update_assay(data)
+
+class ManagePlate:
+    def __init__(self):
+        self.plateDao = PlateDao() 
+    
+    def get_plates(self):
+        return self.plateDao.get_plates()
+    
+
+class ManageSample:
+    def __init__(self):
+        self.sampleDao = SampleDao()
+    
+    def get_samples(self):
+        return self.sampleDao.get_samples()
+
+class ManageLocation:
+    def __init__(self):
+        self.locationDao = LocationDao()
+    
+    def get_locations(self):
+        return self.locationDao.get_locations()
+                
+                
+                
+                
+                
+                
+                
