@@ -1,6 +1,7 @@
 import mysql.connector
 from datetime import date, datetime, timedelta
 import os
+import json
 
 config = {
     'user': 'quicdbadmin',
@@ -327,7 +328,7 @@ class ObsDao:
         self.cnx = mysql.connector.connect(**config)
         self.cursor = self.cnx.cursor()
 
-    def load_plate(self):
+    def get_plate(self):
         self.cursor.execute(Q_SELECT_OBS)
         #  need to change this to allow for different plates
 
@@ -338,24 +339,24 @@ class ObsDao:
             row = self.cursor.fetchone() """
 
         rows = self.cursor.fetchall()
-        print(rows)
         self.cnx.commit()
+        return json.dumps(rows)
 
-    def get_data(self, sample_ID):
-        sample_ID = str(sample_ID)
-        self.cursor.execute(Q_GET_SAMPLE, (sample_ID,))
-        row = self.cursor.fetchone()
+    # def get_data(self, sample_ID):
+    #     sample_ID = str(sample_ID)
+    #     self.cursor.execute(Q_GET_SAMPLE, (sample_ID,))
+    #     row = self.cursor.fetchone()
         
-        data = {}
-        data['species'] = xstr(row[0])
-        data['sex'] = xstr(row[1])
-        data['age'] = xstr(row[2])
-        data['tissue_matrix'] = xstr(row[3])
-        data['other_sample_attr'] = xstr(row[4])
-        data['name'] = xstr(row[5])
+    #     data = {}
+    #     data['species'] = xstr(row[0])
+    #     data['sex'] = xstr(row[1])
+    #     data['age'] = xstr(row[2])
+    #     data['tissue_matrix'] = xstr(row[3])
+    #     data['other_sample_attr'] = xstr(row[4])
+    #     data['name'] = xstr(row[5])
         
-        self.cnx.commit()
-        return data
+    #     self.cnx.commit()
+    #     return data
 
 class LocationDao:
     def __init__(self):
