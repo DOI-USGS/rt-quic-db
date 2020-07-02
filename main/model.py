@@ -89,6 +89,18 @@ class ManagePlate:
     def get_plates(self):
         return self.plateDao.get_plates()
     
+    def get_data(self, plate_ID):
+        return self.plateDao.get_data(plate_ID)
+    
+    def update_plate(self, data):
+        self.plateDao.update_plate(data)
+        
+    def create_plate(self):
+        return self.plateDao.create_plate()
+    
+    def delete_plate(self, plate_ID):
+        return self.plateDao.delete_plate(plate_ID)
+    
 
 class ManageSample:
     def __init__(self):

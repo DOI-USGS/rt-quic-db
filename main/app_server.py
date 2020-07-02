@@ -338,9 +338,54 @@ def delete_user():
 @app.route('/managePlate', methods=['GET', 'POST'])
 def load_manage_plate():
     if 'username' in session:
-        return render_template("index.html", name=session['name'])
+        plateModel = ManagePlate()
+        plates = plateModel.get_plates()
+        
+        plate_ID = dict(request.form).get('plate_ID')
+    
+        if plate_ID != None:
+            plate_data = plateModel.get_data(int(plate_ID))
+            return render_template("manage_plate.html", name=session['name'], plates=plates, plate_ID = plate_ID, plate_data=plate_data)
+        else:
+            return render_template("manage_plate.html", name=session['name'], plates=plates, plate_data = '')
     else:
         return render_template("login.html")
+
+@app.route('/editPlate', methods=['GET', 'POST'])
+def edit_plate():
+    if request.method == 'POST':
+        # get form data
+        form_data = dict(request.form)
+        
+        # update plate
+        plateModel = ManagePlate()
+        plateModel.update_plate(data=form_data)
+        flash('Updated successfully')
+        
+        return redirect(url_for('load_manage_plate'))
+
+@app.route('/createPlate', methods=['GET', 'POST'])
+def create_plate():
+    plateModel = ManagePlate()
+    plate_ID, data = plateModel.create_plate()
+    data['plate_type'] = '' #blank out form field to force user to enter new name
+    data['create_active'] = True
+    plates = plateModel.get_plates()
+
+    return render_template("manage_plate.html", name=session['name'], plates=plates, plate_ID = plate_ID, plate_data=data)
+
+@app.route('/deletePlate', methods=['GET', 'POST'])
+def delete_plate():
+    if request.method == 'POST':
+        # get form data
+        plate_ID = dict(request.form).get('plate_ID')
+        
+        # delete plate
+        plateModel = ManagePlate()
+        plateModel.delete_plate(plate_ID)
+        flash('Plate template deleted')
+        
+        return redirect(url_for('load_manage_plate'))
 
 
 # =============================================================================

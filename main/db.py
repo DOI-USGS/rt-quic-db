@@ -77,6 +77,11 @@ Q_UPDATE_LOCATION = "UPDATE Location SET name=%s WHERE loc_ID = %s;"
 Q_CREATE_LOCATION = "INSERT INTO Location (name) VALUES ('"+TEMP_NEW_RECORD_NAME+"');"
 Q_DELETE_LOCATION = "DELETE FROM Location WHERE loc_ID = %s;"
 
+Q_GET_PLATE = "SELECT plate_type, other_plate_attr, columns, rows from Plate WHERE plate_ID=%s;"
+Q_UPDATE_PLATE = "UPDATE Plate SET plate_type=%s, other_plate_attr=%s, columns=%s, rows=%s WHERE plate_ID = %s;"
+Q_CREATE_PLATE = "INSERT INTO Plate (plate_type) VALUES ('"+TEMP_NEW_RECORD_NAME+"');"
+Q_DELETE_PLATE = "DELETE FROM Plate WHERE plate_ID = %s;"
+
 class UsersDao:
 
     def __init__(self):
@@ -337,7 +342,53 @@ class PlateDao:
         for row in rows:
             d[row[0]] = row[1]
         self.cnx.commit()
-        return d  
+        return d
+    
+    def get_data(self, plate_ID):
+        plate_ID = str(plate_ID)
+        self.cursor.execute(Q_GET_PLATE, (plate_ID,))
+        row = self.cursor.fetchone()
+        
+        data = {}
+        data['plate_type'] = xstr(row[0])
+        data['other_plate_attr'] = xstr(row[1])
+        data['columns'] = xstr(row[2])
+        data['rows'] = xstr(row[3])
+        
+        self.cnx.commit()
+        return data
+    
+    def update_plate(self, data):
+        plate_ID = nstr(data['plate_ID'])
+        plate_type = nstr(data['plate_type'])
+        other_plate_attr = nstr(data['other_plate_attr'])
+        columns = nstr(data['columns'])
+        rows = nstr(data['rows'])
+
+        self.cursor.execute(Q_UPDATE_PLATE, (plate_type, other_plate_attr, columns, rows, plate_ID))
+        self.cnx.commit()
+
+    def create_plate(self):
+        # create new record
+        self.cursor.execute(Q_CREATE_PLATE)
+        
+        # retrieve ID of new record
+        self.cursor.execute(Q_LAST_ID)
+        row = self.cursor.fetchone()
+        
+        self.cnx.commit()
+        
+        data = {}
+        data['plate_type'] = TEMP_NEW_RECORD_NAME
+        data['other_plate_attr'] = ''
+        data['columns'] = ''
+        data['rows'] = ''
+        
+        return row[0], data
+    
+    def delete_plate(self, plate_ID):
+        self.cursor.execute(Q_DELETE_PLATE, (plate_ID,))
+        self.cnx.commit()
 
 class SampleDao:
     def __init__(self):
