@@ -70,6 +70,10 @@ def logout():
 # =============================================================================
 # Edit Menu
 # =============================================================================
+# =============================================================================
+# Upload Assay
+# =============================================================================
+
 def get_plates_samples_locations():
     # get current plate ID and names from the databasde
     plateModel = ManagePlate()
@@ -123,6 +127,10 @@ def upload_plate():
         
         return redirect(url_for('new_project'))
 
+# =============================================================================
+# Edit Assay
+# =============================================================================
+
 @app.route('/editAssay', methods=['GET', 'POST'])
 def load_edit_assay():
     if 'username' in session:
@@ -152,6 +160,10 @@ def edit_assay():
         flash('Updated successfully')
         
         return redirect(url_for('load_edit_assay'))
+
+# =============================================================================
+# Manage Samples
+# =============================================================================
 
 @app.route('/manageSample', methods=['GET', 'POST'])
 def load_manage_sample():
@@ -197,8 +209,6 @@ def delete_sample():
         # get form data
         sample_ID = dict(request.form).get('sample_ID')
         
-        print("Deleting sample_ID " + str(sample_ID))
-        
         # delete sample
         sampleModel = ManageSample()
         sampleModel.delete_sample(sample_ID)
@@ -207,6 +217,10 @@ def delete_sample():
         samples = sampleModel.get_samples()
         return render_template("manage_samples.html", name=session['name'], samples=samples, sample_data='')
 
+# =============================================================================
+# Manage Locations
+# =============================================================================
+
 @app.route('/manageLocation', methods=['GET', 'POST'])
 def load_manage_location():
     if 'username' in session:
@@ -214,12 +228,68 @@ def load_manage_location():
     else:
         return render_template("login.html")
 
+# =============================================================================
+# Manage Users
+# =============================================================================
+
 @app.route('/manageUser', methods=['GET', 'POST'])
 def load_manage_user():
     if 'username' in session:
-        return render_template("index.html", name=session['name'])
+        userModel = ManageUser()
+        users = userModel.get_users()
+        locationModel = ManageLocation()
+        locations = locationModel.get_locations()
+        
+        user_ID = dict(request.form).get('user_ID')
+    
+        if user_ID != None:
+            user_data = userModel.get_data(int(user_ID))
+            return render_template("manage_user.html", name=session['name'], users=users, user_ID = user_ID, user_data=user_data, locations=locations)
+        else:
+            return render_template("manage_user.html", name=session['name'], users=users, user_data = '', locations=locations)
     else:
         return render_template("login.html")
+
+@app.route('/editUser', methods=['GET', 'POST'])
+def edit_user():
+    if request.method == 'POST':
+        # get form data
+        form_data = dict(request.form)
+        
+        # update user
+        userModel = ManageUser()
+        userModel.update_user(data=form_data)
+        flash('Updated successfully')
+        
+        return redirect(url_for('load_manage_user'))
+
+@app.route('/createUser', methods=['GET', 'POST'])
+def create_user():
+    userModel = ManageUser()
+    user_ID, data = userModel.create_user()
+    data['name'] = '' #blank out form field to force user to enter new name
+    data['create_active'] = True
+    users = userModel.get_users()
+    locationModel = ManageLocation()
+    locations = locationModel.get_locations()
+    return render_template("manage_user.html", name=session['name'], users=users, user_ID = user_ID, user_data=data, locations=locations)
+
+@app.route('/deleteUser', methods=['GET', 'POST'])
+def delete_user():
+    if request.method == 'POST':
+        # get form data
+        user_ID = dict(request.form).get('user_ID')
+        
+        # delete user
+        userModel = ManageUser()
+        userModel.delete_user(user_ID)
+        flash('User deleted')
+        
+        return redirect(url_for('load_manage_user'))
+
+# =============================================================================
+# Manage Plate Templates
+# =============================================================================
 
 @app.route('/managePlate', methods=['GET', 'POST'])
 def load_manage_plate():

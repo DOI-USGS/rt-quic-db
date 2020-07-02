@@ -58,10 +58,19 @@ Q_GET_SAMPLE = "SELECT species, sex, age, tissue_matrix, other_sample_attr, name
 
 Q_UPDATE_SAMPLE = "UPDATE Sample SET species=%s, sex=%s, age=%s, tissue_matrix=%s, other_sample_attr=%s, name=%s WHERE sample_ID = %s"
 
-DEFAULT_NEW_SAMPLE_NAME = "<new sample record>"
-Q_CREATE_SAMPLE = "INSERT INTO Sample (name) VALUES ('"+DEFAULT_NEW_SAMPLE_NAME+"');"
+TEMP_NEW_RECORD_NAME = "<new record>"
+Q_CREATE_SAMPLE = "INSERT INTO Sample (name) VALUES ('"+TEMP_NEW_RECORD_NAME+"');"
 
 Q_DELETE_SAMPLE = "DELETE FROM Sample WHERE sample_ID = %s;"
+
+Q_CREATE_USER = "INSERT INTO Users (username, name) VALUES ('"+TEMP_NEW_RECORD_NAME+"', '"+TEMP_NEW_RECORD_NAME+"');"
+Q_GET_USERS = "SELECT ID, name FROM Users;"
+Q_GET_USER = "SELECT name, role, username, password from Users WHERE ID=%s;"
+Q_UPDATE_USER = "UPDATE Users SET name=%s, role=%s, username=%s, password=%s WHERE ID = %s"
+Q_DELETE_USER = "DELETE FROM Users WHERE ID = %s;"
+Q_GET_USER_LOC = "SELECT L.loc_ID FROM Users U, LocAffiliatedWithUser L WHERE U.ID = L.user_ID AND L.user_ID = %s;"
+Q_DELETE_USER_LOC = "DELETE FROM LocAffiliatedWithUser WHERE user_ID = %s;"
+Q_ADD_USER_LOC = "INSERT INTO LocAffiliatedWithUser (loc_ID, user_ID) VALUES (%s, %s);"
 
 class UsersDao:
 
@@ -69,9 +78,22 @@ class UsersDao:
         self.cnx = mysql.connector.connect(**config)
         self.cursor = self.cnx.cursor()
 
-    def create_user(self, name, role):
-        self.cursor.execute(Q_CREATE_USER, (name, role))
+    def create_user(self):
+        self.cursor.execute(Q_CREATE_USER)
+        
+        # retrieve ID of new record
+        self.cursor.execute(Q_LAST_ID)
+        row = self.cursor.fetchone()
+        
         self.cnx.commit()
+        
+        data = {}
+        data['name'] = TEMP_NEW_RECORD_NAME
+        data['role'] = ''
+        data['username'] = ''
+        data['password'] = ''
+
+        return row[0], data
 
     def check_user(self, username, password):
         self.cursor.execute(Q_SELECT_USER, (username, password), multi=False)
@@ -81,6 +103,69 @@ class UsersDao:
             return {"name": r_name, "role": r_role}
         else:
             return None
+    
+    """
+    Return a dictionary of the form:
+        dict[user_ID] = name
+    """
+    def get_users(self):
+        self.cursor.execute(Q_GET_USERS, multi=False)
+        rows = self.cursor.fetchall()
+        d = {}
+        for row in rows:
+            d[row[0]] = row[1]
+        self.cnx.commit()
+        return d 
+    
+    def get_data(self, user_ID):
+        user_ID = str(user_ID)
+        self.cursor.execute(Q_GET_USER, (user_ID,))
+        row = self.cursor.fetchone()
+        
+        #get data from Users table
+        data = {}
+        data['name'] = xstr(row[0])
+        data['role'] = xstr(row[1])
+        data['username'] = xstr(row[2])
+        data['password'] = xstr(row[3])
+        
+        # get location data for user
+        self.cursor.execute(Q_GET_USER_LOC, (user_ID,))
+        row = self.cursor.fetchone()
+        if row != None:
+            data['loc_ID'] = xstr(row[0])
+        
+        self.cnx.commit()
+        return data
+    
+    def update_user(self, data):
+        user_ID = nstr(data['user_ID'])
+        name = nstr(data['user_name'])
+        role = nstr(data['role'])
+        username = nstr(data['username'])
+        password = nstr(data['password'])
+        
+        self.cursor.execute(Q_UPDATE_USER, (name, role, username, password, user_ID))
+        
+        # get old loc ID
+        self.cursor.execute(Q_GET_USER_LOC, (user_ID,))
+        row = self.cursor.fetchone()
+        old_loc_ID = ''
+        if row != None:
+            old_loc_ID = row[0]
+        
+        # change loc ID in LocAffiliatedWithUser if loc_ID has been updated
+        new_loc_ID = nstr(data['loc_ID'])
+        if old_loc_ID != new_loc_ID:
+            self.cursor.execute(Q_DELETE_USER_LOC, (user_ID,))
+            if new_loc_ID != 'empty':
+                self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
+        
+        self.cnx.commit()
+    
+    def delete_user(self, user_ID):
+        self.cursor.execute(Q_DELETE_USER, (user_ID,))
+        self.cnx.commit()
 
 
 class AssayDao:
@@ -299,7 +384,7 @@ class SampleDao:
         # create new sample
         self.cursor.execute(Q_CREATE_SAMPLE)
         
-        # retrieve ID of new assay record
+        # retrieve ID of new record
         self.cursor.execute(Q_LAST_ID)
         row = self.cursor.fetchone()
         
@@ -311,7 +396,7 @@ class SampleDao:
         data['age'] = ''
         data['tissue_matrix'] = ''
         data['other_sample_attr'] = ''
-        data['name'] = DEFAULT_NEW_SAMPLE_NAME
+        data['name'] = TEMP_NEW_RECORD_NAME
         
         return row[0], data
     

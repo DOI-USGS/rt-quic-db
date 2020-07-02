@@ -6,17 +6,23 @@ class ManageUser:
     def __init__(self):
         self.userDao = UsersDao()
 
-    def create_user(self, name, role):
-
-        if name is not None and name != "" and role is not None and role != "":
-            self.userDao.create_user(name, role)
-            return True
-        else:
-            return False
-
     def authenticate(self, username, password):
         return self.userDao.check_user(username, password)
 
+    def get_users(self):
+        return self.userDao.get_users()
+    
+    def get_data(self, user_ID):
+        return self.userDao.get_data(user_ID)
+    
+    def update_user(self, data):
+        self.userDao.update_user(data)
+        
+    def create_user(self):
+        return self.userDao.create_user()
+    
+    def delete_user(self, user_ID):
+        return self.userDao.delete_user(user_ID)
 
 class ManageAssay:
     def __init__(self):

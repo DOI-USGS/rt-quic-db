@@ -210,3 +210,8 @@ ALTER TABLE Observation CHANGE COLUMN `date_time` `time_s` DECIMAL(20,3);
 ALTER TABLE Observation ADD
 		`index_in_well` INT NULL;
 		
+
+ALTER TABLE `LocAffiliatedWithUser` DROP FOREIGN KEY `fk_User`; 
+ALTER TABLE `LocAffiliatedWithUser`  
+ADD CONSTRAINT `fk_User` 
+    FOREIGN KEY (`user_id`) REFERENCES `Users` (`ID`) ON DELETE CASCADE ON UPDATE CASCADE;
