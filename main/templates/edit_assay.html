@@ -205,10 +205,10 @@
 		    post('/editAssay', {assay_ID: assay_selector.value});
 		});
 	
-		var assays = JSON.parse('{{ assays | tojson | safe}}');
-		var plates = JSON.parse('{{ plates | tojson | safe}}');
-		var samples = JSON.parse('{{ samples | tojson | safe}}');
-		var locations = JSON.parse('{{ locations | tojson | safe}}');
+		var assays = {{ assays | tojson | safe}};
+		var plates = {{ plates | tojson | safe}};
+		var samples = {{ samples | tojson | safe}};
+		var locations = {{ locations | tojson | safe}};
 		var assay_ID = '{{assay_ID}}'
 	
 		var assay_selector = document.getElementById("assay");
@@ -218,7 +218,7 @@
 		
 		if (assay_ID !== '') {
 			assay_selector.value = assay_ID;
-			var assay_data = {{ assay_data | tojson}};
+			var assay_data = {{ assay_data | tojson | safe}};
 		} else {
 			assay_selector.value = "empty";
 			var assay_data = '';
@@ -337,10 +337,6 @@
 			other_text.value = "";
 		}
 		
-		document.getElementById('assay').onchange = function() {
-    	var newaction = this.value;
-    	document.getElementById('store').action = newaction;
-		};
 	</script>
 
 

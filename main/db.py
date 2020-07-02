@@ -10,6 +10,9 @@ config = {
     'raise_on_warnings': True
 }
 
+nstr = lambda s: None if s is '' else str(s)
+xstr = lambda s: '' if s is None else str(s)
+
 Q_CREATE_USER = ("INSERT INTO Users"
                  "(NAME, ROLE) VALUES (%s, %s)")
 
@@ -50,6 +53,15 @@ Q_UPDATE_ASSAY = ("UPDATE Assay SET temperature=%s, shake_interval_min=%s, scan_
                                     "duration_min=%s, salt_type=%s, salt_conc=%s, substrate_type=%s, substrate_conc=%s, "
                                     "surfact_type=%s, surfact_conc=%s, start_date_time=%s, name=%s, other_assay_attr=%s, "
                                     "sample_ID=%s, loc_ID=%s WHERE assay_ID=%s;")
+
+Q_GET_SAMPLE = "SELECT species, sex, age, tissue_matrix, other_sample_attr, name FROM Sample WHERE sample_ID = %s;"
+
+Q_UPDATE_SAMPLE = "UPDATE Sample SET species=%s, sex=%s, age=%s, tissue_matrix=%s, other_sample_attr=%s, name=%s WHERE sample_ID = %s"
+
+DEFAULT_NEW_SAMPLE_NAME = "<new sample record>"
+Q_CREATE_SAMPLE = "INSERT INTO Sample (name) VALUES ('"+DEFAULT_NEW_SAMPLE_NAME+"');"
+
+Q_DELETE_SAMPLE = "DELETE FROM Sample WHERE sample_ID = %s;"
 
 class UsersDao:
 
@@ -172,7 +184,6 @@ class AssayDao:
         assay_ID = str(assay_ID)
         self.cursor.execute(Q_GET_ASSAY, (assay_ID,))
         row = self.cursor.fetchone()
-        xstr = lambda s: '' if s is None else str(s)
         
         data = {}
         data['temperature'] = xstr(row[0])
@@ -194,9 +205,7 @@ class AssayDao:
         self.cnx.commit()
         return data        
     
-    def update_assay(self, data):
-        nstr = lambda s: None if s is '' else str(s)
-        
+    def update_assay(self, data):       
         assay_ID = nstr(data['assay_ID'])
         temperature = nstr(data['temperature'])
         shake_interval_min = nstr(data['shake_interval_min'])
@@ -257,6 +266,58 @@ class SampleDao:
             d[row[0]] = row[1]
         self.cnx.commit()
         return d 
+    
+    def get_data(self, sample_ID):
+        sample_ID = str(sample_ID)
+        self.cursor.execute(Q_GET_SAMPLE, (sample_ID,))
+        row = self.cursor.fetchone()
+        
+        data = {}
+        data['species'] = xstr(row[0])
+        data['sex'] = xstr(row[1])
+        data['age'] = xstr(row[2])
+        data['tissue_matrix'] = xstr(row[3])
+        data['other_sample_attr'] = xstr(row[4])
+        data['name'] = xstr(row[5])
+        
+        self.cnx.commit()
+        return data
+    
+    def update_sample(self, data):       
+        sample_ID = nstr(data['sample'])
+        species = nstr(data['species'])
+        sex = nstr(data['sex'])
+        age = nstr(data['age'])
+        tissue_matrix = nstr(data['tissue_matrix'])
+        other_sample_attr = nstr(data['other_sample_attr'])
+        name = nstr(data['sample_name'])
+
+        self.cursor.execute(Q_UPDATE_SAMPLE, (species, sex, age, tissue_matrix, other_sample_attr, name, sample_ID))
+        self.cnx.commit()
+    
+    def create_sample(self):
+        # create new sample
+        self.cursor.execute(Q_CREATE_SAMPLE)
+        
+        # retrieve ID of new assay record
+        self.cursor.execute(Q_LAST_ID)
+        row = self.cursor.fetchone()
+        
+        self.cnx.commit()
+        
+        data = {}
+        data['species'] = ''
+        data['sex'] = ''
+        data['age'] = ''
+        data['tissue_matrix'] = ''
+        data['other_sample_attr'] = ''
+        data['name'] = DEFAULT_NEW_SAMPLE_NAME
+        
+        return row[0], data
+    
+    def delete_sample(self, sample_ID):
+        self.cursor.execute(Q_DELETE_SAMPLE, (sample_ID,))
+        self.cnx.commit()
 
 class LocationDao:
     def __init__(self):

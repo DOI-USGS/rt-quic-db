@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<!-- Template by Quackit.com -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>Manage Samples</title>
+    <link rel="icon" type="image/png" href="/static/images/favicon.ico"/>
+    <!-- Bootstrap Core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+
+    <!-- Custom CSS: You can use this stylesheet to override any Bootstrap styles and/or apply your own styles -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+
+    <!--    main style-->
+    <link href="/static/css/main.css" rel="stylesheet">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script>
+    function post(path, params=None, method='post') {
+
+		  // The rest of this code assumes you are not using a library.
+		  // It can be made less wordy if you use one.
+		  const form = document.createElement('form');
+		  form.method = method;
+		  form.action = path;
+
+		  for (const key in params) {
+		    if (params.hasOwnProperty(key)) {
+		      const hiddenField = document.createElement('input');
+		      hiddenField.type = 'hidden';
+		      hiddenField.name = key;
+		      hiddenField.value = params[key];
+
+		      form.appendChild(hiddenField);
+		    }
+		  }
+
+		  document.body.appendChild(form);
+		  form.submit();
+		}
+		</script>
+
+    
+</head>
+
+<!-- Navigation -->
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <!-- Logo -->
+        <div class="navbar-header">
+        		<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+        		</button>
+            <a class="navbar-brand" href="#">
+            	<span class="glyphicon glyphicon-fire"></span>
+            	QuakeDB
+            </a>
+        </div>
+        <!-- Navbar links -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="navbar-nav mr-auto">
+                <li class="dropdown">
+					        <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					          Edit<span class="caret"></span></a>
+					        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+					          <li class="nav-item"><a class = "nav-link" href="/newProject">Upload Assay</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/editAssay">Edit Assay</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/manageSample">Manage Samples</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/manageLocation">Manage Locations</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/manageUser">Manage Users</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/managePlate">Manage Plate Templates</a></li>
+					        </ul>
+					      </li>
+                <li class="nav-item">
+                    <a href="#">Analytics</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#">About</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav navbar-right ">
+                <li>
+                    <a href="#">{% if name %} {{ name }}{% else %} {{Guest}} {% endif %}</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<body>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Manage Sample</h1>
+  </div>
+  <form method="post" action="/editSample">
+		<div class="form-group">
+			<label for="sample">Sample</label>
+		  <div class="input-group">
+		  	<select class="form-control" id="sample" name="sample" placeholder="" required><option value="empty" disabled hidden> -- select an option -- </option></select>
+		  	<div class="input-group-btn">
+		  		<button class="btn btn-warning" type="button" id="createSample" onclick="location.href='/createSample'">Create new sample</button>
+		  	</div>
+			</div>
+		</div>
+	  <div class="form-group">
+	  	<label for="sample_name">New sample name</label>
+	    <input type="text" class="form-control" id="sample_name" name="sample_name" placeholder="" required>
+	  </div>
+	  <div class="form-group">
+	    <label for="species">Species</label>
+	    <input type="text" class="form-control" id="species" name="species" placeholder="">
+	  </div>
+	  <div class="form-group">
+	  	<label for="sex">Sex</label>
+	    <input type="text" class="form-control" id="sex" name="sex" placeholder="">
+	  </div>
+	  <div class="form-group">
+	  	<label for="age">Age</label>
+	    <input type="text" class="form-control" id="age" name="age" placeholder="">
+	  </div>
+	  <div class="form-group">
+	  	<label for="tissue_matrix">Tissue matrix</label>
+	    <input type="text" class="form-control" id="tissue_matrix" name="tissue_matrix" placeholder="">
+	  </div>
+	  <div class="form-group">
+	  	<label for="other_sample_attr">Other</label>
+	    <input type="text" class="form-control" id="other_sample_attr" name="other_sample_attr" placeholder="">
+	  </div>
+		<div class="form-group">
+			<button class="btn btn-primary" type="submit" id="submitButton">Update sample</button>
+			<button class="btn btn-danger" type="button" id="deleteSample" disabled>Delete sample</button>
+			<button class="btn btn-link" type ="button" id="cancelSelection" onclick="location.href='/manageSample'" disabled>Cancel selection</button>
+		</div>
+			
+	</form>
+	
+	{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+	{% endwith %}
+	
+	</div>
+	
+
+	<script>		
+		// Declare selector
+		var sample_selector = document.getElementById('sample');
+		
+		// Delete button
+		var delete_button = document.getElementById('deleteSample');
+		delete_button.onclick = function() {
+				post('/deleteSample', {sample_ID: sample_selector.value});
+		};
+		
+		// Reload when selector changes
+		sample_selector.addEventListener('change', function() {
+		    post('/manageSample', {sample_ID: sample_selector.value});
+		});
+	
+		// Populate selector with available records
+		var samples = {{ samples | tojson | safe}};
+		
+		var sample_ID = '{{sample_ID}}';
+		
+		var sample_selector = document.getElementById("sample");
+		for(index in samples) {
+		    sample_selector.options[sample_selector.options.length] = new Option(samples[index], index);
+		}
+		
+	
+		// Adapt form for editing a selected record
+		if (sample_ID !== '') {
+			sample_selector.value = sample_ID;
+			var sample_data = {{ sample_data | tojson | safe}};
+			document.getElementById("createSample").disabled = true;
+			document.getElementById("cancelSelection").disabled = false;
+			document.getElementById("deleteSample").disabled = false;
+		} else {
+			sample_selector.value = "empty";
+			var sample_data = '';
+		}
+		
+		// Adapt form for creating new record
+		if (typeof sample_data['create_active'] !== 'undefined') {
+			document.getElementById("deleteSample").disabled = true;
+			document.getElementById("submitButton").textContent = "Submit new sample";
+			document.getElementById("cancelSelection").textContent = "Cancel create";
+			name_text.focus();
+			document.getElementById("cancelSelection").onclick = function () {
+				post('/deleteSample', {sample_ID: sample_selector.value});
+			};
+		}
+		
+		// Populate form fields with available data
+		var name_text = document.getElementById("sample_name");
+		if (typeof sample_data['name'] !== 'undefined') {
+			name_text.value = sample_data['name'];
+		} else {
+			name_text.value = "";
+		}		
+		
+		var species_text = document.getElementById("species");
+		if (typeof sample_data['species'] !== 'undefined') {
+			species_text.value = sample_data['species'];
+		} else {
+			species_text.value = "";
+		}
+		
+		var sex_text = document.getElementById("sex");
+		if (typeof sample_data['sex'] !== 'undefined') {
+			sex_text.value = sample_data['sex'];
+		} else {
+			sex_text.value = "";
+		}
+		
+		var age_text = document.getElementById("age");
+		if (typeof sample_data['age'] !== 'undefined') {
+			age_text.value = sample_data['age'];
+		} else {
+			age_text.value = "";
+		}
+		
+		var tissue_matrix_text = document.getElementById("tissue_matrix");
+		if (typeof sample_data['tissue_matrix'] !== 'undefined') {
+			tissue_matrix_text.value = sample_data['tissue_matrix'];
+		} else {
+			tissue_matrix_text.value = "";
+		}
+		
+		var other_text = document.getElementById("other_sample_attr");
+		if (typeof sample_data['other_sample_attr'] !== 'undefined') {
+			other_text.value = sample_data['other_sample_attr'];
+		} else {
+			other_text.value = "";
+		}
+		
+	</script>
+
+
+   <!-- jQuery -->
+    <script src="/static/js/jquery-1.11.3.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/static/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
+
+<!--&lt;!&ndash; Content &ndash;&gt;-->
+<!--    <div class="container">-->
+
+<!--        &lt;!&ndash; Heading &ndash;&gt;-->
+<!--        <div class="row">-->
+<!--            <div class="col-lg-4">-->
+<!--                <h3 class="page-header">Recent Projects-->
+<!--&lt;!&ndash;                    <small>Recent Work</small>&ndash;&gt;-->
+<!--                </h3>-->
+<!--            </div>-->
+<!--            <div class="col-lg-6">-->
+<!--                <form class="form-inline d-flex justify-content-center md-form form-sm active-red active-red-2 mt-2">-->
+<!--                        <i class="fas fa-search" aria-hidden="true"></i>-->
+<!--                        <input class="form-control form-control-sm ml-3 w-75" type="text" placeholder="Search" aria-label="Search">-->
+<!--                </form>-->
+<!--            </div>-->
+<!--            <div class="col-lg-2">-->
+<!--                <p><a class="btn btn-primary" href="/newProject">New Project</a></p>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; /.row &ndash;&gt;-->

@@ -90,6 +90,18 @@ class ManageSample:
     
     def get_samples(self):
         return self.sampleDao.get_samples()
+    
+    def get_data(self, sample_ID):
+        return self.sampleDao.get_data(sample_ID)
+    
+    def update_sample(self, data):
+        self.sampleDao.update_sample(data)
+        
+    def create_sample(self):
+        return self.sampleDao.create_sample()
+    
+    def delete_sample(self, sample_ID):
+        return self.sampleDao.delete_sample(sample_ID)
 
 class ManageLocation:
     def __init__(self):

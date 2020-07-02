@@ -147,28 +147,75 @@ def edit_assay():
         
         return redirect(url_for('load_edit_assay'))
 
-@app.route('/manageSample')
+@app.route('/manageSample', methods=['GET', 'POST'])
 def load_manage_sample():
     if 'username' in session:
-        return render_template("index.html", name=session['name'])
+        sampleModel = ManageSample()
+        samples = sampleModel.get_samples()
+        
+        sample_ID = dict(request.form).get('sample_ID')
+    
+        if sample_ID != None:
+            sample_data = sampleModel.get_data(int(sample_ID))
+            return render_template("manage_samples.html", name=session['name'], samples=samples, sample_ID = sample_ID, sample_data=sample_data)
+        else:
+            return render_template("manage_samples.html", name=session['name'], samples=samples, sample_data = '')
     else:
         return render_template("login.html")
 
-@app.route('/manageLocation')
+@app.route('/editSample', methods=['GET', 'POST'])
+def edit_sample():
+    if request.method == 'POST':
+        # get form data
+        form_data = dict(request.form)
+        
+        # update sample
+        sampleModel = ManageSample()
+        sampleModel.update_sample(data=form_data)
+        flash('Updated successfully')
+        
+        return redirect(url_for('load_manage_sample'))
+
+@app.route('/createSample', methods=['GET', 'POST'])
+def create_sample():
+    sampleModel = ManageSample()
+    sample_ID, data = sampleModel.create_sample()
+    data['name'] = '' #blank out form field to force user to enter new name
+    data['create_active'] = True
+    samples = sampleModel.get_samples()
+    return render_template("manage_samples.html", name=session['name'], samples=samples, sample_ID = sample_ID, sample_data=data)
+
+@app.route('/deleteSample', methods=['GET', 'POST'])
+def delete_sample():
+    if request.method == 'POST':
+        # get form data
+        sample_ID = dict(request.form).get('sample_ID')
+        
+        print("Deleting sample_ID " + str(sample_ID))
+        
+        # delete sample
+        sampleModel = ManageSample()
+        sampleModel.delete_sample(sample_ID)
+        flash('Sample deleted')
+        
+        samples = sampleModel.get_samples()
+        return render_template("manage_samples.html", name=session['name'], samples=samples, sample_data='')
+
+@app.route('/manageLocation', methods=['GET', 'POST'])
 def load_manage_location():
     if 'username' in session:
         return render_template("index.html", name=session['name'])
     else:
         return render_template("login.html")
 
-@app.route('/manageUser')
+@app.route('/manageUser', methods=['GET', 'POST'])
 def load_manage_user():
     if 'username' in session:
         return render_template("index.html", name=session['name'])
     else:
         return render_template("login.html")
 
-@app.route('/managePlate')
+@app.route('/managePlate', methods=['GET', 'POST'])
 def load_manage_plate():
     if 'username' in session:
         return render_template("index.html", name=session['name'])
