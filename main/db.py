@@ -63,6 +63,9 @@ Q_CREATE_SAMPLE = "INSERT INTO Sample (name) VALUES ('"+DEFAULT_NEW_SAMPLE_NAME+
 
 Q_DELETE_SAMPLE = "DELETE FROM Sample WHERE sample_ID = %s;"
 
+Q_SELECT_OBS = "SELECT * FROM Observation WHERE plate_ID = 99 and wc_ID = 102"
+
+
 class UsersDao:
 
     def __init__(self):
@@ -318,6 +321,23 @@ class SampleDao:
     def delete_sample(self, sample_ID):
         self.cursor.execute(Q_DELETE_SAMPLE, (sample_ID,))
         self.cnx.commit()
+
+class VizDao:
+    def __init__(self):
+        self.cnx = mysql.connector.connect(**config)
+        self.cursor = self.cnx.cursor()
+
+    def load_plate(self):
+        self.cursor.execute(Q_SELECT_OBS)
+
+        """ row = self.cursor.fetchone()
+        
+        while row is not None:
+            print(row)
+            row = self.cursor.fetchone() """
+
+        rows = self.cursor.fetchall()
+        print(rows)
 
 class LocationDao:
     def __init__(self):
