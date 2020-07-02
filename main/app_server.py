@@ -38,6 +38,12 @@ def testchart():
 """I don't really know what I'm doing, sorry if I make it messy :( - Jojo
 """
 
+@app.route('/testchart2')
+def testchart2():
+    if 'username' not in session:
+        return render_template("login.html")
+    return render_template("testchart2.html", name=session['username'])
+
 @app.route('/authenticate', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
