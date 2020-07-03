@@ -81,6 +81,9 @@ class ManageAssay:
 
     def update_assay(self, data):
         self.assayDao.update_assay(data)
+        
+    def delete_assay(self, assay_ID):
+        self.assayDao.delete_assay(assay_ID)
 
 class ManagePlate:
     def __init__(self):

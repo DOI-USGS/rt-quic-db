@@ -53,6 +53,8 @@ Q_UPDATE_ASSAY = ("UPDATE Assay SET temperature=%s, shake_interval_min=%s, scan_
                                     "duration_min=%s, salt_type=%s, salt_conc=%s, substrate_type=%s, substrate_conc=%s, "
                                     "surfact_type=%s, surfact_conc=%s, start_date_time=%s, name=%s, other_assay_attr=%s, "
                                     "sample_ID=%s, loc_ID=%s WHERE assay_ID=%s;")
+Q_DELETE_ASSAY = "DELETE FROM Assay WHERE assay_ID = %s;"
+
 
 Q_GET_SAMPLE = "SELECT species, sex, age, tissue_matrix, other_sample_attr, name FROM Sample WHERE sample_ID = %s;"
 
@@ -324,7 +326,10 @@ class AssayDao:
                                              sample_ID, loc_ID, assay_ID))
         
         self.cnx.commit()
-        
+    
+    def delete_assay(self, assay_ID):
+        self.cursor.execute(Q_DELETE_ASSAY, (assay_ID,))
+        self.cnx.commit()
         
 class PlateDao:
     def __init__(self):

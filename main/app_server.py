@@ -161,6 +161,21 @@ def edit_assay():
         
         return redirect(url_for('load_edit_assay'))
 
+@app.route('/deleteAssay', methods=['GET', 'POST'])
+def delete_assay():
+    if request.method == 'POST':
+        # get form data
+        assay_ID = dict(request.form).get('assay_ID')
+        
+        # delete assay
+        assayModel = ManageAssay()
+        assayModel.delete_assay(assay_ID)
+        flash('Assay deleted')
+        
+        plates, samples, locations = get_plates_samples_locations()
+        assays = assayModel.get_assays()
+        return render_template("edit_assay.html", name=session['name'], plates=plates, samples=samples, locations=locations, assays = assays, assay_data = '')
+
 # =============================================================================
 # Manage Samples
 # =============================================================================
