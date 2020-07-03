@@ -1,4 +1,4 @@
-from db import UsersDao, PlateDao, AssayDao, SampleDao, LocationDao
+from db import UsersDao, PlateDao, AssayDao, SampleDao, LocationDao, ObsDao
 from data_upload_util import parse_rt_quic_csv, UploadObsCSV
 import os
 
@@ -131,7 +131,12 @@ class ManageLocation:
     def delete_loc(self, loc_ID):
         return self.locationDao.delete_loc(loc_ID)
                 
-                
+class ManageViz:
+    def __init__(self):
+        self.obsDao = ObsDao()
+    
+    def get_data(self):
+        return self.obsDao.get_data()                
                 
                 
                 

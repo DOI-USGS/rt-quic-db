@@ -35,8 +35,13 @@ def testchart():
     if 'username' not in session:
         return render_template("login.html")
     return render_template("testchart.html", name=session['username'])
-"""I don't really know what I'm doing, sorry if I make it messy :( - Jojo
-"""
+
+""" @app.route('/getData')
+def index():
+   cur = mysql.connection.cursor()
+   cur.execute('''SELECT * FROM Users WHERE id=1''')
+   rv = cur.fetchall()
+   return json.dumps(rv) """
 
 @app.route('/testchart2')
 def testchart2():
