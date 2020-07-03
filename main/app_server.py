@@ -204,19 +204,11 @@ def edit_sample():
         
         # update sample
         sampleModel = ManageSample()
-        sampleModel.update_sample(data=form_data)
+        sampleModel.create_update_sample(data=form_data)
         flash('Updated successfully')
         
         return redirect(url_for('load_manage_sample'))
 
-@app.route('/createSample', methods=['GET', 'POST'])
-def create_sample():
-    sampleModel = ManageSample()
-    sample_ID, data = sampleModel.create_sample()
-    data['name'] = '' #blank out form field to force user to enter new name
-    data['create_active'] = True
-    samples = sampleModel.get_samples()
-    return render_template("manage_samples.html", name=session['name'], samples=samples, sample_ID = sample_ID, sample_data=data)
 
 @app.route('/deleteSample', methods=['GET', 'POST'])
 def delete_sample():
@@ -258,21 +250,14 @@ def edit_loc():
         # get form data
         form_data = dict(request.form)
         
-        # update location
+        print(form_data)
+        
+        # create or update location
         locationModel = ManageLocation()
-        locationModel.update_loc(data=form_data)
+        locationModel.create_update_loc(data=form_data)
         flash('Updated successfully')
         
         return redirect(url_for('load_manage_loc'))
-
-@app.route('/createLoc', methods=['GET', 'POST'])
-def create_loc():
-    locationModel = ManageLocation()
-    loc_ID, data = locationModel.create_loc()
-    data['name'] = '' #blank out form field to force user to enter new name
-    data['create_active'] = True
-    locations = locationModel.get_locations()
-    return render_template("manage_loc.html", name=session['name'], loc_ID = loc_ID, loc_data=data, locations=locations)
 
 @app.route('/deleteLoc', methods=['GET', 'POST'])
 def delete_loc():
@@ -317,21 +302,10 @@ def edit_user():
         
         # update user
         userModel = ManageUser()
-        userModel.update_user(data=form_data)
+        userModel.create_update_user(data=form_data)
         flash('Updated successfully')
         
         return redirect(url_for('load_manage_user'))
-
-@app.route('/createUser', methods=['GET', 'POST'])
-def create_user():
-    userModel = ManageUser()
-    user_ID, data = userModel.create_user()
-    data['name'] = '' #blank out form field to force user to enter new name
-    data['create_active'] = True
-    users = userModel.get_users()
-    locationModel = ManageLocation()
-    locations = locationModel.get_locations()
-    return render_template("manage_user.html", name=session['name'], users=users, user_ID = user_ID, user_data=data, locations=locations)
 
 @app.route('/deleteUser', methods=['GET', 'POST'])
 def delete_user():
@@ -374,20 +348,10 @@ def edit_plate():
         
         # update plate
         plateModel = ManagePlate()
-        plateModel.update_plate(data=form_data)
+        plateModel.create_update_plate(data=form_data)
         flash('Updated successfully')
         
         return redirect(url_for('load_manage_plate'))
-
-@app.route('/createPlate', methods=['GET', 'POST'])
-def create_plate():
-    plateModel = ManagePlate()
-    plate_ID, data = plateModel.create_plate()
-    data['plate_type'] = '' #blank out form field to force user to enter new name
-    data['create_active'] = True
-    plates = plateModel.get_plates()
-
-    return render_template("manage_plate.html", name=session['name'], plates=plates, plate_ID = plate_ID, plate_data=data)
 
 @app.route('/deletePlate', methods=['GET', 'POST'])
 def delete_plate():

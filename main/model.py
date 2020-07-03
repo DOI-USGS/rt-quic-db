@@ -15,11 +15,8 @@ class ManageUser:
     def get_data(self, user_ID):
         return self.userDao.get_data(user_ID)
     
-    def update_user(self, data):
-        self.userDao.update_user(data)
-        
-    def create_user(self):
-        return self.userDao.create_user()
+    def create_update_user(self, data):
+        self.userDao.create_update_user(data)
     
     def delete_user(self, user_ID):
         return self.userDao.delete_user(user_ID)
@@ -95,11 +92,8 @@ class ManagePlate:
     def get_data(self, plate_ID):
         return self.plateDao.get_data(plate_ID)
     
-    def update_plate(self, data):
-        self.plateDao.update_plate(data)
-        
-    def create_plate(self):
-        return self.plateDao.create_plate()
+    def create_update_plate(self, data):
+        self.plateDao.create_update_plate(data)
     
     def delete_plate(self, plate_ID):
         return self.plateDao.delete_plate(plate_ID)
@@ -115,11 +109,8 @@ class ManageSample:
     def get_data(self, sample_ID):
         return self.sampleDao.get_data(sample_ID)
     
-    def update_sample(self, data):
-        self.sampleDao.update_sample(data)
-        
-    def create_sample(self):
-        return self.sampleDao.create_sample()
+    def create_update_sample(self, data):
+        self.sampleDao.create_update_sample(data)
     
     def delete_sample(self, sample_ID):
         return self.sampleDao.delete_sample(sample_ID)
@@ -134,11 +125,8 @@ class ManageLocation:
     def get_data(self, loc_ID):
         return self.locationDao.get_data(loc_ID)
     
-    def update_loc(self, data):
-        self.locationDao.update_loc(data)
-        
-    def create_loc(self):
-        return self.locationDao.create_loc()
+    def create_update_loc(self, data):
+        self.locationDao.create_update_loc(data)
     
     def delete_loc(self, loc_ID):
         return self.locationDao.delete_loc(loc_ID)

@@ -127,7 +127,7 @@
 		  <div class="input-group">
 		  	<select class="form-control" id="sample" name="sample" placeholder="" required><option value="empty" disabled hidden> -- select an option -- </option></select>
 		  	<div class="input-group-btn">
-		  		<button class="btn btn-warning" type="button" id="createSample" onclick="location.href='/createSample'">Create new sample</button>
+		  		<button class="btn btn-warning" type="button" id="createSample">Create new sample</button>
 		  	</div>
 			</div>
 		</div>
@@ -214,16 +214,32 @@
 			var sample_data = '';
 		}
 		
-		// Adapt form for creating new record
-		if (typeof sample_data['create_active'] !== 'undefined') {
-			document.getElementById("deleteSample").disabled = true;
-			document.getElementById("submitButton").textContent = "Submit new sample";
-			document.getElementById("cancelSelection").textContent = "Cancel create";
-			name_text.focus();
-			document.getElementById("cancelSelection").onclick = function () {
-				post('/deleteSample', {sample_ID: sample_selector.value});
-			};
-		}
+		// Create new record
+		TEMP_NAME = "Creating new record...";
+		
+		var create_button = document.getElementById("createSample");
+		var delete_button = document.getElementById("deleteSample");
+		var submit_button = document.getElementById("submitButton");
+		var cancel_button = document.getElementById("cancelSelection");
+		
+		create_button.onclick = function() {
+				sample_selector.disabled = true;
+				delete_button.disabled = true;
+				submit_button.textContent = "Submit new sample";
+				cancel_button.textContent = "Cancel create";
+				cancel_button.disabled = false;
+				add_temp_rec();
+				document.getElementById("sample_name").focus();
+		};
+		
+		function add_temp_rec() {
+			sample_selector.options[sample_selector.options.length] = new Option(TEMP_NAME, -1);
+			sample_selector.value = -1;
+		};
+		
+		submit_button.onclick = function() {
+			sample_selector.disabled = false;
+		};
 		
 		// Populate form fields with available data
 		var name_text = document.getElementById("sample_name");

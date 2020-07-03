@@ -127,7 +127,7 @@
 		  <div class="input-group">
 		  	<select class="form-control" id="user_ID" name="user_ID" placeholder="" required><option value="empty" disabled hidden> -- select an option -- </option></select>
 		  	<div class="input-group-btn">
-		  		<button class="btn btn-warning" type="button" id="createUser" onclick="location.href='/createUser'">Create new user</button>
+		  		<button class="btn btn-warning" type="button" id="createUser">Create new user</button>
 		  	</div>
 			</div>
 		</div>
@@ -216,16 +216,32 @@
 			var user_data = '';
 		}
 		
-		// Adapt form for creating new record
-		if (typeof user_data['create_active'] !== 'undefined') {
-			document.getElementById("deleteButton").disabled = true;
-			document.getElementById("submitButton").textContent = "Submit new user";
-			document.getElementById("cancelSelection").textContent = "Cancel create";
-			document.getElementById("user_name").focus();
-			document.getElementById("cancelSelection").onclick = function () {
-				post('/deleteUser', {user_ID: user_selector.value});
-			};
-		}
+		// Create new record
+		TEMP_NAME = "Creating new record...";
+		
+		var create_button = document.getElementById("createUser");
+		var delete_button = document.getElementById("deleteButton");
+		var submit_button = document.getElementById("submitButton");
+		var cancel_button = document.getElementById("cancelSelection");
+		
+		create_button.onclick = function() {
+				user_selector.disabled = true;
+				delete_button.disabled = true;
+				submit_button.textContent = "Submit new user";
+				cancel_button.textContent = "Cancel create";
+				cancel_button.disabled = false;
+				add_temp_rec();
+				document.getElementById("user_name").focus();
+		};
+		
+		function add_temp_rec() {
+			user_selector.options[user_selector.options.length] = new Option(TEMP_NAME, -1);
+			user_selector.value = -1;
+		};
+		
+		submit_button.onclick = function() {
+			user_selector.disabled = false;
+		};
 		
 		// Populate form fields with available data
 		var name_text = document.getElementById("user_name");

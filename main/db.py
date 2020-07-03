@@ -61,11 +61,11 @@ Q_GET_SAMPLE = "SELECT species, sex, age, tissue_matrix, other_sample_attr, name
 Q_UPDATE_SAMPLE = "UPDATE Sample SET species=%s, sex=%s, age=%s, tissue_matrix=%s, other_sample_attr=%s, name=%s WHERE sample_ID = %s"
 
 TEMP_NEW_RECORD_NAME = "<new record>"
-Q_CREATE_SAMPLE = "INSERT INTO Sample (name) VALUES ('"+TEMP_NEW_RECORD_NAME+"');"
+Q_CREATE_SAMPLE = "INSERT INTO Sample (species, sex, age, tissue_matrix, other_sample_attr, name) VALUES (%s,%s,%s,%s,%s,%s);"
 
 Q_DELETE_SAMPLE = "DELETE FROM Sample WHERE sample_ID = %s;"
 
-Q_CREATE_USER = "INSERT INTO Users (username, name) VALUES ('"+TEMP_NEW_RECORD_NAME+"', '"+TEMP_NEW_RECORD_NAME+"');"
+Q_CREATE_USER = "INSERT INTO Users (name, role, username, password) VALUES (%s, %s, %s, %s);"
 Q_GET_USERS = "SELECT ID, name FROM Users;"
 Q_GET_USER = "SELECT name, role, username, password from Users WHERE ID=%s;"
 Q_UPDATE_USER = "UPDATE Users SET name=%s, role=%s, username=%s, password=%s WHERE ID = %s"
@@ -76,12 +76,12 @@ Q_ADD_USER_LOC = "INSERT INTO LocAffiliatedWithUser (loc_ID, user_ID) VALUES (%s
 
 Q_GET_LOCATION = "SELECT name from Location WHERE loc_ID=%s;"
 Q_UPDATE_LOCATION = "UPDATE Location SET name=%s WHERE loc_ID = %s;"
-Q_CREATE_LOCATION = "INSERT INTO Location (name) VALUES ('"+TEMP_NEW_RECORD_NAME+"');"
+Q_CREATE_LOCATION = "INSERT INTO Location (name) VALUES (%s);"
 Q_DELETE_LOCATION = "DELETE FROM Location WHERE loc_ID = %s;"
 
 Q_GET_PLATE = "SELECT plate_type, other_plate_attr, columns, rows from Plate WHERE plate_ID=%s;"
 Q_UPDATE_PLATE = "UPDATE Plate SET plate_type=%s, other_plate_attr=%s, columns=%s, rows=%s WHERE plate_ID = %s;"
-Q_CREATE_PLATE = "INSERT INTO Plate (plate_type) VALUES ('"+TEMP_NEW_RECORD_NAME+"');"
+Q_CREATE_PLATE = "INSERT INTO Plate (plate_type, other_plate_attr, columns, rows) VALUES (%s, %s, %s, %s);"
 Q_DELETE_PLATE = "DELETE FROM Plate WHERE plate_ID = %s;"
 
 class UsersDao:
@@ -89,23 +89,6 @@ class UsersDao:
     def __init__(self):
         self.cnx = mysql.connector.connect(**config)
         self.cursor = self.cnx.cursor()
-
-    def create_user(self):
-        self.cursor.execute(Q_CREATE_USER)
-        
-        # retrieve ID of new record
-        self.cursor.execute(Q_LAST_ID)
-        row = self.cursor.fetchone()
-        
-        self.cnx.commit()
-        
-        data = {}
-        data['name'] = TEMP_NEW_RECORD_NAME
-        data['role'] = ''
-        data['username'] = ''
-        data['password'] = ''
-
-        return row[0], data
 
     def check_user(self, username, password):
         self.cursor.execute(Q_SELECT_USER, (username, password), multi=False)
@@ -150,35 +133,47 @@ class UsersDao:
         self.cnx.commit()
         return data
     
-    def update_user(self, data):
+    def create_update_user(self, data):
         user_ID = nstr(data['user_ID'])
         name = nstr(data['user_name'])
         role = nstr(data['role'])
         username = nstr(data['username'])
         password = nstr(data['password'])
-        
-        self.cursor.execute(Q_UPDATE_USER, (name, role, username, password, user_ID))
-        
-        # get old loc ID
-        self.cursor.execute(Q_GET_USER_LOC, (user_ID,))
-        row = self.cursor.fetchone()
-        old_loc_ID = ''
-        if row != None:
-            old_loc_ID = row[0]
-        
-        # change loc ID in LocAffiliatedWithUser if loc_ID has been updated
         new_loc_ID = nstr(data['loc_ID'])
-        if old_loc_ID != new_loc_ID:
-            self.cursor.execute(Q_DELETE_USER_LOC, (user_ID,))
-            if new_loc_ID != 'empty':
-                self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
         
+        if user_ID != '-1':
+            self.cursor.execute(Q_UPDATE_USER, (name, role, username, password, user_ID))
+        
+            # get old loc ID
+            self.cursor.execute(Q_GET_USER_LOC, (user_ID,))
+            row = self.cursor.fetchone()
+            old_loc_ID = ''
+            if row != None:
+                old_loc_ID = row[0]
+            
+            # change loc ID in LocAffiliatedWithUser if loc_ID has been updated
+            if old_loc_ID != new_loc_ID:
+                self.cursor.execute(Q_DELETE_USER_LOC, (user_ID,))
+                if new_loc_ID != 'empty':
+                    self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
+        else:
+            self.cursor.execute(Q_CREATE_USER, (name, role, username, password))
+            
+            # update LocAffiliatedWithUser if location was provided
+            if new_loc_ID != None:
+                
+                # retrieve ID of new record
+                self.cursor.execute(Q_LAST_ID)
+                row = self.cursor.fetchone()
+                user_ID = row[0]
+                
+                self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
+            
         self.cnx.commit()
     
     def delete_user(self, user_ID):
         self.cursor.execute(Q_DELETE_USER, (user_ID,))
         self.cnx.commit()
-
 
 class AssayDao:
     def __init__(self):
@@ -363,33 +358,19 @@ class PlateDao:
         self.cnx.commit()
         return data
     
-    def update_plate(self, data):
+    def create_update_plate(self, data):
         plate_ID = nstr(data['plate_ID'])
         plate_type = nstr(data['plate_type'])
         other_plate_attr = nstr(data['other_plate_attr'])
         columns = nstr(data['columns'])
         rows = nstr(data['rows'])
-
-        self.cursor.execute(Q_UPDATE_PLATE, (plate_type, other_plate_attr, columns, rows, plate_ID))
+        
+        if plate_ID != '-1':
+            self.cursor.execute(Q_UPDATE_PLATE, (plate_type, other_plate_attr, columns, rows, plate_ID))
+        else:
+            self.cursor.execute(Q_CREATE_PLATE, (plate_type, other_plate_attr, columns, rows))
+            
         self.cnx.commit()
-
-    def create_plate(self):
-        # create new record
-        self.cursor.execute(Q_CREATE_PLATE)
-        
-        # retrieve ID of new record
-        self.cursor.execute(Q_LAST_ID)
-        row = self.cursor.fetchone()
-        
-        self.cnx.commit()
-        
-        data = {}
-        data['plate_type'] = TEMP_NEW_RECORD_NAME
-        data['other_plate_attr'] = ''
-        data['columns'] = ''
-        data['rows'] = ''
-        
-        return row[0], data
     
     def delete_plate(self, plate_ID):
         self.cursor.execute(Q_DELETE_PLATE, (plate_ID,))
@@ -429,7 +410,7 @@ class SampleDao:
         self.cnx.commit()
         return data
     
-    def update_sample(self, data):       
+    def create_update_sample(self, data):       
         sample_ID = nstr(data['sample'])
         species = nstr(data['species'])
         sex = nstr(data['sex'])
@@ -438,28 +419,12 @@ class SampleDao:
         other_sample_attr = nstr(data['other_sample_attr'])
         name = nstr(data['sample_name'])
 
-        self.cursor.execute(Q_UPDATE_SAMPLE, (species, sex, age, tissue_matrix, other_sample_attr, name, sample_ID))
-        self.cnx.commit()
-    
-    def create_sample(self):
-        # create new sample
-        self.cursor.execute(Q_CREATE_SAMPLE)
-        
-        # retrieve ID of new record
-        self.cursor.execute(Q_LAST_ID)
-        row = self.cursor.fetchone()
+        if sample_ID != '-1':
+            self.cursor.execute(Q_UPDATE_SAMPLE, (species, sex, age, tissue_matrix, other_sample_attr, name, sample_ID))
+        else:
+            self.cursor.execute(Q_CREATE_SAMPLE, (species, sex, age, tissue_matrix, other_sample_attr, name))
         
         self.cnx.commit()
-        
-        data = {}
-        data['species'] = ''
-        data['sex'] = ''
-        data['age'] = ''
-        data['tissue_matrix'] = ''
-        data['other_sample_attr'] = ''
-        data['name'] = TEMP_NEW_RECORD_NAME
-        
-        return row[0], data
     
     def delete_sample(self, sample_ID):
         self.cursor.execute(Q_DELETE_SAMPLE, (sample_ID,))
@@ -494,27 +459,16 @@ class LocationDao:
         self.cnx.commit()
         return data
     
-    def update_loc(self, data):
+    def create_update_loc(self, data):
         loc_ID = nstr(data['loc_ID'])
         name = nstr(data['location_name'])
-
-        self.cursor.execute(Q_UPDATE_LOCATION, (name, loc_ID))
+        
+        if loc_ID != '-1':
+            self.cursor.execute(Q_UPDATE_LOCATION, (name, loc_ID))
+        else:
+            self.cursor.execute(Q_CREATE_LOCATION, (name, ))
+            
         self.cnx.commit()
-        
-    def create_loc(self):
-        # create new record
-        self.cursor.execute(Q_CREATE_LOCATION)
-        
-        # retrieve ID of new record
-        self.cursor.execute(Q_LAST_ID)
-        row = self.cursor.fetchone()
-        
-        self.cnx.commit()
-        
-        data = {}
-        data['name'] = TEMP_NEW_RECORD_NAME
-        
-        return row[0], data
     
     def delete_loc(self, loc_ID):
         self.cursor.execute(Q_DELETE_LOCATION, (loc_ID,))
