@@ -255,8 +255,6 @@ def edit_loc():
         # get form data
         form_data = dict(request.form)
         
-        print(form_data)
-        
         # create or update location
         locationModel = ManageLocation()
         locationModel.create_update_loc(data=form_data)
