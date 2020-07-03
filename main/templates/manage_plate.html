@@ -7,7 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 
-    <title>Manage Samples</title>
+    <title>Manage Plate Templates</title>
     <link rel="icon" type="image/png" href="/static/images/favicon.ico"/>
     <!-- Bootstrap Core CSS -->
     <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
@@ -119,46 +119,39 @@
 
 <div class="container">
   <div class="page-header">
-    <h1>Manage Samples</h1>
+    <h1>Manage Plate Templates</h1>
   </div>
-  <form method="post" action="/editSample">
+  <form method="post" action="/editPlate">
 		<div class="form-group">
-			<label for="sample">Sample</label>
+			<label for="plate_ID">Plate template</label>
 		  <div class="input-group">
-		  	<select class="form-control" id="sample" name="sample" placeholder="" required><option value="empty" disabled hidden> -- select an option -- </option></select>
+		  	<select class="form-control" id="plate_ID" name="plate_ID" placeholder="" required><option value="empty" disabled hidden> -- select an option -- </option></select>
 		  	<div class="input-group-btn">
-		  		<button class="btn btn-warning" type="button" id="createSample" onclick="location.href='/createSample'">Create new sample</button>
+		  		<button class="btn btn-warning" type="button" id="createPlate" onclick="location.href='/createPlate'">Create new template</button>
 		  	</div>
 			</div>
 		</div>
 	  <div class="form-group">
-	  	<label for="sample_name">New sample name</label>
-	    <input type="text" class="form-control" id="sample_name" name="sample_name" placeholder="" required>
+	  	<label for="plate_type">New name</label>
+	    <input type="text" class="form-control" id="plate_type" name="plate_type" placeholder="" required>
 	  </div>
 	  <div class="form-group">
-	    <label for="species">Species</label>
-	    <input type="text" class="form-control" id="species" name="species" placeholder="">
+	  	<label for="columns">Columns</label>
+	    <input type="text" class="form-control" id="columns" name="columns" placeholder="">
 	  </div>
 	  <div class="form-group">
-	  	<label for="sex">Sex</label>
-	    <input type="text" class="form-control" id="sex" name="sex" placeholder="">
+	  	<label for="rows">Rows</label>
+	    <input type="text" class="form-control" id="rows" name="rows" placeholder="">
 	  </div>
 	  <div class="form-group">
-	  	<label for="age">Age</label>
-	    <input type="text" class="form-control" id="age" name="age" placeholder="">
+	  	<label for="other_plate_attr">Other</label>
+	    <input type="text" class="form-control" id="other_plate_attr" name="other_plate_attr" placeholder="">
 	  </div>
-	  <div class="form-group">
-	  	<label for="tissue_matrix">Tissue matrix</label>
-	    <input type="text" class="form-control" id="tissue_matrix" name="tissue_matrix" placeholder="">
-	  </div>
-	  <div class="form-group">
-	  	<label for="other_sample_attr">Other</label>
-	    <input type="text" class="form-control" id="other_sample_attr" name="other_sample_attr" placeholder="">
-	  </div>
+	  
 		<div class="form-group">
-			<button class="btn btn-primary" type="submit" id="submitButton">Update sample</button>
-			<button class="btn btn-danger" type="button" id="deleteSample" disabled>Delete sample</button>
-			<button class="btn btn-link" type ="button" id="cancelSelection" onclick="location.href='/manageSample'" disabled>Cancel selection</button>
+			<button class="btn btn-primary" type="submit" id="submitButton">Update template</button>
+			<button class="btn btn-danger" type="button" id="deleteButton" disabled>Delete template</button>
+			<button class="btn btn-link" type ="button" id="cancelSelection" onclick="location.href='/managePlate'" disabled>Cancel selection</button>
 		</div>
 			
 	</form>
@@ -178,95 +171,79 @@
 
 	<script>		
 		// Declare selector
-		var sample_selector = document.getElementById('sample');
+		var plate_selector = document.getElementById('plate_ID');
 		
 		// Delete button
-		var delete_button = document.getElementById('deleteSample');
+		var delete_button = document.getElementById('deleteButton');
 		delete_button.onclick = function() {
-				post('/deleteSample', {sample_ID: sample_selector.value});
+				post('/deletePlate', {plate_ID: plate_selector.value});
 		};
 		
 		// Reload when selector changes
-		sample_selector.addEventListener('change', function() {
-		    post('/manageSample', {sample_ID: sample_selector.value});
+		plate_selector.addEventListener('change', function() {
+		    post('/managePlate', {plate_ID: plate_selector.value});
 		});
 	
 		// Populate selector with available records
-		var samples = {{ samples | tojson | safe}};
+		var plates = {{ plates | tojson | safe}};
 		
-		var sample_ID = '{{sample_ID}}';
+		var plate_ID = '{{plate_ID}}';
 		
-		var sample_selector = document.getElementById("sample");
-		for(index in samples) {
-		    sample_selector.options[sample_selector.options.length] = new Option(samples[index], index);
+		for(index in plates) {
+		    plate_selector.options[plate_selector.options.length] = new Option(plates[index], index);
 		}
 		
-	
 		// Adapt form for editing a selected record
-		if (sample_ID !== '') {
-			sample_selector.value = sample_ID;
-			var sample_data = {{ sample_data | tojson | safe}};
-			document.getElementById("createSample").disabled = true;
+		if (plate_ID !== '') {
+			plate_selector.value = plate_ID;
+			var plate_data = {{ plate_data | tojson | safe}};
+			document.getElementById("createPlate").disabled = true;
 			document.getElementById("cancelSelection").disabled = false;
-			document.getElementById("deleteSample").disabled = false;
+			document.getElementById("deleteButton").disabled = false;
 		} else {
-			sample_selector.value = "empty";
-			var sample_data = '';
+			plate_selector.value = "empty";
+			var plate_data = '';
 		}
 		
 		// Adapt form for creating new record
-		if (typeof sample_data['create_active'] !== 'undefined') {
-			document.getElementById("deleteSample").disabled = true;
-			document.getElementById("submitButton").textContent = "Submit new sample";
+		if (typeof plate_data['create_active'] !== 'undefined') {
+			document.getElementById("deleteButton").disabled = true;
+			document.getElementById("submitButton").textContent = "Submit new template";
 			document.getElementById("cancelSelection").textContent = "Cancel create";
-			name_text.focus();
+			document.getElementById("plate_type").focus();
 			document.getElementById("cancelSelection").onclick = function () {
-				post('/deleteSample', {sample_ID: sample_selector.value});
+				post('/deletePlate', {plate_ID: plate_selector.value});
 			};
 		}
 		
 		// Populate form fields with available data
-		var name_text = document.getElementById("sample_name");
-		if (typeof sample_data['name'] !== 'undefined') {
-			name_text.value = sample_data['name'];
+		var plate_type_text = document.getElementById("plate_type");
+		if (typeof plate_data['plate_type'] !== 'undefined') {
+			plate_type_text.value = plate_data['plate_type'];
 		} else {
-			name_text.value = "";
+			plate_type_text.value = "";
 		}		
 		
-		var species_text = document.getElementById("species");
-		if (typeof sample_data['species'] !== 'undefined') {
-			species_text.value = sample_data['species'];
+		var columns_text = document.getElementById("columns");
+		if (typeof plate_data['columns'] !== 'undefined') {
+			columns_text.value = plate_data['columns'];
 		} else {
-			species_text.value = "";
-		}
+			columns_text.value = "";
+		}		
 		
-		var sex_text = document.getElementById("sex");
-		if (typeof sample_data['sex'] !== 'undefined') {
-			sex_text.value = sample_data['sex'];
+		var rows_text = document.getElementById("rows");
+		if (typeof plate_data['rows'] !== 'undefined') {
+			rows_text.value = plate_data['rows'];
 		} else {
-			sex_text.value = "";
-		}
+			rows_text.value = "";
+		}		
 		
-		var age_text = document.getElementById("age");
-		if (typeof sample_data['age'] !== 'undefined') {
-			age_text.value = sample_data['age'];
-		} else {
-			age_text.value = "";
-		}
-		
-		var tissue_matrix_text = document.getElementById("tissue_matrix");
-		if (typeof sample_data['tissue_matrix'] !== 'undefined') {
-			tissue_matrix_text.value = sample_data['tissue_matrix'];
-		} else {
-			tissue_matrix_text.value = "";
-		}
-		
-		var other_text = document.getElementById("other_sample_attr");
-		if (typeof sample_data['other_sample_attr'] !== 'undefined') {
-			other_text.value = sample_data['other_sample_attr'];
+		var other_text = document.getElementById("other_plate_attr");
+		if (typeof plate_data['other_plate_attr'] !== 'undefined') {
+			other_text.value = plate_data['other_plate_attr'];
 		} else {
 			other_text.value = "";
-		}
+		}		
 		
 	</script>
 

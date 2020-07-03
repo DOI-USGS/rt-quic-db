@@ -11,26 +11,21 @@ config = {
 
 Q_SELECT_OBS = "SELECT * FROM Observation WHERE plate_ID = 99 and wc_ID = 102"
 
-def query_with_fetchone():
-    try:
-        conn = MySQLConnection(**config)
-        cursor = conn.cursor()
-        cursor.execute(Q_SELECT_OBS)
+def query_with_fetchall():
+    conn = MySQLConnection(**config)
+    cursor = conn.cursor()
+    cursor.execute(Q_SELECT_OBS)
 
-        row = cursor.fetchone()
+    row = cursor.fetchall()
 
-        while row is not None:
-            print(row)
-            print(json.dumps(row))
-            row = cursor.fetchone()
+    print(row)
+            
+    # eventually want this to work
+    # print(json.dumps(row))
 
-    except Error as e:
-        print(e)
-
-    finally:
-        cursor.close()
-        conn.close()
+    #cursor.close()
+    #conn.close()
 
 
 if __name__ == '__main__':
-    query_with_fetchone()
+    query_with_fetchall()

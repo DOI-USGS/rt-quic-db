@@ -10,10 +10,7 @@
     <title>Edit Assay</title>
     <link rel="icon" type="image/png" href="/static/images/favicon.ico"/>
     <!-- Bootstrap Core CSS -->
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
-
-    <!-- Custom CSS: You can use this stylesheet to override any Bootstrap styles and/or apply your own styles -->
-    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">    
 
     <!--    main style-->
     <link href="/static/css/main.css" rel="stylesheet">
@@ -51,6 +48,18 @@
 		}
 		</script>
 
+		<!-- jQuery -->
+    <script src="/static/js/jquery-1.11.3.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/static/js/bootstrap.min.js"></script>
+    
+    <!-- Plugins for datetime -->
+    <script type="text/javascript" src="/static/js/moment.js"></script>
+    <script type="text/javascript" src="/static/js/transition.js"></script>
+		<script type="text/javascript" src="/static/js/collapse.js"></script>
+		<script type="text/javascript" src="/static/js/bootstrap-datetimepicker.js"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/css/bootstrap-datetimepicker.min.css">
     
 </head>
 
@@ -170,10 +179,23 @@
 		  	<label for="assay_name">Surfactant concentration</label>
 		    <input type="text" class="form-control" id="surfact_conc" name="surfact_conc" placeholder="">
 		  </div>
+		  
 		  <div class="form-group">
-		  	<label for="assay_name">Start date and time</label>
-		    <input type="text" class="form-control" id="start_date_time" name="start_date_time" placeholder="">
-		  </div>
+					<label for="assay_name">Start date and time</label>
+          <div class='input-group date'>
+              <input type='text' class="form-control" style="cursor: pointer" id='start_date_time' name="start_date_time">
+              <span class="input-group-addon">
+                  <span class="glyphicon glyphicon-calendar"></span>
+              </span>
+          </div>
+
+	        <script type="text/javascript">
+	            $(function () {
+	                $('#start_date_time').datetimepicker({format:'YYYY-MM-DD HH:mm:ss'});
+	            });
+	        </script>
+			</div>
+		  
 		  <div class="form-group">
 		  	<label for="assay_name">Other</label>
 		    <input type="text" class="form-control" id="other_assay_attr" name="other_assay_attr" placeholder="">
@@ -182,6 +204,8 @@
 		<div class="col-md-12 text-right">
 			<div class="form-group">
 				<button class="btn btn-primary" type="submit">Update assay</button>
+				<button class="btn btn-danger" type="button" id="deleteButton" disabled>Delete assay</button>
+				<button class="btn btn-link" type ="button" id="cancelSelection" onclick="document.location.href='/editAssay'" disabled>Cancel selection</button>
 			</div>
 		</div>
 	</form>
@@ -197,21 +221,29 @@
 	{% endwith %}
 	
 	</div>
-	
 
 	<script>
+		// Declare assay selector
 		var assay_selector = document.getElementById('assay');
+		
+		// Delete button
+		var delete_button = document.getElementById('deleteButton');
+		delete_button.onclick = function() {
+				post('/deleteAssay', {assay_ID: assay_selector.value});
+		};
+		
+		// Reload when assay selector changes
 		assay_selector.addEventListener('change', function() {
 		    post('/editAssay', {assay_ID: assay_selector.value});
 		});
 	
+		// Populate selectors and select base on input data
 		var assays = {{ assays | tojson | safe}};
 		var plates = {{ plates | tojson | safe}};
 		var samples = {{ samples | tojson | safe}};
 		var locations = {{ locations | tojson | safe}};
 		var assay_ID = '{{assay_ID}}'
 	
-		var assay_selector = document.getElementById("assay");
 		for(index in assays) {
 		    assay_selector.options[assay_selector.options.length] = new Option(assays[index], index);
 		}	
@@ -219,6 +251,8 @@
 		if (assay_ID !== '') {
 			assay_selector.value = assay_ID;
 			var assay_data = {{ assay_data | tojson | safe}};
+			document.getElementById("cancelSelection").disabled = false;
+			document.getElementById("deleteButton").disabled = false;
 		} else {
 			assay_selector.value = "empty";
 			var assay_data = '';
@@ -245,7 +279,9 @@
 		} else {
 			location_selector.value = "empty";
 		}
+	
 		
+		// Populate form fields with available data
 		var assay_name_text = document.getElementById("assay_name");
 		if (typeof assay_data['name'] !== 'undefined') {
 			assay_name_text.value = assay_data['name'];
@@ -340,11 +376,7 @@
 	</script>
 
 
-   <!-- jQuery -->
-    <script src="/static/js/jquery-1.11.3.min.js"></script>
 
-    <!-- Bootstrap Core JavaScript -->
-    <script src="/static/js/bootstrap.min.js"></script>
 
 </body>
 

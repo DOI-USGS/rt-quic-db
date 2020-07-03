@@ -6,17 +6,23 @@ class ManageUser:
     def __init__(self):
         self.userDao = UsersDao()
 
-    def create_user(self, name, role):
-
-        if name is not None and name != "" and role is not None and role != "":
-            self.userDao.create_user(name, role)
-            return True
-        else:
-            return False
-
     def authenticate(self, username, password):
         return self.userDao.check_user(username, password)
 
+    def get_users(self):
+        return self.userDao.get_users()
+    
+    def get_data(self, user_ID):
+        return self.userDao.get_data(user_ID)
+    
+    def update_user(self, data):
+        self.userDao.update_user(data)
+        
+    def create_user(self):
+        return self.userDao.create_user()
+    
+    def delete_user(self, user_ID):
+        return self.userDao.delete_user(user_ID)
 
 class ManageAssay:
     def __init__(self):
@@ -75,6 +81,9 @@ class ManageAssay:
 
     def update_assay(self, data):
         self.assayDao.update_assay(data)
+        
+    def delete_assay(self, assay_ID):
+        self.assayDao.delete_assay(assay_ID)
 
 class ManagePlate:
     def __init__(self):
@@ -82,6 +91,18 @@ class ManagePlate:
     
     def get_plates(self):
         return self.plateDao.get_plates()
+    
+    def get_data(self, plate_ID):
+        return self.plateDao.get_data(plate_ID)
+    
+    def update_plate(self, data):
+        self.plateDao.update_plate(data)
+        
+    def create_plate(self):
+        return self.plateDao.create_plate()
+    
+    def delete_plate(self, plate_ID):
+        return self.plateDao.delete_plate(plate_ID)
     
 
 class ManageSample:
@@ -109,6 +130,18 @@ class ManageLocation:
     
     def get_locations(self):
         return self.locationDao.get_locations()
+    
+    def get_data(self, loc_ID):
+        return self.locationDao.get_data(loc_ID)
+    
+    def update_loc(self, data):
+        self.locationDao.update_loc(data)
+        
+    def create_loc(self):
+        return self.locationDao.create_loc()
+    
+    def delete_loc(self, loc_ID):
+        return self.locationDao.delete_loc(loc_ID)
                 
 class ManageViz:
     def __init__(self):
