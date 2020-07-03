@@ -11,7 +11,7 @@ config = {
     'raise_on_warnings': True
 }
 
-nstr = lambda s: None if s is '' else str(s)
+nstr = lambda s: None if s == '' else str(s)
 xstr = lambda s: '' if s is None else str(s)
 
 Q_CREATE_USER = ("INSERT INTO Users"

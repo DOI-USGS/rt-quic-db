@@ -36,12 +36,12 @@ def testchart():
         return render_template("login.html")
     return render_template("testchart.html", name=session['username'])
 
-@app.route('/getData')
+""" @app.route('/getData')
 def index():
    cur = mysql.connection.cursor()
    cur.execute('''SELECT * FROM Users WHERE id=1''')
    rv = cur.fetchall()
-   return json.dumps(rv)
+   return json.dumps(rv) """
 
 @app.route('/testchart2')
 def testchart2():
