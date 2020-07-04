@@ -26,7 +26,8 @@ def favicon():
 @app.route('/index')
 def index():
     if 'username' in session:
-        return render_template("index.html", name=session['name'])
+        #return render_template("index.html", name=session['name'])
+        return redirect(url_for('simple_visualization'))
     else:
         return render_template("login.html")
 
