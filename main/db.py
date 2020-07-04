@@ -87,6 +87,8 @@ Q_UPDATE_PLATE = "UPDATE Plate SET plate_type=%s, other_plate_attr=%s, columns=%
 Q_CREATE_PLATE = "INSERT INTO Plate (plate_type, other_plate_attr, columns, rows) VALUES (%s, %s, %s, %s);"
 Q_DELETE_PLATE = "DELETE FROM Plate WHERE plate_ID = %s;"
 
+Q_GET_WCS = "SELECT wc_ID, well_name FROM Well_Condition WHERE assay_ID=%s;"
+
 class UsersDao:
 
     def __init__(self):
@@ -511,6 +513,24 @@ class LocationDao:
     def delete_loc(self, loc_ID):
         self.cursor.execute(Q_DELETE_LOCATION, (loc_ID,))
         self.cnx.commit()
+
+class WCDao:
+    def __init__(self):
+        self.cnx = mysql.connector.connect(**config)
+        self.cursor = self.cnx.cursor()
+    
+    """
+    Return a dictionary of the form:
+        dict[wc_ID] = name
+    """
+    def get_wcs(self, assay_ID):
+        self.cursor.execute(Q_GET_WCS, (assay_ID, ))
+        rows = self.cursor.fetchall()
+        d = {}
+        for row in rows:
+            d[row[0]] = row[1]
+        self.cnx.commit()
+        return d     
 
 if __name__ == "__main__":
     users_dao = UsersDao()

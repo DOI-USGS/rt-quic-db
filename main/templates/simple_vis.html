@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<!-- Template by Quackit.com -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+
+    <title>Simple Visualization Interface</title>
+    <link rel="icon" type="image/png" href="/static/images/favicon.ico"/>
+    <!-- Bootstrap Core CSS -->
+    <link href="/static/css/bootstrap.min.css" rel="stylesheet" type="text/css">    
+
+    <!--    main style-->
+    <link href="/static/css/main.css" rel="stylesheet">
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <script>
+    function post(path, params, method='post') {
+
+		  // The rest of this code assumes you are not using a library.
+		  // It can be made less wordy if you use one.
+		  const form = document.createElement('form');
+		  form.method = method;
+		  form.action = path;
+
+		  for (const key in params) {
+		    if (params.hasOwnProperty(key)) {
+		      const hiddenField = document.createElement('input');
+		      hiddenField.type = 'hidden';
+		      hiddenField.name = key;
+		      hiddenField.value = params[key];
+
+		      form.appendChild(hiddenField);
+		    }
+		  }
+
+		  document.body.appendChild(form);
+		  form.submit();
+		}
+		</script>
+
+		<!-- jQuery -->
+    <script src="/static/js/jquery-1.11.3.min.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="/static/js/bootstrap.min.js"></script>
+    
+    <!-- Plugins for datetime -->
+    <script type="text/javascript" src="/static/js/moment.js"></script>
+    <script type="text/javascript" src="/static/js/transition.js"></script>
+		<script type="text/javascript" src="/static/js/collapse.js"></script>
+		<script type="text/javascript" src="/static/js/bootstrap-datetimepicker.js"></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/css/bootstrap-datetimepicker.min.css">
+    
+</head>
+
+<!-- Navigation -->
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <!-- Logo -->
+        <div class="navbar-header">
+        		<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+        		</button>
+            <a class="navbar-brand" href="#">
+            	<span class="glyphicon glyphicon-fire"></span>
+            	QuakeDB
+            </a>
+        </div>
+        <!-- Navbar links -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="navbar-nav mr-auto">
+                <li class="dropdown">
+					        <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					          Edit<span class="caret"></span></a>
+					        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+					          <li class="nav-item"><a class = "nav-link" href="/newProject">Upload Assay</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/editAssay">Edit Assay</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/manageSample">Manage Samples</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/manageLocation">Manage Locations</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/manageUser">Manage Users</a></li>
+										<li class="nav-item"><a class = "nav-link" href="/managePlate">Manage Plate Templates</a></li>
+					        </ul>
+					      </li>
+                <li class="nav-item">
+                    <a href="#">Analytics</a>
+                </li>
+                <li class="nav-item">
+                    <a href="#">About</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav navbar-right ">
+                <li>
+                    <a href="#">{% if name %} {{ name }}{% else %} {{Guest}} {% endif %}</a>
+                </li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
+</nav>
+
+<body>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Simple Visualization Interface</h1>
+  </div>
+  <form method="post" action="/showSimpleVis">
+
+		  <div class="form-group">
+		  	<label for="assay">Assay</label>
+		  	<select class="form-control" id="assay" name="assay_ID" placeholder="" value required><option value="empty" disabled hidden> -- select an option -- </option></select>
+		  </div>
+		  
+		  <div class="form-group">
+		  	<label for="assay">Well name</label>
+		  	<select class="form-control" id="wc_ID" name="wc_ID" placeholder="" value required><option value="empty" disabled hidden> -- select an option -- </option></select>
+		  </div>
+	
+			<div class="form-group">
+				<button class="btn btn-primary" type="submit">Get chart</button>
+				<button class="btn btn-link" type ="button" id="cancelSelection" onclick="document.location.href='/simpleVis'" disabled>Cancel selection</button>
+			</div>
+			
+	</form>	
+</div>
+
+<!-- container for chart data -->
+<div class="container" id="chart_data">
+</div>
+
+
+	<script>
+		// Declare selectors
+		var assay_selector = document.getElementById('assay');
+		var wc_selector = document.getElementById('wc_ID');
+		
+		// Reload when assay selector changes
+		assay_selector.addEventListener('change', function() {
+		    post('/simpleVis', {assay_ID: assay_selector.value});
+		});
+	
+		// Populate assay selector and select value if assay_ID is provided at load time
+		var assays = {{ assays | tojson | safe}};
+		var assay_ID = '{{assay_ID}}'
+		
+		for(index in assays) {
+		    assay_selector.options[assay_selector.options.length] = new Option(assays[index], index);
+		}
+		
+		if (assay_ID !== '') {
+			assay_selector.value = assay_ID;
+			document.getElementById("cancelSelection").disabled = false;
+		} else {
+			assay_selector.value = "empty";
+			wc_selector.disabled = true;
+		}
+		
+		// Populate wc selector and select value if wc_ID is provided at load time
+		var well_conditions = {{ well_conditions | tojson | safe}};
+		var wc_ID = '{{wc_ID}}'
+		
+		for(index in well_conditions) {
+		    wc_selector.options[wc_selector.options.length] = new Option(well_conditions[index], index);
+		}
+		
+		if (wc_ID !== '') {
+			// Page is loading to display visualization
+			wc_selector.value = wc_ID;
+			document.getElementById("cancelSelection").disabled = false;
+			assay_selector.disabled = true;
+			wc_selector.disabled = true;
+			load_chart_data();
+		} else {
+			wc_selector.value = "empty";
+		}
+		
+		////////////////////////////////////////////////////////////////////////////		
+		// Javascript function shell for when page is loading chart data
+		////////////////////////////////////////////////////////////////////////////
+		function load_chart_data() {
+			var chart_data = {{ chart_data | tojson | safe}};
+			document.getElementById('chart_data').innerHTML = chart_data;
+		};
+		
+	</script>
+
+
+
+
+</body>
+
+</html>
+
+<!--&lt;!&ndash; Content &ndash;&gt;-->
+<!--    <div class="container">-->
+
+<!--        &lt;!&ndash; Heading &ndash;&gt;-->
+<!--        <div class="row">-->
+<!--            <div class="col-lg-4">-->
+<!--                <h3 class="page-header">Recent Projects-->
+<!--&lt;!&ndash;                    <small>Recent Work</small>&ndash;&gt;-->
+<!--                </h3>-->
+<!--            </div>-->
+<!--            <div class="col-lg-6">-->
+<!--                <form class="form-inline d-flex justify-content-center md-form form-sm active-red active-red-2 mt-2">-->
+<!--                        <i class="fas fa-search" aria-hidden="true"></i>-->
+<!--                        <input class="form-control form-control-sm ml-3 w-75" type="text" placeholder="Search" aria-label="Search">-->
+<!--                </form>-->
+<!--            </div>-->
+<!--            <div class="col-lg-2">-->
+<!--                <p><a class="btn btn-primary" href="/newProject">New Project</a></p>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        &lt;!&ndash; /.row &ndash;&gt;-->

@@ -1,5 +1,5 @@
 from flask_login import LoginManager
-from model import ManageUser, ManagePlate, ManageAssay, ManageSample, ManageLocation
+from model import ManageUser, ManagePlate, ManageAssay, ManageSample, ManageLocation, ManageWC
 import os
 from flask import Flask, escape, request, render_template, send_from_directory, session
 from flask import flash, redirect, url_for
@@ -71,6 +71,52 @@ def logout():
     # remove the username from the session if it's there
     session.pop('username', None)
     return redirect(url_for('index'))
+
+# =============================================================================
+# Simple visualization page
+# =============================================================================
+@app.route('/simpleVis', methods=['GET', 'POST'])
+def simple_visualization():
+    if 'username' not in session:
+        return render_template("login.html")
+    else:
+        # Load dictionary representing available assays from DV
+        assayModel = ManageAssay()
+        assays = assayModel.get_assays()
+        
+        # Retrive assay ID from page if called by post request
+        if request.method == 'POST':
+            assay_ID = dict(request.form).get('assay_ID')
+            wcModel = ManageWC()
+            well_conditions = wcModel.get_wcs(assay_ID)
+            return render_template("simple_vis.html", name=session['username'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID='', chart_data='')
+        
+        # Default (initial) page load
+        return render_template("simple_vis.html", name=session['username'], assays=assays, well_conditions='', assay_ID='', wc_ID='', chart_data='')
+
+@app.route('/showSimpleVis', methods=['GET', 'POST'])
+def show_simple_visualization():
+    if request.method == 'POST':
+        # Load assay list from DB
+        assayModel = ManageAssay()
+        assays = assayModel.get_assays()
+        
+        # Retrieve form data
+        form_data = dict(request.form)
+        assay_ID = form_data.get('assay_ID')
+        wc_ID = form_data.get('wc_ID')
+        
+        # Load wc list from DB
+        wcModel = ManageWC()
+        well_conditions = wcModel.get_wcs(assay_ID)
+        
+        # TODO: GET CHART DATA USING wc_ID ====================================
+        print("assay_ID: %s" % (assay_ID,))
+        print("wc_ID: %s" % (wc_ID,))
+        chart_data = "I'm a chart!"
+        # =====================================================================
+        
+        return render_template("simple_vis.html", name=session['username'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID=wc_ID, chart_data=chart_data)
 
 # =============================================================================
 # Edit Menu
