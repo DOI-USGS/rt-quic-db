@@ -26,7 +26,6 @@ function drawGrid(grid_data){
 }
 
 function drawChart(figData, id){
-    alert("came here");
     var data = new google.visualization.DataTable();
     data.addColumn('number', 'X');
     data.addColumn('number', 'x value');
