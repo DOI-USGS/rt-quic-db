@@ -4,6 +4,7 @@ import os
 from flask import Flask, escape, request, render_template, send_from_directory, session
 from flask import flash, redirect, url_for
 from flask.json import jsonify
+import simplejson as json
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -118,6 +119,19 @@ def show_simple_visualization():
         # =====================================================================
         
         return render_template("simple_vis.html", name=session['username'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID=wc_ID, chart_data=chart_data)
+
+
+@app.route('/showCharts')
+def get_viz_data():
+    assay_id = request.args.get('assay_id')
+    wc_id = request.args.get('wc_id')
+
+    wcModel = ManageWC()
+    well_conditions = wcModel.get_assay_viz_data(assay_id, wc_id)
+    # jsonify({"result": well_conditions})
+    return json.dumps({"result": well_conditions}, use_decimal = True)
+
+
 
 # =============================================================================
 # Edit Menu
@@ -416,6 +430,13 @@ def delete_plate():
         
         return redirect(url_for('load_manage_plate'))
 
+# class MyJSONEncoder(flask.json.JSONEncoder):
+#
+#     def default(self, obj):
+#         if isinstance(obj, decimal.Decimal):
+#             # Convert decimal instances to strings.
+#             return str(obj)
+#         return super(MyJSONEncoder, self).default(obj)
 
 # =============================================================================
 # 
@@ -425,4 +446,4 @@ if __name__ == '__main__':
     os.environ["FLASK_ENV"] = 'development'
     port = int(os.environ.get('PORT', 5000))
     #login_manager.init_app(app)
-    app.run(host='0.0.0.0', port=port, use_reloader=False)
+    app.run(host='0.0.0.0', port=port, use_reloader=True)

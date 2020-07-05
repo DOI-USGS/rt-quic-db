@@ -88,6 +88,7 @@ Q_CREATE_PLATE = "INSERT INTO Plate (plate_type, other_plate_attr, columns, rows
 Q_DELETE_PLATE = "DELETE FROM Plate WHERE plate_ID = %s;"
 
 Q_GET_WCS = "SELECT wc_ID, well_name FROM Well_Condition WHERE assay_ID=%s;"
+Q_GET_WCS_OBSERVATIONS = "SELECT time_s, fluorescence FROM Observation WHERE plate_ID=%s and wc_ID =%s;"
 
 class UsersDao:
 
@@ -530,7 +531,21 @@ class WCDao:
         for row in rows:
             d[row[0]] = row[1]
         self.cnx.commit()
-        return d     
+        return d
+
+    def get_plate_observations(self, assay_id, wc_id):
+        assay_id = 99
+        wc_ID = 102
+        self.cursor.execute(Q_GET_WCS_OBSERVATIONS, (assay_id, wc_id))
+        rows = self.cursor.fetchall()
+        print("Print from dao")
+        print(rows)
+        d = []
+        for row in rows:
+            print(row)
+            d.append([row[0], row[1]])
+
+        return d
 
 if __name__ == "__main__":
     users_dao = UsersDao()

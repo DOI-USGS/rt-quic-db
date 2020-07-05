@@ -130,14 +130,21 @@ class ManageLocation:
     
     def delete_loc(self, loc_ID):
         return self.locationDao.delete_loc(loc_ID)
-                
+
+
 class ManageWC:
     def __init__(self):
         self.wcDao = WCDao()
     
     def get_wcs(self, assay_ID):
         return self.wcDao.get_wcs(assay_ID)
-    
+
+    def get_assay_viz_data(self, assay_id, wc_id=None):
+        data = self.wcDao.get_plate_observations(assay_id, wc_id)
+
+        return data
+
+
 class ManageViz:
     def __init__(self):
         self.obsDao = ObsDao()

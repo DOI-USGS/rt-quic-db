@@ -48,6 +48,10 @@
 		}
 		</script>
 
+    <script>
+        $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+    </script>
+
 		<!-- jQuery -->
     <script src="/static/js/jquery-1.11.3.min.js"></script>
 
@@ -60,6 +64,9 @@
     <script type="text/javascript" src="/static/js/collapse.js"></script>
     <script type="text/javascript" src="/static/js/bootstrap-datetimepicker.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/css/bootstrap-datetimepicker.min.css">
+
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="/static/js/application_main.js"></script>
 
 </head>
 

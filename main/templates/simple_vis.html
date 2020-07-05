@@ -7,8 +7,6 @@
   <div class="page-header">
     <h1>Simple Visualization Interface</h1>
   </div>
-  <form method="post" action="/showSimpleVis">
-
 		  <div class="form-group">
 		  	<label for="assay">Assay</label>
 		  	<select class="form-control" id="assay" name="assay_ID" placeholder="" value required><option value="empty" disabled hidden> -- select an option -- </option></select>
@@ -20,11 +18,9 @@
 		  </div>
 	
 			<div class="form-group">
-				<button class="btn btn-primary" type="submit">Get chart</button>
+				<button id="chartBtn" class="btn btn-primary">Get chart</button>
 				<button class="btn btn-link" type ="button" id="cancelSelection" onclick="document.location.href='/simpleVis'" disabled>Cancel selection</button>
 			</div>
-			
-	</form>	
 </div>
 
 <!-- container for chart data -->
@@ -86,6 +82,11 @@
 		};
 		
 	</script>
+
+	<script>
+		google.charts.load('current', {packages: ['corechart']});
+	</script>
+
 
 </body>
 {% endblock %}
