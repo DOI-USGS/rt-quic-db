@@ -152,7 +152,7 @@ class UsersDao:
             # get old loc ID
             self.cursor.execute(Q_GET_USER_LOC, (user_ID,))
             row = self.cursor.fetchone()
-            old_loc_ID = ''
+            old_loc_ID = 'empty' #the form sends the string 'empty' if no location is selected
             if row != None:
                 old_loc_ID = row[0]
             
@@ -165,7 +165,7 @@ class UsersDao:
             self.cursor.execute(Q_CREATE_USER, (name, role, username, password))
             
             # update LocAffiliatedWithUser if location was provided
-            if new_loc_ID != None:
+            if new_loc_ID != 'empty':
                 
                 # retrieve ID of new record
                 self.cursor.execute(Q_LAST_ID)
