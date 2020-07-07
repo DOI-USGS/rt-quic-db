@@ -446,4 +446,4 @@ if __name__ == '__main__':
     os.environ["FLASK_ENV"] = 'development'
     port = int(os.environ.get('PORT', 5000))
     #login_manager.init_app(app)
-    app.run(host='0.0.0.0', port=port, use_reloader=True)
+    app.run(host='0.0.0.0', port=port, use_reloader=False)

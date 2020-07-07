@@ -14,9 +14,6 @@ config = {
 nstr = lambda s: None if s == '' else str(s)
 xstr = lambda s: '' if s is None else str(s)
 
-Q_CREATE_USER = ("INSERT INTO Users"
-                 "(NAME, ROLE) VALUES (%s, %s)")
-
 Q_SELECT_USER = 'SELECT NAME, ROLE FROM Users WHERE USERNAME = %s AND PASSWORD = %s'
 
 Q_CREATE_ASSAY = ("INSERT INTO Assay (temperature, shake_interval_min, scan_interval_min, "
