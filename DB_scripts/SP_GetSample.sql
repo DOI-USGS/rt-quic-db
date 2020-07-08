@@ -1,0 +1,4 @@
+CREATE PROCEDURE GetSample (IN ID INT)
+BEGIN
+	SELECT * FROM Sample WHERE sample_ID = ID;
+END;
