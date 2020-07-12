@@ -96,6 +96,22 @@ def simple_visualization():
         # Default (initial) page load
         return render_template("simple_vis.html", name=session['username'], assays=assays, well_conditions='', assay_ID='', wc_ID='', chart_data='')
 
+
+@app.route('/getWellsForAssay')
+def get_wells():
+    if 'username' not in session:
+        return render_template("login.html")
+    else:
+        # Retrive assay ID from page if called by post request
+        assay_ID = request.args.get('assay_ID')
+        wcModel = ManageWC()
+        well_conditions = wcModel.get_wcs(assay_ID)
+        if well_conditions is not None:
+            return jsonify({"status": "success", "result": well_conditions})
+        else:
+            return jsonify({"status": "error"})
+
+
 @app.route('/showSimpleVis', methods=['GET', 'POST'])
 def show_simple_visualization():
     if request.method == 'POST':
@@ -125,6 +141,10 @@ def show_simple_visualization():
 def get_viz_data():
     assay_id = request.args.get('assay_id')
     wc_id = request.args.get('wc_id')
+
+    if wc_id == -1:
+        # TODO
+        print("PERFORM MULTI CHART")
 
     wcModel = ManageWC()
     well_conditions = wcModel.get_assay_viz_data(assay_id, wc_id)

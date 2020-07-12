@@ -34,9 +34,9 @@
 		var wc_selector = document.getElementById('wc_ID');
 		
 		// Reload when assay selector changes
-		assay_selector.addEventListener('change', function() {
-		    post('/simpleVis', {assay_ID: assay_selector.value});
-		});
+<!--		assay_selector.addEventListener('change', function() {-->
+<!--		    post('/simpleVis', {assay_ID: assay_selector.value});-->
+<!--		});-->
 	
 		// Populate assay selector and select value if assay_ID is provided at load time
 		var assays = {{ assays | tojson | safe}};
