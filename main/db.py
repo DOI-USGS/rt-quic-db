@@ -87,6 +87,9 @@ Q_DELETE_PLATE = "DELETE FROM Plate WHERE plate_ID = %s;"
 Q_GET_WCS = "SELECT wc_ID, well_name FROM Well_Condition WHERE assay_ID=%s;"
 Q_GET_WCS_OBSERVATIONS = "SELECT time_s, fluorescence FROM Observation WHERE plate_ID=%s and wc_ID =%s;"
 
+Q_GET_VIZ_FROM_ASSAYID = "select well_name, fluorescence, time_s from Assay as a, Well_Condition as wc, Observation as o where a.assay_ID = %s, a.assay_ID=wc.assay_ID and o.obs_ID=wc.wc_ID;"
+Q_GET_VIZ_FROM_ASSAYNAME = "select well_name, fluorescence, time_s from Assay as a, Well_Condition as wc, Observation as o where a.name = %s, a.assay_ID=wc.assay_ID and o.obs_ID=wc.wc_ID;"
+
 class UsersDao:
 
     def __init__(self):
@@ -519,7 +522,7 @@ class WCDao:
     
     """
     Return a dictionary of the form:
-        dict[wc_ID] = name
+        dict[wc_ID] = well_name
     """
     def get_wcs(self, assay_ID):
         self.cursor.execute(Q_GET_WCS, (assay_ID, ))
@@ -542,6 +545,37 @@ class WCDao:
             print(row)
             d.append([row[0], row[1]])
 
+        return d
+
+class PlateVizDao:
+    def __init__(self):
+        self.cnx = mysql.connector.connect(**config)
+        self.cursor = self.cnx.cursor()
+    
+    """
+    Return a dictionary of the form:
+        dict[well_name] = (fluorescence, time_s)
+    """
+    def get_viz_data_from_assay_ID(self, assay_ID):
+        self.cursor.execute(Q_GET_VIZ_FROM_ASSAYID, (assay_ID, ))
+        rows = self.cursor.fetchall()
+        d = {}
+        for row in rows:
+            d[row[0]] = (row[1], row[2])
+        self.cnx.commit()
+        return d
+
+    """
+    Return a dictionary of the form:
+        dict[well_name] = (fluorescence, time_s)
+    """
+    def get_viz_data_from_assay_ID(self, assay_name):
+        self.cursor.execute(Q_GET_VIZ_FROM_ASSAYNAME, (assay_name, ))
+        rows = self.cursor.fetchall()
+        d = {}
+        for row in rows:
+            d[row[0]] = (row[1], row[2])
+        self.cnx.commit()
         return d
 
 if __name__ == "__main__":
