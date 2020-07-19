@@ -569,7 +569,7 @@ class PlateVizDao:
     Return a dictionary of the form:
         dict[well_name] = (fluorescence, time_s)
     """
-    def get_viz_data_from_assay_ID(self, assay_name):
+    def get_viz_data_from_assay_name(self, assay_name):
         self.cursor.execute(Q_GET_VIZ_FROM_ASSAYNAME, (assay_name, ))
         rows = self.cursor.fetchall()
         d = {}
