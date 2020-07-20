@@ -144,6 +144,22 @@ class ManageWC:
 
         return data
 
+    def get_assay_viz_dataGrid(self, assay_id):
+        alldata = self.wcDao.get_viz_data_from_assay_ID(assay_id)
+        wellnames = alldata.keys()
+        well_rows = list(set([n[0] for n in wellnames]))
+        well_rows.sort()
+        well_cols = list(set([n[1:] for n in wellnames]))
+        well_cols.sort()
+        outdata = []
+        for r in well_rows:
+            row_wells = []
+            for c in well_cols:
+                row_wells.append(alldata[r+c])
+            outdata.append(row_wells)
+
+        return well_rows, well_cols, outdata
+
 
 class ManageViz:
     def __init__(self):

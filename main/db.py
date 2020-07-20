@@ -2,6 +2,7 @@ import mysql.connector
 from datetime import date, datetime, timedelta
 import os
 import json
+from collections import defaultdict
 
 config = {
     'user': 'quicdbadmin',
@@ -85,10 +86,14 @@ Q_CREATE_PLATE = "INSERT INTO Plate (plate_type, other_plate_attr, columns, rows
 Q_DELETE_PLATE = "DELETE FROM Plate WHERE plate_ID = %s;"
 
 Q_GET_WCS = "SELECT wc_ID, well_name FROM Well_Condition WHERE assay_ID=%s;"
-Q_GET_WCS_OBSERVATIONS = "SELECT time_s, fluorescence FROM Observation WHERE plate_ID=%s and wc_ID =%s;"
+Q_GET_WCS_OBSERVATIONS = "select o.time_s, o.fluorescence \
+                    from Observation as o, Well_Condition as w \
+                    where o.wc_ID = w.wc_ID and w.assay_ID = %s and o.wc_id = %s;"
 
-Q_GET_VIZ_FROM_ASSAYID = "select well_name, fluorescence, time_s from Assay as a, Well_Condition as wc, Observation as o where a.assay_ID = %s, a.assay_ID=wc.assay_ID and o.obs_ID=wc.wc_ID;"
-Q_GET_VIZ_FROM_ASSAYNAME = "select well_name, fluorescence, time_s from Assay as a, Well_Condition as wc, Observation as o where a.name = %s, a.assay_ID=wc.assay_ID and o.obs_ID=wc.wc_ID;"
+Q_GET_VIZ_FROM_ASSAYID = "select wc.well_name, o.time_s , o.fluorescence\
+        from Assay as a, Well_Condition as wc, Observation as o \
+        where a.assay_ID = %s and a.assay_ID=wc.assay_ID and o.wc_ID=wc.wc_ID;"
+Q_GET_VIZ_FROM_ASSAYNAME = "select well_name, fluorescence, time_s from Assay as a, Well_Condition as wc, Observation as o where a.name = %s and a.assay_ID=wc.assay_ID and o.wc_ID=wc.wc_ID;"
 
 class UsersDao:
 
@@ -534,49 +539,46 @@ class WCDao:
         return d
 
     def get_plate_observations(self, assay_id, wc_id):
-        assay_id = 99
-        wc_ID = 102
         self.cursor.execute(Q_GET_WCS_OBSERVATIONS, (assay_id, wc_id))
         rows = self.cursor.fetchall()
-        print("Print from dao")
-        print(rows)
         d = []
         for row in rows:
-            print(row)
             d.append([row[0], row[1]])
 
         return d
 
-class PlateVizDao:
-    def __init__(self):
-        self.cnx = mysql.connector.connect(**config)
-        self.cursor = self.cnx.cursor()
-    
     """
-    Return a dictionary of the form:
-        dict[well_name] = (fluorescence, time_s)
-    """
-    def get_viz_data_from_assay_ID(self, assay_ID):
-        self.cursor.execute(Q_GET_VIZ_FROM_ASSAYID, (assay_ID, ))
+        Return a dictionary of the form:
+            dict[well_name] = (fluorescence, time_s)
+        """
+
+    def get_viz_data_from_assay_ID(self, assay_id):
+        self.cursor.execute(Q_GET_VIZ_FROM_ASSAYID, (assay_id,))
         rows = self.cursor.fetchall()
-        d = {}
+        d = defaultdict(list)
         for row in rows:
-            d[row[0]] = (row[1], row[2])
-        self.cnx.commit()
+            d[row[0]].append((row[1], row[2]))
         return d
 
     """
     Return a dictionary of the form:
         dict[well_name] = (fluorescence, time_s)
     """
+
     def get_viz_data_from_assay_name(self, assay_name):
-        self.cursor.execute(Q_GET_VIZ_FROM_ASSAYNAME, (assay_name, ))
+        self.cursor.execute(Q_GET_VIZ_FROM_ASSAYNAME, (assay_name,))
         rows = self.cursor.fetchall()
-        d = {}
+        d = defaultdict(list)
         for row in rows:
-            d[row[0]] = (row[1], row[2])
-        self.cnx.commit()
+            d[row[0]].append((row[1], row[2]))
         return d
+
+# class PlateVizDao:
+#     def __init__(self):
+#         self.cnx = mysql.connector.connect(**config)
+#         self.cursor = self.cnx.cursor()
+    
+
 
 if __name__ == "__main__":
     users_dao = UsersDao()

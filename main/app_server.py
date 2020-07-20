@@ -140,16 +140,18 @@ def show_simple_visualization():
 @app.route('/showCharts')
 def get_viz_data():
     assay_id = request.args.get('assay_id')
-    wc_id = request.args.get('wc_id')
-
-    if wc_id == -1:
-        # TODO
-        print("PERFORM MULTI CHART")
+    wc_id = request.args.get('wc_id', "-1")
 
     wcModel = ManageWC()
-    well_conditions = wcModel.get_assay_viz_data(assay_id, wc_id)
-    # jsonify({"result": well_conditions})
-    return json.dumps({"result": well_conditions}, use_decimal = True)
+    print("wc_id", wc_id)
+    if assay_id is not None:
+        if wc_id == "-1" or wc_id is None:
+            rows, cols, well_conditions = wcModel.get_assay_viz_dataGrid(assay_id)
+            return json.dumps({"result": well_conditions, "Xs": rows, "Ys": cols}, use_decimal=True)
+        else:
+            well_conditions = wcModel.get_assay_viz_data(assay_id, wc_id)
+            # jsonify({"result": well_conditions})
+            return json.dumps({"result": well_conditions}, use_decimal=True)
 
 
 
@@ -466,4 +468,4 @@ if __name__ == '__main__':
     os.environ["FLASK_ENV"] = 'development'
     port = int(os.environ.get('PORT', 5000))
     #login_manager.init_app(app)
-    app.run(host='0.0.0.0', port=port, use_reloader=False)
+    app.run(host='0.0.0.0', port=port, use_reloader=True)

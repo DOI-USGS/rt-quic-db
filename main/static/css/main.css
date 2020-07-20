@@ -18,3 +18,17 @@ nav ul li a {
 body {
     padding-top: 50px; /* Padding for .navbar-fixed-top. Change value if navbar height changes. Remove if using .navbar-static-top. */
 }
+
+.data-table {
+    font-size: 11px;
+    width: 100%;
+    border: 0;
+    table-layout:fixed;
+    word-wrap:break-word;
+    border-collapse:collapse;
+    text-align: center !important;
+}
+
+th {
+    text-align: center !important;
+}
