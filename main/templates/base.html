@@ -83,7 +83,7 @@
         		</button>
             <a class="navbar-brand" href="/">
             	<span class="glyphicon glyphicon-fire"></span>
-            	QuakeDB
+            	Quake
             </a>
         </div>
         <!-- Navbar links -->
@@ -101,20 +101,27 @@
 										<li class="nav-item"><a class = "nav-link" href="/managePlate">Manage Plate Templates</a></li>
 					        </ul>
 					      </li>
-                <li class="nav-item">
-                    <a href="#">Analytics</a>
+                <li class="dropdown">
+					        <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					          Analysis<span class="caret"></span></a>
+					        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+					          <li class="nav-item"><a class = "nav-link" href="/simpleVis">Simple Visualization Interface</a></li>
+					        </ul>
+					      </li>
+                <li class="nav-item text-nowrap">
+                    <a href="/enhancementForm">Submit Enhancement Request</a>
                 </li>
-                <li class="nav-item">
-                    <a href="#">About</a>
-                </li>
-            </ul>
+            </ul>            
             <ul class="navbar-nav navbar-right ">
-                <li class = "dropdown">
+            		<li class = "dropdown">
                     <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {% if name %} {{ name }}{% else %} {{Guest}} {% endif %}<span class="caret"></span></a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <li class="nav-item"><a class = "nav-link" href="/logout">Logout</a></li>
                     </ul>
+                </li>
+                <li class="nav-item">
+                    <a href="#">About</a>
                 </li>
             </ul>
         </div>

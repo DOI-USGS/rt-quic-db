@@ -6,6 +6,7 @@ from flask import flash, redirect, url_for
 from flask.json import jsonify
 import simplejson as json
 from werkzeug.utils import secure_filename
+from werkzeug.exceptions import HTTPException
 
 app = Flask(__name__)
 
@@ -79,6 +80,7 @@ def logout():
 # =============================================================================
 @app.route('/simpleVis', methods=['GET', 'POST'])
 def simple_visualization():
+    print(session['name'])
     if 'username' not in session:
         return render_template("login.html")
     else:
@@ -91,10 +93,10 @@ def simple_visualization():
             assay_ID = dict(request.form).get('assay_ID')
             wcModel = ManageWC()
             well_conditions = wcModel.get_wcs(assay_ID)
-            return render_template("simple_vis.html", name=session['username'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID='', chart_data='')
+            return render_template("simple_vis.html", name=session['name'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID='', chart_data='')
         
         # Default (initial) page load
-        return render_template("simple_vis.html", name=session['username'], assays=assays, well_conditions='', assay_ID='', wc_ID='', chart_data='')
+        return render_template("simple_vis.html", name=session['name'], assays=assays, well_conditions='', assay_ID='', wc_ID='', chart_data='')
 
 
 @app.route('/getWellsForAssay')
@@ -134,7 +136,7 @@ def show_simple_visualization():
         chart_data = "I'm a chart!"
         # =====================================================================
         
-        return render_template("simple_vis.html", name=session['username'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID=wc_ID, chart_data=chart_data)
+        return render_template("simple_vis.html", name=session['name'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID=wc_ID, chart_data=chart_data)
 
 
 @app.route('/showCharts')
@@ -183,7 +185,7 @@ def new_project():
         return render_template("login.html")
     else:
         plates, samples, locations = get_plates_samples_locations()
-        return render_template("add_project.html", name=session['username'], plates=plates, samples=samples, locations=locations)
+        return render_template("add_project.html", name=session['name'], plates=plates, samples=samples, locations=locations)
 
 
 def allowed_file(filename):
@@ -459,13 +461,32 @@ def delete_plate():
 #             # Convert decimal instances to strings.
 #             return str(obj)
 #         return super(MyJSONEncoder, self).default(obj)
+        
+# =============================================================================
+# Error Handlers
+# =============================================================================
+#@app.errorhandler(HTTPException)
+#def handle_exception(e):
+#    """Return JSON instead of HTML for HTTP errors."""
+#    # start with the correct headers and status code from the error
+#    response = e.get_response()
+#    # replace the body with JSON
+#    response.data = json.dumps({
+#        "code": e.code,
+#        "name": e.name,
+#        "description": e.description,
+#    })
+#    response.content_type = "application/json"
+#    return response
+
+
 
 # =============================================================================
-# 
+# Main
 # =============================================================================
 
 if __name__ == '__main__':
     os.environ["FLASK_ENV"] = 'development'
     port = int(os.environ.get('PORT', 5000))
     #login_manager.init_app(app)
-    app.run(host='0.0.0.0', port=port, use_reloader=True)
+    app.run(host='0.0.0.0', port=port, use_reloader=False)

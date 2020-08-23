@@ -548,9 +548,9 @@ class WCDao:
         return d
 
     """
-        Return a dictionary of the form:
-            dict[well_name] = (fluorescence, time_s)
-        """
+    Return a dictionary of the form:
+        dict[well_name] = (fluorescence, time_s)
+    """
 
     def get_viz_data_from_assay_ID(self, assay_id):
         self.cursor.execute(Q_GET_VIZ_FROM_ASSAYID, (assay_id,))
