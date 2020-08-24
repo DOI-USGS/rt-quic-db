@@ -1,12 +1,14 @@
 from flask_login import LoginManager
 from model import ManageUser, ManagePlate, ManageAssay, ManageSample, ManageLocation, ManageWC
 import os
+from pathlib import Path
 from flask import Flask, escape, request, render_template, send_from_directory, session
 from flask import flash, redirect, url_for
 from flask.json import jsonify
 import simplejson as json
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import HTTPException
+from dotenv import load_dotenv
 
 app = Flask(__name__)
 
@@ -16,6 +18,8 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 app.config['CORS_HEADERS'] = 'Content-Type'
 app.secret_key = "super secret key"
 ALLOWED_EXTENSIONS = {'.txt', '.csv'}
+
+load_dotenv(os.path.join(Path(os.getcwd()).parent, 'vars.env'))
 
 login_manager = LoginManager()
 
@@ -68,19 +72,11 @@ def login():
                 session['role'] = user['role']
         return redirect(url_for('index'))
 
-
-@app.route('/logout')
-def logout():
-    # remove the username from the session if it's there
-    session.pop('username', None)
-    return redirect(url_for('index'))
-
 # =============================================================================
 # Simple visualization page
 # =============================================================================
 @app.route('/simpleVis', methods=['GET', 'POST'])
 def simple_visualization():
-    print(session['name'])
     if 'username' not in session:
         return render_template("login.html")
     else:
@@ -479,6 +475,75 @@ def delete_plate():
 #    response.content_type = "application/json"
 #    return response
 
+# =============================================================================
+# User Menu
+# =============================================================================
+
+@app.route('/logout')
+def logout():
+    # remove the username from the session if it's there
+    session.pop('username', None)
+    return redirect(url_for('index'))
+
+@app.route('/enhancementRequest', methods=['GET', 'POST'])
+def load_enhancement_request():
+    if 'username' in session:
+        locationModel = ManageLocation()
+        locations = locationModel.get_locations()
+        return render_template("enhancement_form.html", name=session['name'], username = session['username'], loc_ID = '', locations=locations)
+    else:
+        return render_template("login.html")
+
+
+@app.route('/sendIssuetoGH', methods=['POST'])
+def send_issue_to_GH():
+    if request.method == 'POST':
+        # get form data
+        form_data = dict(request.form)
+        
+        # Extract vals and construct body of issue
+        label = form_data['type']
+        description = form_data['description']
+        
+        priority = form_data['priority']
+        subject = form_data['subject']
+        title = "(" + priority + ") " + subject
+        
+        body = ''
+        submitted_name = form_data['name']
+        email = form_data['email']
+        loc_ID = form_data['loc_ID']
+        
+        body += "Submitted name: " + submitted_name
+        body += "\nEmail: " + email
+        body += "\nloc_ID: " + loc_ID
+        
+        body += "\n\nDESCRIPTION"
+        body += "\n" + description
+        
+        body += "\n\nSESSION VARIABLES"
+        session_vars = ''
+        for key in session:
+            s = key + ": " + session[key]
+            session_vars += "\n" + s
+        body += session_vars   
+
+        # Submit
+        create_issue(title, body, label)
+        
+    return redirect(url_for('load_enhancement_request'))
+
+def create_issue(title, body, label):
+    from github import Github
+    
+    token = os.getenv('GH_TOKEN')
+    repo_name = os.getenv('REPO_NAME')
+    
+    g = Github(token)
+    repo = g.get_repo(repo_name)
+    repo.create_issue(title=title, body=body, labels=[repo.get_label(label)])
+    
+    flash('Issue created')
 
 
 # =============================================================================
