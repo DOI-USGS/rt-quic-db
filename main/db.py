@@ -3,6 +3,7 @@ from datetime import date, datetime, timedelta
 import os
 import json
 from collections import defaultdict
+import pandas as pd
 
 config = {
     'user': 'quicdbadmin',
@@ -94,6 +95,12 @@ Q_GET_VIZ_FROM_ASSAYID = "select wc.well_name, o.time_s , o.fluorescence\
         from Assay as a, Well_Condition as wc, Observation as o \
         where a.assay_ID = %s and a.assay_ID=wc.assay_ID and o.wc_ID=wc.wc_ID;"
 Q_GET_VIZ_FROM_ASSAYNAME = "select well_name, fluorescence, time_s from Assay as a, Well_Condition as wc, Observation as o where a.name = %s and a.assay_ID=wc.assay_ID and o.wc_ID=wc.wc_ID;"
+Q_GET_WC_DATA = ("SELECT salt_type, salt_conc, substrate_type, substrate_conc, surfact_type, surfact_conc, "
+                 "other_wc_attr, sample_ID, assay_ID, contents, well_name, wc_ID FROM Well_Condition WHERE wc_ID IN (%s);")
+Q_LOAD_WELL_UPDATES = ("LOAD DATA LOCAL INFILE %s REPLACE INTO TABLE Well_Condition FIELDS TERMINATED BY ',' "
+              "ENCLOSED BY '\"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (wc_ID, salt_type, "
+              "salt_conc, substrate_type, substrate_conc, surfact_type, surfact_conc, "
+              "other_wc_attr, sample_ID, assay_ID, contents, well_name);")
 
 class UsersDao:
 
@@ -523,7 +530,7 @@ class LocationDao:
 class WCDao:
     def __init__(self):
         self.cnx = mysql.connector.connect(**config)
-        self.cursor = self.cnx.cursor()
+        self.cursor = self.cnx.cursor(buffered=True)
     
     """
     Return a dictionary of the form:
@@ -573,14 +580,54 @@ class WCDao:
             d[row[0]].append((row[1], row[2]))
         return d
 
-# class PlateVizDao:
-#     def __init__(self):
-#         self.cnx = mysql.connector.connect(**config)
-#         self.cursor = self.cnx.cursor()
-    
 
+    """
+    Get well metadata from a list of IDs.
+    
+    Input:
+        wc_list - a python list
+        
+    Output:
+        dataframe - Pandas dataframe
+    """
+    def get_wc_metadata(self, wc_list):
+
+        # Run query for all wc_IDs in list        
+        format_strings = ','.join(['%s'] * len(wc_list))
+        self.cursor.execute(Q_GET_WC_DATA % format_strings, tuple(wc_list))
+        
+        rows = self.cursor.fetchall()
+        
+        list_of_series = []
+
+        for row in rows:
+    
+            data = {}
+            data['salt_type'] = xstr(row[0])
+            data['salt_conc'] = xstr(row[1])
+            data['substrate_type'] = xstr(row[2])
+            data['substrate_conc'] = xstr(row[3])
+            data['surfact_type'] = xstr(row[4])
+            data['surfact_conc'] = xstr(row[5])
+            data['other_wc_attr'] = xstr(row[6])
+            data['sample_ID'] = xstr(row[7])
+            data['assay_ID'] = xstr(row[8])
+            data['contents'] = xstr(row[9])
+            data['well_name'] = xstr(row[10])
+            data['wc_ID'] = xstr(row[11])
+        
+            list_of_series.append(pd.Series(data).astype(str))
+        
+        self.cnx.commit()
+        
+        df = pd.DataFrame(list_of_series)
+        
+        return df
+
+    def load_well_updates(self, file):
+        path = file.name
+        self.cursor.execute(Q_LOAD_WELL_UPDATES, (path,))
+        self.cnx.commit()
 
 if __name__ == "__main__":
-    users_dao = UsersDao()
-    # users_dao.create_user("jojo", "ADMIN")
-    users_dao.check_user("chit", "chit")
+    pass

@@ -70,7 +70,42 @@ class UploadObsCSV:
             for row in self.rows:
                 wr.writerow(row)
         return file
+
+"""
+Class for creating .csv that will be directly used to upload data into the Well_Condition table.
+"""
+class UploadWellConditionCSV:
     
+    def __init__(self):
+        self.rows = []
+        header = ['wc_ID', 'salt_type', 'salt_conc', 'substrate_type', 'substrate_conc', 
+                  'surfact_type', 'surfact_conc', 'other_wc_attr', 'sample_ID', 'assay_ID', 'contents', 'well_name']
+        self.rows.append(header)
+    
+    def add_record(self, data):
+        wc_ID = data['wc_ID']
+        salt_type = data['salt_type']
+        salt_conc = data['salt_conc']
+        substrate_type = data['substrate_type']
+        substrate_conc = data['substrate_conc']
+        surfact_type = data['surfact_type']
+        surfact_conc = data['surfact_conc']
+        other_wc_attr = data['other_wc_attr']
+        sample_ID = data['sample_ID']
+        assay_ID = data['assay_ID']
+        contents = data['contents']
+        well_name = data['well_name']
+        
+        new_row = [wc_ID, salt_type, salt_conc, substrate_type, substrate_conc, 
+                  surfact_type, surfact_conc, other_wc_attr, sample_ID, assay_ID, contents, well_name]
+        self.rows.append(new_row)
+    
+    def write_csv(self, path = 'temp_wc_load.csv'):
+        with open(path, 'w', newline='') as file:
+            wr = csv.writer(file, quoting=csv.QUOTE_ALL)
+            for row in self.rows:
+                wr.writerow(row)
+        return file
     
     
     
