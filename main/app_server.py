@@ -37,6 +37,14 @@ def index():
     else:
         return render_template("login.html")
 
+@app.route('/about')
+def about():
+    if 'username' in session:
+        #return render_template("index.html", name=session['name'])
+        return render_template("about.html")
+    else:
+        return render_template("login.html")
+
 @app.route('/testchart')
 def testchart():
     if 'username' not in session:
