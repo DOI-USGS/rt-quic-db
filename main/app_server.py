@@ -41,7 +41,7 @@ def index():
 def about():
     if 'username' in session:
         #return render_template("index.html", name=session['name'])
-        return render_template("about.html")
+        return render_template("about.html", name=session['name'])
     else:
         return render_template("login.html")
 
@@ -158,6 +158,29 @@ def get_viz_data():
             well_conditions = wcModel.get_assay_viz_data(assay_id, wc_id)
             # jsonify({"result": well_conditions})
             return json.dumps({"result": well_conditions}, use_decimal=True)
+
+# =============================================================================
+# View Assay (Main Visualization Screen)
+# =============================================================================
+@app.route('/vis', methods=['GET', 'POST'])
+def view_assay():
+    if 'username' not in session:
+        return render_template("login.html")
+    else:
+        # Load dictionary representing available assays from DV
+        assayModel = ManageAssay()
+        assays = assayModel.get_assays()
+        
+        # Retrive assay ID from page if called by post request
+        if request.method == 'POST':
+            assay_ID = dict(request.form).get('assay_ID')
+            wcModel = ManageWC()
+            well_conditions = wcModel.get_wcs(assay_ID)
+            return render_template("vis.html", name=session['name'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID='', chart_data='')
+        
+        # Default (initial) page load
+        return render_template("vis.html", name=session['name'], assays=assays, well_conditions='', assay_ID='', wc_ID='', chart_data='')
+
 
 
 

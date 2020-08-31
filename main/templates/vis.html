@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<body>
+
+<div class="container">
+  <div class="page-header">
+    <h1>View Assay</h1>
+  </div>
+		  <div class="form-group">
+		  	<label for="assay">Assay</label>
+		  	<select class="form-control" id="assay" name="assay_ID" placeholder="" value required><option value="empty" disabled hidden> -- select an option -- </option></select>
+		  </div>
+		  
+		  <div class="form-group">
+		  	<label for="assay">Well name</label>
+		  	<select class="form-control" id="wc_ID" name="wc_ID" placeholder="" value required><option value="empty" disabled hidden> -- select an option -- </option></select>
+		  </div>
+	
+			<div class="form-group">
+				<button id="chartBtn" class="btn btn-primary">Get chart</button>
+				<button class="btn btn-link" type ="button" id="cancelSelection" onclick="document.location.href='/simpleVis'" disabled>Cancel selection</button>
+			</div>
+			
+			<div class="form-group">
+				<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#well_edit">Put this in a right click menu</button>
+			</div>
+</div>
+
+<!-- container for chart data -->
+<div class="container" id="chart_data">
+</div>
+
+<!-- Well Edit -->
+
+<div class="modal fade" id="well_edit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="exampleModalLabel">Well Edit</h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        Put a form here.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+	<script>
+		// Declare selectors
+		var assay_selector = document.getElementById('assay');
+		var wc_selector = document.getElementById('wc_ID');
+		
+		// Reload when assay selector changes
+<!--		assay_selector.addEventListener('change', function() {-->
+<!--		    post('/simpleVis', {assay_ID: assay_selector.value});-->
+<!--		});-->
+	
+		// Populate assay selector and select value if assay_ID is provided at load time
+		var assays = {{ assays | tojson | safe}};
+		var assay_ID = '{{assay_ID}}'
+		
+		for(index in assays) {
+		    assay_selector.options[assay_selector.options.length] = new Option(assays[index], index);
+		}
+		
+		if (assay_ID !== '') {
+			assay_selector.value = assay_ID;
+			document.getElementById("cancelSelection").disabled = false;
+		} else {
+			assay_selector.value = "empty";
+			wc_selector.disabled = true;
+		}
+		
+		// Populate wc selector and select value if wc_ID is provided at load time
+		var well_conditions = {{ well_conditions | tojson | safe}};
+		var wc_ID = '{{wc_ID}}'
+		
+		for(index in well_conditions) {
+		    wc_selector.options[wc_selector.options.length] = new Option(well_conditions[index], index);
+		}
+		
+		if (wc_ID !== '') {
+			// Page is loading to display visualization
+			wc_selector.value = wc_ID;
+			document.getElementById("cancelSelection").disabled = false;
+			assay_selector.disabled = true;
+			wc_selector.disabled = true;
+			load_chart_data();
+		} else {
+			wc_selector.value = "empty";
+		}
+		
+		////////////////////////////////////////////////////////////////////////////		
+		// Javascript function shell for when page is loading chart data
+		////////////////////////////////////////////////////////////////////////////
+		function load_chart_data() {
+			var chart_data = {{ chart_data | tojson | safe}};
+			document.getElementById('chart_data').innerHTML = chart_data;
+		};
+		
+	</script>
+
+	<script>
+		google.charts.load('current', {packages: ['corechart']});
+	</script>
+
+
+</body>
+{% endblock %}
