@@ -214,8 +214,14 @@ class ManageWC:
         assert(list(well_data.keys()) == wc_list)
         well_summary['wc_ID'] = wc_list
         
+        vals= []
+        for wc_ID in well_data.keys():
+            vals.append(well_data[wc_ID].get('well_name', None)[0])
+        vals.sort()
+        well_summary['well_name'] = vals
+        
         fields = ['salt_type', 'salt_conc', 'substrate_type', 'substrate_conc', 
-                  'surfact_type', 'surfact_conc', 'other_wc_attr', 'sample_ID', 'assay_ID', 'contents', 'well_name']
+                  'surfact_type', 'surfact_conc', 'other_wc_attr', 'sample_ID', 'assay_ID', 'contents']
         
         for field in fields:
             vals = []
@@ -234,7 +240,10 @@ class ManageWC:
                 # if there are multiple types of tuples in the well_data field, then examine the set of field values
                 field_vals = []
                 for val in vals:
-                    field_vals.append(val[0])
+                    if val != None:
+                        field_vals.append(val[0])
+                    else:
+                        field_vals.append(None)
                 field_vals_set = set(field_vals)
                 
                 if len(field_vals_set) == 1:
@@ -281,8 +290,8 @@ class ManageWC:
                 # Cache old value for the field
                 old_val = old_well_data[wc_ID].get(field, None)
                 
-                # Retain old assay_ID and well_name, otherwise set new name
-                # Also keep any fields that are not set in the input dictionary
+                # Always retain old assay_ID and well_name
+                # Also keep any fields that are not set in the input
                 if (field not in well_data.keys()) or field == 'assay_ID' or field == 'well_name':
                     if old_val != None:
                         new_val = old_val[0]
@@ -321,10 +330,10 @@ class ManageViz:
         return self.obsDao.get_data()                
 
 if __name__ == "__main__":
-    pass
-#    wcModel = ManageWC()
-#    wc_list = list(range(116, 126))
-#    well_summary, well_data = wcModel.get_well_data(wc_list)
+    #pass
+    wcModel = ManageWC()
+    wc_list = list(['126', '127'])
+    well_summary, well_data = wcModel.get_well_data(wc_list)
 #    
 #    def make_data(wc_ID_list):
 #        data={}

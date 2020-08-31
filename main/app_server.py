@@ -92,13 +92,13 @@ def simple_visualization():
         assayModel = ManageAssay()
         assays = assayModel.get_assays()
         
-        # Retrive assay ID from page if called by post request
-        if request.method == 'POST':
-            assay_ID = dict(request.form).get('assay_ID')
-            wcModel = ManageWC()
-            well_conditions = wcModel.get_wcs(assay_ID)
-            return render_template("simple_vis.html", name=session['name'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID='', chart_data='')
-        
+#        # Retrive assay ID from page if called by post request
+#        if request.method == 'POST':
+#            assay_ID = dict(request.form).get('assay_ID')
+#            wcModel = ManageWC()
+#            well_conditions = wcModel.get_wcs(assay_ID)
+#            return render_template("simple_vis.html", name=session['name'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID='', chart_data='')
+#        
         # Default (initial) page load
         return render_template("simple_vis.html", name=session['name'], assays=assays, well_conditions='', assay_ID='', wc_ID='', chart_data='')
 
@@ -118,29 +118,29 @@ def get_wells():
             return jsonify({"status": "error"})
 
 
-@app.route('/showSimpleVis', methods=['GET', 'POST'])
-def show_simple_visualization():
-    if request.method == 'POST':
-        # Load assay list from DB
-        assayModel = ManageAssay()
-        assays = assayModel.get_assays()
-        
-        # Retrieve form data
-        form_data = dict(request.form)
-        assay_ID = form_data.get('assay_ID')
-        wc_ID = form_data.get('wc_ID')
-        
-        # Load wc list from DB
-        wcModel = ManageWC()
-        well_conditions = wcModel.get_wcs(assay_ID)
-        
-        # TODO: GET CHART DATA USING wc_ID ====================================
-        print("assay_ID: %s" % (assay_ID,))
-        print("wc_ID: %s" % (wc_ID,))
-        chart_data = "I'm a chart!"
-        # =====================================================================
-        
-        return render_template("simple_vis.html", name=session['name'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID=wc_ID, chart_data=chart_data)
+#@app.route('/showSimpleVis', methods=['GET', 'POST'])
+#def show_simple_visualization():
+#    if request.method == 'POST':
+#        # Load assay list from DB
+#        assayModel = ManageAssay()
+#        assays = assayModel.get_assays()
+#        
+#        # Retrieve form data
+#        form_data = dict(request.form)
+#        assay_ID = form_data.get('assay_ID')
+#        wc_ID = form_data.get('wc_ID')
+#        
+#        # Load wc list from DB
+#        wcModel = ManageWC()
+#        well_conditions = wcModel.get_wcs(assay_ID)
+#        
+#        # TODO: GET CHART DATA USING wc_ID ====================================
+#        print("assay_ID: %s" % (assay_ID,))
+#        print("wc_ID: %s" % (wc_ID,))
+#        chart_data = "I'm a chart!"
+#        # =====================================================================
+#        
+#        return render_template("simple_vis.html", name=session['name'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID=wc_ID, chart_data=chart_data)
 
 
 @app.route('/showCharts')
@@ -149,7 +149,7 @@ def get_viz_data():
     wc_id = request.args.get('wc_id', "-1")
 
     wcModel = ManageWC()
-    print("wc_id", wc_id)
+
     if assay_id is not None:
         if wc_id == "-1" or wc_id is None:
             rows, cols, well_conditions = wcModel.get_assay_viz_dataGrid(assay_id)
@@ -170,17 +170,39 @@ def view_assay():
         # Load dictionary representing available assays from DV
         assayModel = ManageAssay()
         assays = assayModel.get_assays()
+        sampleModel = ManageSample()
+        samples = sampleModel.get_samples()
         
-        # Retrive assay ID from page if called by post request
-        if request.method == 'POST':
-            assay_ID = dict(request.form).get('assay_ID')
-            wcModel = ManageWC()
-            well_conditions = wcModel.get_wcs(assay_ID)
-            return render_template("vis.html", name=session['name'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID='', chart_data='')
-        
-        # Default (initial) page load
-        return render_template("vis.html", name=session['name'], assays=assays, well_conditions='', assay_ID='', wc_ID='', chart_data='')
+        return render_template("vis.html", name=session['name'], assays=assays, well_conditions='', assay_ID='', wc_ID='', samples=samples)
 
+@app.route('/fillWellEdit', methods=['GET', 'POST'])
+def get_well_data():
+    wc_ID_list = request.args.getlist('wc_ID[]')
+    wcModel = ManageWC()
+    print(wc_ID_list)
+    print(type(wc_ID_list))
+    data, _ = wcModel.get_well_data(wc_ID_list)
+    print(data)
+    return json.dumps(data)
+
+@app.route('/submitWellEdits', methods=['GET', 'POST'])
+def submit_well_edits():
+    # get form data
+    form_data = dict(request.args)
+    form_data['wc_ID'] = form_data['wc_ID'].split(",")
+    print(form_data)
+    
+    # Remove empty strings
+    data = form_data.copy()
+    for key in form_data:
+        if form_data[key] == 'empty' or form_data[key] == '':
+            del data[key]
+    
+    # Save data to wells
+    wcModel = ManageWC()
+    wcModel.save_well_data(data)
+    
+    return jsonify({"status": "success"})
 
 
 

@@ -1,4 +1,111 @@
 
+<!-- WELL EDIT -->
+$(function() {
+    $('#well_edit').on('shown.bs.modal', function() {
+      $.getJSON($SCRIPT_ROOT + '/fillWellEdit', {
+        "wc_ID": getSelectedWCIDs()
+      }, function(data) {
+        fillWellEditForm(data)
+      });
+      return false;
+    });
+  });
+
+$(function() {
+    $('#well_edit_save').click(function() {
+			var data = $("#well_edit_form").serializeArray();
+			data[data.length] = { name: "wc_ID", value: wc_IDs_global };
+			$.getJSON($SCRIPT_ROOT + '/submitWellEdits', data);
+			$("#well_edit").modal('hide');
+    });
+  });
+
+function getSelectedWCIDs() {
+	var array = new Array();
+	array[0] = 126;
+	array[1] = 127;
+	return array;
+}
+
+function fillWellEditForm(data) {
+		// (hidden) wc IDs
+		wc_IDs_global = data.wc_ID;
+		
+		// Well names
+		var wells_text = document.getElementById('wells');
+		wells_text.value = data.well_name;
+		
+		// Sample
+		var sample_selector = document.getElementById('sample_ID');
+		var sample_ID = data.sample_ID;
+		if (sample_ID[0] == true) {
+			sample_selector.value = sample_ID[1];
+		};
+		
+		// Contents
+		var contents_text = document.getElementById('contents');
+		if (data.contents[0] == true) {
+			contents_text.value = data.contents[1];
+		} else {
+			contents_text.placeholder = "Multiple values selected";
+		};
+		
+		// Salt
+		var salt_type = document.getElementById('salt_type');
+		if (data.salt_type[0] == true) {
+			salt_type.value = data.salt_type[1];
+		} else {
+			salt_type.placeholder = "Multiple values selected";
+		};
+		
+		var salt_conc = document.getElementById('salt_conc');
+		if (data.salt_conc[0] == true) {
+			salt_conc.value = data.salt_conc[1];
+		} else {
+			salt_conc.placeholder = "Multiple values selected";
+		};
+		
+		// Substrate
+		var substrate_type = document.getElementById('substrate_type');
+		if (data.substrate_type[0] == true) {
+			substrate_type.value = data.substrate_type[1];
+		} else {
+			substrate_type.placeholder = "Multiple values selected";
+		};
+		
+		var substrate_conc = document.getElementById('substrate_conc');
+		if (data.substrate_conc[0] == true) {
+			substrate_conc.value = data.substrate_conc[1];
+		} else {
+			substrate_conc.placeholder = "Multiple values selected";
+		};
+		
+		// Surfactant
+		var surfact_type = document.getElementById('surfact_type');
+		if (data.surfact_type[0] == true) {
+			surfact_type.value = data.surfact_type[1];
+		} else {
+			surfact_type.placeholder = "Multiple values selected";
+		};
+		
+		var surfact_conc = document.getElementById('surfact_conc');
+		if (data.surfact_conc[0] == true) {
+			surfact_conc.value = data.surfact_conc[1];
+		} else {
+			surfact_conc.placeholder = "Multiple values selected";
+		};
+		
+		// Other
+		var other_wc_attr = document.getElementById('other_wc_attr');
+		if (data.other_wc_attr[0] == true) {
+			other_wc_attr.value = data.other_wc_attr[1];
+		} else {
+			other_wc_attr.placeholder = "Multiple values selected";
+		};
+}
+
+<!-- VISUALIZATION -->
+
 $(function() {
     $('button#chartBtn').bind('click', function() {
     $('#chart_data').html('');
