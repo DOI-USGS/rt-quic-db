@@ -23,10 +23,6 @@
 					<button id="chartBtn" class="btn btn-primary">Get chart</button>
 					<button class="btn btn-link" type ="button" id="cancelSelection" onclick="document.location.href='/vis'">Cancel selection</button>
 				</div>
-				
-				<div class="form-group">
-					<button type="button" class="btn btn-primary" id="open_well_edit" data-toggle="modal" data-target="#well_edit">Put this in a right click menu</button>
-				</div>
 			</form>
 </div>
 
@@ -35,6 +31,9 @@
 </div>
 
 <!-- Well Edit -->
+<div class="dropdown-menu dropdown-menu-sm" id="context-menu">
+  <li><a href="#" data-toggle="modal" data-target="#well_edit">Well Edit</a></li>
+</div>
 
 
 <div class="modal fade" id="well_edit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">

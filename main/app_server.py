@@ -179,10 +179,7 @@ def view_assay():
 def get_well_data():
     wc_ID_list = request.args.getlist('wc_ID[]')
     wcModel = ManageWC()
-    print(wc_ID_list)
-    print(type(wc_ID_list))
     data, _ = wcModel.get_well_data(wc_ID_list)
-    print(data)
     return json.dumps(data)
 
 @app.route('/submitWellEdits', methods=['GET', 'POST'])
@@ -190,7 +187,6 @@ def submit_well_edits():
     # get form data
     form_data = dict(request.args)
     form_data['wc_ID'] = form_data['wc_ID'].split(",")
-    print(form_data)
     
     # Remove empty strings
     data = form_data.copy()
