@@ -1,4 +1,3 @@
-
 <!-- WELL EDIT -->
 $(document).on('contextmenu', function(e) {
 	  var top = e.pageY - 10;
@@ -36,13 +35,6 @@ $(function() {
 			$("#well_edit").modal('hide');
     });
   });
-
-function getSelectedWCIDs() {
-	var array = new Array();
-	array[0] = 126;
-	array[1] = 127;
-	return array;
-}
 
 function fillWellEditForm(data) {
 		// (hidden) wc IDs
@@ -121,7 +113,7 @@ function fillWellEditForm(data) {
 		};
 }
 
-<!-- VISUALIZATION -->
+<!-- VISUALIZATION GRID-->
 
 $(function() {
     $('button#chartBtn').bind('click', function() {
@@ -136,7 +128,7 @@ $(function() {
         console.log(assay_id);
         console.log(wc_id);
         if(wc_id == -1 || wc_id ==  null){
-            drawChartGrid(data.Xs, data.Ys, data.result);
+            drawChartGrid(data.Xs, data.Ys, data.result, data.wc_ID_list);
         }else{
             assay_name =  $('select#assay option:selected').text();
             wc_name =  $('select#wc_ID option:selected').text();
@@ -148,28 +140,30 @@ $(function() {
     });
   });
 
-function drawChartGrid(Xs, Ys, grid_data){
+function drawChartGrid(Xs, Ys, grid_data, wc_ID_list){
 //   for(i in range(Xs)){
 //        for (j in range(Ys)){
-//            // create a div with with id , style to it
+//            // create a div with with id = wc_row_col and data-wc_ID = wc_ID, style to it
 //            drawChart(grid_data[index],id)
 //        }
 //   }
 
-   var html = '<table width="100%" class="data-table"><thead><tr>';
+   var html = '<table width="100%" class="data-table" id="chart_grid"><thead><tr>';
 
    //adding row header
    for (var m in Ys){
     html += '<th>'+Ys[m]+'</th>'
    }
    html += '</tr></thead><tbody>';
+   
+   var flat_index = 0;
 
    for (var i = 0, len = grid_data.length; i < len; ++i) {
 
     html += '<tr>';
 //    html += '<td>'+Xs[i]+'</td>';
-      for (var j = 0, rowLen = grid_data[i].length; j < rowLen; ++j ) {
-        html += '<td><div id = "wc_'+i+'_'+j+'">' + '</div></td>';
+      for (var j = 0, rowLen = grid_data[i].length; j < rowLen; ++j, ++flat_index) {
+        html += '<td class="selectable" data-wc_ID = "' + wc_ID_list[flat_index] + '"><div id = "wc_'+i+'_'+j+'" title = "' + wc_ID_list[flat_index] + '">' + '</div></td>';
       }
     html += "</tr>";
     }
@@ -183,8 +177,6 @@ function drawChartGrid(Xs, Ys, grid_data){
             drawChart('wc_'+i+'_'+j, null, null, grid_data[i][j], grid = true);
         }
     }
-
-//    drawChart
 }
 
 function drawChart(id, assay_name, wc_name, figData, grid = false){
@@ -247,4 +239,75 @@ function updateWells(well_conditions){
 		   wc_selector.options[wc_selector.options.length] = new Option(well_conditions[index], index);
 	}
     wc_selector.disabled = false;
+}
+
+<!-- WELL SELECTION -->
+// Retrieve selected cells
+function getSelectedWCIDs() {
+	var hl = document.getElementsByClassName('highlighted');
+	var array = new Array();
+	
+	for (var i = 0; i < hl.length; ++i) {
+	    var element = hl[i];  
+	    if (element.nodeName == "TD") {
+	    	var wc_ID = element.getAttribute('data-wc_ID');
+	    	array.push(wc_ID);
+	    }
+	}
+	return array;
+}
+
+// Clear selection
+function clearSelectedCells() {
+	var hl = document.getElementsByClassName('highlighted');
+	for (var i = hl.length - 1; i >= 0; --i) {
+	   var element = hl[i];
+		element.classList.remove('highlighted');
+	}
+}
+
+
+// Selection of table cells
+$(function () {
+   // Create table dragging functionality
+   var isMouseDown = false;
+   var highlighted
+   $("body")
+     .on('mousedown', 'table#chart_grid td.selectable', function (e) {
+     	 if (e.which == 1) {
+     	 	isMouseDown = true;
+       	highlighted = $(this).hasClass('highlighted')
+       	toggleHighlightingOfCell($(this));
+     	 }
+       return false; // prevent text selection
+     })
+//     .on('mousedown', ':not(#context-menu)', function (e) {
+//     	 if (e.which == 1) {
+//     	 	isMouseDown = true;
+//       	$('.highlighted').removeClass('highlighted')
+//     	 }
+//       return true; // prevent text selection
+//     })
+     .on('mouseover', 'table#chart_grid td.selectable', function () {
+       if (isMouseDown) {
+         toggleHighlightingOfCell($(this));
+       }
+     })
+     .bind("selectstart", function () {
+       return false; // prevent text selection in IE
+     })
+
+   $(document)
+       .mouseup(function () {
+       isMouseDown = false
+   })
+ });
+
+function toggleHighlightingOfCell(cell) {
+    isHighlighted = cell.hasClass('highlighted');
+    if (isHighlighted) {
+        cell.removeClass('highlighted');
+    } else {
+        cell.addClass('highlighted');
+    }
 }

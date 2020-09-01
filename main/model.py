@@ -146,7 +146,7 @@ class ManageWC:
         return data
 
     def get_assay_viz_dataGrid(self, assay_id):
-        alldata = self.wcDao.get_viz_data_from_assay_ID(assay_id)
+        alldata, wc_ID_list = self.wcDao.get_viz_data_from_assay_ID(assay_id)
         wellnames = alldata.keys()
         well_rows = list(set([n[0] for n in wellnames]))
         well_rows.sort()
@@ -159,7 +159,7 @@ class ManageWC:
                 row_wells.append(alldata[r+c])
             outdata.append(row_wells)
 
-        return well_rows, well_cols, outdata
+        return well_rows, well_cols, outdata, wc_ID_list
 
     """
     Get metadata for a given list of wells by first seeing if the well condition 
@@ -320,7 +320,7 @@ class ManageWC:
         # insert records as a batch
         temp_csv = wcCSV.write_csv()
         self.wcDao.load_well_updates(file = temp_csv)
-        os.remove(temp_csv.name)        
+        os.remove(temp_csv.name)
 
 class ManageViz:
     def __init__(self):
@@ -332,25 +332,8 @@ class ManageViz:
 if __name__ == "__main__":
     #pass
     wcModel = ManageWC()
-    wc_list = list(['126', '127'])
-    well_summary, well_data = wcModel.get_well_data(wc_list)
-#    
-#    def make_data(wc_ID_list):
-#        data={}
-#        data['wc_ID'] = wc_ID_list
-#        data['salt_type'] = '1'
-#        data['salt_conc'] = '6'
-#        data['substrate_type'] = '7'
-#        data['substrate_conc'] = '8'
-#        data['surfact_type'] = '9'
-#        data['surfact_conc'] = '10'
-#        data['sample_ID'] = '99'
-#        return data
-#
-#
-#    data = make_data(wc_list)
-#
-#    wcModel.save_well_data(data)
+    wcModel.get_assay_viz_dataGrid(34)
+
                 
                 
                 

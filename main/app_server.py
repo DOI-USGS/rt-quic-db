@@ -152,8 +152,8 @@ def get_viz_data():
 
     if assay_id is not None:
         if wc_id == "-1" or wc_id is None:
-            rows, cols, well_conditions = wcModel.get_assay_viz_dataGrid(assay_id)
-            return json.dumps({"result": well_conditions, "Xs": rows, "Ys": cols}, use_decimal=True)
+            rows, cols, well_conditions, wc_ID_list = wcModel.get_assay_viz_dataGrid(assay_id)
+            return json.dumps({"result": well_conditions, "Xs": rows, "Ys": cols, "wc_ID_list": wc_ID_list}, use_decimal=True)
         else:
             well_conditions = wcModel.get_assay_viz_data(assay_id, wc_id)
             # jsonify({"result": well_conditions})

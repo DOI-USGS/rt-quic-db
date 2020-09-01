@@ -4,6 +4,8 @@ import os
 import json
 from collections import defaultdict
 import pandas as pd
+import random
+import string
 
 config = {
     'user': 'quicdbadmin',
@@ -91,16 +93,44 @@ Q_GET_WCS_OBSERVATIONS = "select o.time_s, o.fluorescence \
                     from Observation as o, Well_Condition as w \
                     where o.wc_ID = w.wc_ID and w.assay_ID = %s and o.wc_id = %s;"
 
-Q_GET_VIZ_FROM_ASSAYID = "select wc.well_name, o.time_s , o.fluorescence\
+Q_GET_VIZ_FROM_ASSAYID = "select wc.well_name, o.time_s , o.fluorescence, wc.wc_ID\
         from Assay as a, Well_Condition as wc, Observation as o \
         where a.assay_ID = %s and a.assay_ID=wc.assay_ID and o.wc_ID=wc.wc_ID;"
-Q_GET_VIZ_FROM_ASSAYNAME = "select well_name, fluorescence, time_s from Assay as a, Well_Condition as wc, Observation as o where a.name = %s and a.assay_ID=wc.assay_ID and o.wc_ID=wc.wc_ID;"
+#Q_GET_VIZ_FROM_ASSAYNAME = "select well_name, fluorescence, time_s from Assay as a, Well_Condition as wc, Observation as o where a.name = %s and a.assay_ID=wc.assay_ID and o.wc_ID=wc.wc_ID;"
 Q_GET_WC_DATA = ("SELECT salt_type, salt_conc, substrate_type, substrate_conc, surfact_type, surfact_conc, "
                  "other_wc_attr, sample_ID, assay_ID, contents, well_name, wc_ID FROM Well_Condition WHERE wc_ID IN (%s);")
-Q_LOAD_WELL_UPDATES = ("LOAD DATA LOCAL INFILE %s REPLACE INTO TABLE Well_Condition FIELDS TERMINATED BY ',' "
-              "ENCLOSED BY '\"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (wc_ID, salt_type, "
-              "salt_conc, substrate_type, substrate_conc, surfact_type, surfact_conc, "
-              "other_wc_attr, sample_ID, assay_ID, contents, well_name);")
+
+
+#Q_LOAD_WELL_UPDATES_OLD = ("LOAD DATA LOCAL INFILE %s REPLACE INTO TABLE Well_Condition FIELDS TERMINATED BY ',' "
+#              "ENCLOSED BY '\"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (wc_ID, salt_type, "
+#              "salt_conc, substrate_type, substrate_conc, surfact_type, surfact_conc, "
+#              "other_wc_attr, sample_ID, assay_ID, contents, well_name);")
+
+"""
+Need to do replacement of the well records without using REPLACE in LOAD DATA INFILE,
+since this causes a delete/insert which causes deletion of Observation records due
+to ON DELETE CASCADE behavior. Instead load into temp table and then INSERT INTO using
+the ON DUPLICATE KEY UPDATE.
+
+https://stackoverflow.com/questions/15271202/mysql-load-data-infile-with-on-duplicate-key-update
+"""
+Q_LOAD_WELL_UPDATES = ("CREATE TABLE {} LIKE Well_Condition;\
+DROP INDEX `sample_ID_idx` ON {};\
+DROP INDEX `assay_ID_idx` ON {};\
+LOAD DATA LOCAL INFILE %s INTO TABLE {} FIELDS TERMINATED BY ',' \
+ENCLOSED BY '\"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (wc_ID, salt_type, \
+salt_conc, substrate_type, substrate_conc, surfact_type, surfact_conc, \
+other_wc_attr, sample_ID, assay_ID, contents, well_name);\
+INSERT INTO Well_Condition \
+SELECT * FROM {} \
+ON DUPLICATE KEY UPDATE wc_ID = VALUES(wc_ID), salt_type = VALUES(salt_type), \
+salt_conc = VALUES(salt_conc), substrate_type = VALUES(substrate_type), \
+substrate_conc = VALUES(substrate_conc), surfact_type = VALUES(surfact_type), \
+surfact_conc = VALUES(surfact_conc), other_wc_attr = VALUES(other_wc_attr), \
+sample_ID = VALUES(sample_ID), assay_ID = VALUES(assay_ID), contents = VALUES(contents), \
+well_name = VALUES(well_name); \
+DROP TABLE {};")
+
 
 class UsersDao:
 
@@ -556,29 +586,32 @@ class WCDao:
 
     """
     Return a dictionary of the form:
-        dict[well_name] = (fluorescence, time_s)
+        dict[well_name] = list of (fluorescence, time_s)
     """
 
     def get_viz_data_from_assay_ID(self, assay_id):
         self.cursor.execute(Q_GET_VIZ_FROM_ASSAYID, (assay_id,))
         rows = self.cursor.fetchall()
+        wc_ID_list = []
         d = defaultdict(list)
         for row in rows:
             d[row[0]].append((row[1], row[2]))
-        return d
+            if row[3] not in wc_ID_list:
+                wc_ID_list.append(row[3])
+        return d, wc_ID_list
 
-    """
-    Return a dictionary of the form:
-        dict[well_name] = (fluorescence, time_s)
-    """
-
-    def get_viz_data_from_assay_name(self, assay_name):
-        self.cursor.execute(Q_GET_VIZ_FROM_ASSAYNAME, (assay_name,))
-        rows = self.cursor.fetchall()
-        d = defaultdict(list)
-        for row in rows:
-            d[row[0]].append((row[1], row[2]))
-        return d
+#    """
+#    Return a dictionary of the form:
+#        dict[well_name] = (fluorescence, time_s)
+#    """
+#
+#    def get_viz_data_from_assay_name(self, assay_name):
+#        self.cursor.execute(Q_GET_VIZ_FROM_ASSAYNAME, (assay_name,))
+#        rows = self.cursor.fetchall()
+#        d = defaultdict(list)
+#        for row in rows:
+#            d[row[0]].append((row[1], row[2]))
+#        return d
 
 
     """
@@ -626,7 +659,9 @@ class WCDao:
 
     def load_well_updates(self, file):
         path = file.name
-        self.cursor.execute(Q_LOAD_WELL_UPDATES, (path,))
+        temp_table = path.split('.')[0] # name of temporary table created within the query
+        for _ in self.cursor.execute(Q_LOAD_WELL_UPDATES.format(temp_table, temp_table, temp_table, 
+                                                       temp_table, temp_table, temp_table), (path,), multi=True): pass
         self.cnx.commit()
 
 if __name__ == "__main__":
