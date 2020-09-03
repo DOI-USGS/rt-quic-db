@@ -49,67 +49,85 @@ function fillWellEditForm(data) {
 		var sample_ID = data.sample_ID;
 		if (sample_ID[0] == true) {
 			sample_selector.value = sample_ID[1];
+		} else {
+			sample_selector.value = "";
 		};
 		
 		// Contents
 		var contents_text = document.getElementById('contents');
 		if (data.contents[0] == true) {
 			contents_text.value = data.contents[1];
+			contents_text.placeholder = "Unspecified";
 		} else {
 			contents_text.placeholder = "Multiple values selected";
+			contents_text.value = "";
 		};
 		
 		// Salt
 		var salt_type = document.getElementById('salt_type');
 		if (data.salt_type[0] == true) {
 			salt_type.value = data.salt_type[1];
+			salt_type.placeholder = "Unspecified";
 		} else {
 			salt_type.placeholder = "Multiple values selected";
+			salt_type.value = "";
 		};
 		
 		var salt_conc = document.getElementById('salt_conc');
 		if (data.salt_conc[0] == true) {
 			salt_conc.value = data.salt_conc[1];
+			salt_conc.placeholder = "Unspecified";
 		} else {
 			salt_conc.placeholder = "Multiple values selected";
+			salt_conc.value = "";
 		};
 		
 		// Substrate
 		var substrate_type = document.getElementById('substrate_type');
 		if (data.substrate_type[0] == true) {
 			substrate_type.value = data.substrate_type[1];
+			substrate_type.placeholder = "Unspecified";
 		} else {
 			substrate_type.placeholder = "Multiple values selected";
+			substrate_type.value = "";
 		};
 		
 		var substrate_conc = document.getElementById('substrate_conc');
 		if (data.substrate_conc[0] == true) {
 			substrate_conc.value = data.substrate_conc[1];
+			substrate_conc.placeholder = "Unspecified";
 		} else {
 			substrate_conc.placeholder = "Multiple values selected";
+			substrate_conc.value = "";
 		};
 		
 		// Surfactant
 		var surfact_type = document.getElementById('surfact_type');
 		if (data.surfact_type[0] == true) {
 			surfact_type.value = data.surfact_type[1];
+			surfact_type.placeholder = "Unspecified";
 		} else {
 			surfact_type.placeholder = "Multiple values selected";
+			surfact_type.value = "";
 		};
 		
 		var surfact_conc = document.getElementById('surfact_conc');
 		if (data.surfact_conc[0] == true) {
 			surfact_conc.value = data.surfact_conc[1];
+			surfact_conc.placeholder = "Unspecified";
 		} else {
 			surfact_conc.placeholder = "Multiple values selected";
+			surfact_conc.value = "";
 		};
 		
 		// Other
 		var other_wc_attr = document.getElementById('other_wc_attr');
 		if (data.other_wc_attr[0] == true) {
 			other_wc_attr.value = data.other_wc_attr[1];
+			other_wc_attr.placeholder = "Unspecified";
 		} else {
 			other_wc_attr.placeholder = "Multiple values selected";
+			other_wc_attr.value = "";
 		};
 }
 

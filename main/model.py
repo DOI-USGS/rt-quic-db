@@ -251,6 +251,8 @@ class ManageWC:
                 else:
                     well_summary[field] = (False, '', '') # There is disagreement of field values among selected wc records
         
+        print(well_data)
+        print(well_summary)
         return well_summary, well_data    
  
     """
