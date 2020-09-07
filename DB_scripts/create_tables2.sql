@@ -225,3 +225,11 @@ ALTER TABLE `Plate` ADD
 
 ALTER TABLE `Users` ADD
 		`password_hash` VARCHAR(200) NULL;
+ALTER TABLE `Users` ADD
+		`first_name` VARCHAR(50) NOT NULL;
+ALTER TABLE `Users` ADD
+		`last_name` VARCHAR(50) NULL;
+ALTER TABLE `Users` ADD
+		`email` VARCHAR(80) NULL;
+ALTER TABLE `Users` DROP `name`;
+ALTER TABLE `Users` DROP `password`;

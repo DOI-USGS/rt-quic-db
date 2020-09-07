@@ -33,7 +33,7 @@ def favicon():
 def index():
     if 'username' in session:
         #return render_template("index.html", name=session['name'])
-        return redirect(url_for('simple_visualization'))
+        return redirect(url_for('view_assay'))
     else:
         return render_template("login.html")
 
@@ -65,7 +65,7 @@ def testchart2():
     return render_template("testchart2.html", name=session['username'])
 
 # =============================================================================
-# Login Page
+# Login, New Account Pages
 # =============================================================================
 
 @app.route('/authenticate', methods=['GET', 'POST'])
@@ -83,6 +83,46 @@ def login():
                 session['name'] = user['name']
                 session['role'] = user['role']
         return redirect(url_for('index'))
+
+@app.route('/newAccount', methods=['GET', 'POST'])
+def registration_page():
+    if 'username' in session:
+        return redirect(url_for('view_assay'))
+    else:
+        return render_template("register.html")
+    
+@app.route('/submitRegistration', methods=['GET', 'POST'])
+def submit_registration():    
+    if request.method == 'POST':
+        # parse data from form1
+        data = {}
+        data['user_ID'] = '-1' # to ensure a new user is created
+        data['role'] = 'default' # automatically tag new user with default role
+        data['username'] = request.form['username']
+        data['first_name'] = request.form['first_name']
+        data['last_name'] = request.form['last_name']
+        data['email'] = request.form['email']
+        data['loc_ID'] = request.form['location']
+        data['password'] = request.form['password']
+        data['password_confirm'] = request.form['confirm_password']
+        
+        assert(data['password'] == data['password_confirm'])
+        
+        # create user
+        userModel = ManageUser()
+        userModel.create_update_user(data)
+        
+    return redirect(url_for('index'))
+
+@app.route('/getLocationsForReg')
+def get_locs_for_reg():
+    locationModel = ManageLocation()
+    locations = locationModel.get_locations()   
+    
+    if locations is not None:
+        return jsonify({"status": "success", "result": locations})
+    else:
+        return jsonify({"status": "error"})
 
 # =============================================================================
 # Simple visualization page

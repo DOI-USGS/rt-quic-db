@@ -72,10 +72,10 @@ Q_DELETE_SAMPLE = "DELETE FROM Sample WHERE sample_ID = %s;"
 
 Q_SELECT_OBS = "SELECT * FROM Observation WHERE plate_ID = 99 and wc_ID = 102"
 
-Q_CREATE_USER = "INSERT INTO Users (name, role, username, password) VALUES (%s, %s, %s, %s);"
-Q_GET_USERS = "SELECT ID, name FROM Users;"
-Q_GET_USER = "SELECT name, role, username, password from Users WHERE ID=%s;"
-Q_GET_USER_FOR_AUTH = "SELECT name, role, username, password_hash from Users WHERE username=%s;"
+Q_CREATE_USER = "INSERT INTO Users (role, username, password_hash, first_name, last_name, email) VALUES (%s, %s, %s, %s, %s, %s);"
+Q_GET_USERS = "SELECT ID, username FROM Users;"
+Q_GET_USER = "SELECT first_name, role, username, password_hash from Users WHERE ID=%s;"
+Q_GET_USER_FOR_AUTH = "SELECT first_name, role, username, password_hash from Users WHERE username=%s;"
 Q_UPDATE_USER = "UPDATE Users SET name=%s, role=%s, username=%s, password=%s WHERE ID = %s"
 Q_DELETE_USER = "DELETE FROM Users WHERE ID = %s;"
 Q_GET_USER_LOC = "SELECT L.loc_ID FROM Users U, LocAffiliatedWithUser L WHERE U.ID = L.user_ID AND L.user_ID = %s;"
@@ -205,14 +205,16 @@ class UsersDao:
     
     def create_update_user(self, data):
         user_ID = nstr(data['user_ID'])
-        name = nstr(data['user_name'])
+        first_name = nstr(data['first_name'])
+        last_name = nstr(data['last_name'])
         role = nstr(data['role'])
         username = nstr(data['username'])
-        password = nstr(data['password'])
+        password_hash = sha512_crypt.hash(data['password'])
+        email = nstr(data['email'])
         new_loc_ID = nstr(data['loc_ID'])
         
         if user_ID != '-1':
-            self.cursor.execute(Q_UPDATE_USER, (name, role, username, password, user_ID))
+            self.cursor.execute(Q_UPDATE_USER, (name, role, username, password, user_ID)) #TODO: Update this and query to use both names and password hash
         
             # get old loc ID
             self.cursor.execute(Q_GET_USER_LOC, (user_ID,))
@@ -227,7 +229,7 @@ class UsersDao:
                 if new_loc_ID != 'empty':
                     self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
         else:
-            self.cursor.execute(Q_CREATE_USER, (name, role, username, password))
+            self.cursor.execute(Q_CREATE_USER, (role, username, password_hash, first_name, last_name, email))
             
             # update LocAffiliatedWithUser if location was provided
             if new_loc_ID != 'empty':
