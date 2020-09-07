@@ -79,9 +79,8 @@ def login():
             userModel = ManageUser()
             user = userModel.authenticate( username=username, password=password)
             if user is not None:
-                session['username'] = username
-                session['name'] = user['name']
-                session['role'] = user['role']
+                for key in user:
+                    session[key] = user[key]
         return redirect(url_for('index'))
 
 @app.route('/newAccount', methods=['GET', 'POST'])
@@ -603,23 +602,18 @@ def send_issue_to_GH():
         title = "(" + priority + ") " + subject
         
         body = ''
-        submitted_name = form_data['name']
-        email = form_data['email']
-        loc_ID = form_data['loc_ID']
-        
-        body += "Submitted name: " + submitted_name
-        body += "\nEmail: " + email
-        body += "\nloc_ID: " + loc_ID
-        
         body += "\n\nDESCRIPTION"
         body += "\n" + description
-        
-        body += "\n\nSESSION VARIABLES"
-        session_vars = ''
-        for key in session:
-            s = key + ": " + session[key]
-            session_vars += "\n" + s
-        body += session_vars   
+
+        if form_data.get('incl_pers_info') != None:
+            body += "\n\nSESSION VARIABLES (The user elected to submit this information with their request.)"
+            session_vars = ''
+            for key in session:
+                s = key + ": " + str(session[key])
+                session_vars += "\n" + s
+            body += session_vars    
+        else:
+            body += '\n\nloc_ID: ' + str(session['loc_ID'])
 
         # Submit
         create_issue(title, body, label)

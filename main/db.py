@@ -75,7 +75,7 @@ Q_SELECT_OBS = "SELECT * FROM Observation WHERE plate_ID = 99 and wc_ID = 102"
 Q_CREATE_USER = "INSERT INTO Users (role, username, password_hash, first_name, last_name, email) VALUES (%s, %s, %s, %s, %s, %s);"
 Q_GET_USERS = "SELECT ID, username FROM Users;"
 Q_GET_USER = "SELECT first_name, role, username, password_hash from Users WHERE ID=%s;"
-Q_GET_USER_FOR_AUTH = "SELECT first_name, role, username, password_hash from Users WHERE username=%s;"
+Q_GET_USER_FOR_AUTH = "SELECT first_name, last_name, role, username, password_hash, email, ID from Users WHERE username=%s;"
 Q_UPDATE_USER = "UPDATE Users SET name=%s, role=%s, username=%s, password=%s WHERE ID = %s"
 Q_DELETE_USER = "DELETE FROM Users WHERE ID = %s;"
 Q_GET_USER_LOC = "SELECT L.loc_ID FROM Users U, LocAffiliatedWithUser L WHERE U.ID = L.user_ID AND L.user_ID = %s;"
@@ -148,10 +148,15 @@ class UsersDao:
     def authenticate(self, username, password):       
         self.cursor.execute(Q_GET_USER_FOR_AUTH, (username,), multi=False)
         row = self.cursor.fetchone()
+        self.cnx.commit()
         if row:
-            name, role, username, password_hash = row
+            first_name, last_name, role, username, password_hash, email, user_ID = row
             if sha512_crypt.verify(password, password_hash):
-                return {"name": name, "role": role}
+                # Get loc_ID and create dict to populate session cookie
+                loc_ID = self.get_data(user_ID).get('loc_ID')             
+                return {"name": first_name, "role": role, "username": username,  "first_name": first_name,
+                        "last_name": last_name, "email": email, "loc_ID": loc_ID,
+                        "user_ID": user_ID}
             else:
                 return None # invalid password
         else:
