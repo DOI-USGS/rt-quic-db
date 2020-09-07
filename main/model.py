@@ -7,7 +7,7 @@ class ManageUser:
         self.userDao = UsersDao()
 
     def authenticate(self, username, password):
-        return self.userDao.check_user(username, password)
+        return self.userDao.authenticate(username, password)
 
     def get_users(self):
         return self.userDao.get_users()

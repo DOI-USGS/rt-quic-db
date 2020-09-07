@@ -7,6 +7,9 @@ import pandas as pd
 import random
 import string
 
+from passlib.hash import sha512_crypt
+
+
 config = {
     'user': 'quicdbadmin',
     'password': 'quicdbadmin',
@@ -72,6 +75,7 @@ Q_SELECT_OBS = "SELECT * FROM Observation WHERE plate_ID = 99 and wc_ID = 102"
 Q_CREATE_USER = "INSERT INTO Users (name, role, username, password) VALUES (%s, %s, %s, %s);"
 Q_GET_USERS = "SELECT ID, name FROM Users;"
 Q_GET_USER = "SELECT name, role, username, password from Users WHERE ID=%s;"
+Q_GET_USER_FOR_AUTH = "SELECT name, role, username, password_hash from Users WHERE username=%s;"
 Q_UPDATE_USER = "UPDATE Users SET name=%s, role=%s, username=%s, password=%s WHERE ID = %s"
 Q_DELETE_USER = "DELETE FROM Users WHERE ID = %s;"
 Q_GET_USER_LOC = "SELECT L.loc_ID FROM Users U, LocAffiliatedWithUser L WHERE U.ID = L.user_ID AND L.user_ID = %s;"
@@ -138,6 +142,24 @@ class UsersDao:
         self.cnx = mysql.connector.connect(**config)
         self.cursor = self.cnx.cursor()
 
+    """
+    Main user authentication method. Looks up user's salt and then checks the hash.
+    """
+    def authenticate(self, username, password):       
+        self.cursor.execute(Q_GET_USER_FOR_AUTH, (username,), multi=False)
+        row = self.cursor.fetchone()
+        if row:
+            name, role, username, password_hash = row
+            if sha512_crypt.verify(password, password_hash):
+                return {"name": name, "role": role}
+            else:
+                return None # invalid password
+        else:
+            return None # username not found
+        
+    """
+    Deprecated method - relies on plaintext password field.
+    """
     def check_user(self, username, password):
         self.cursor.execute(Q_SELECT_USER, (username, password), multi=False)
         row = self.cursor.fetchone()

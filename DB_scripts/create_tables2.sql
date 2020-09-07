@@ -222,3 +222,6 @@ ALTER TABLE `Plate` ADD
 		`columns` INT NOT NULL;
 ALTER TABLE `Plate` ADD
 		`rows` INT NOT NULL;
+
+ALTER TABLE `Users` ADD
+		`password_hash` VARCHAR(200) NULL;

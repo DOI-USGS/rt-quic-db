@@ -64,6 +64,10 @@ def testchart2():
         return render_template("login.html")
     return render_template("testchart2.html", name=session['username'])
 
+# =============================================================================
+# Login Page
+# =============================================================================
+
 @app.route('/authenticate', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
