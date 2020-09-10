@@ -1,6 +1,5 @@
 Introduction
 ============
-
 Purpose
 -------
 Quake supports scientists and laboratory personnel involved in prion surveillance and research.
@@ -15,7 +14,6 @@ We want to know about your important use cases and desired features so that we c
 
 Features
 --------
-
 - Management of new users, laboratory locations, samples, plate templates, and assays
 - Upload assay data directly from the .csv output of the RT-QuIC plate reader
 - Visualize fluorescence curves
@@ -23,7 +21,6 @@ Features
 
 Getting Started
 ---------------
-
 Go to the application login page and click "Create new account" to get started.
 
 Contribute
@@ -37,7 +34,6 @@ Information for developers:
 
 Contact Us
 ----------
-
 If you have issues or ideas, please let us know. You can submit error reports, questions, enhancement requests, and any other feedback via:
 
 - Email: nbollig@wisc.edu
@@ -47,5 +43,4 @@ We would love to hear from you!
 
 License
 -------
-
 This project is under review to determine the appropriate license. Please contact us if you have questions.
