@@ -10,6 +10,18 @@ from werkzeug.utils import secure_filename
 from werkzeug.exceptions import HTTPException
 from dotenv import load_dotenv
 
+load_dotenv(os.path.join(Path(os.getcwd()).parent, 'vars.env'))
+
+import sentry_sdk
+from flask import Flask
+from sentry_sdk.integrations.flask import FlaskIntegration
+from sentry_sdk import last_event_id
+
+sentry_sdk.init(
+    dsn=os.getenv("DSN"),
+    integrations=[FlaskIntegration()],
+    traces_sample_rate=1.0
+)
 app = Flask(__name__)
 
 # Set the secret key to some random bytes. Keep this really secret!
@@ -19,7 +31,7 @@ app.config['CORS_HEADERS'] = 'Content-Type'
 app.secret_key = "super secret key"
 ALLOWED_EXTENSIONS = {'.txt', '.csv'}
 
-load_dotenv(os.path.join(Path(os.getcwd()).parent, 'vars.env'))
+
 
 login_manager = LoginManager()
 
@@ -63,6 +75,17 @@ def testchart2():
     if 'username' not in session:
         return render_template("login.html")
     return render_template("testchart2.html", name=session['username'])
+
+# =============================================================================
+# Error handling
+# =============================================================================
+@app.route('/force-error')
+def trigger_error():
+    division_by_zero = 1 / 0
+
+@app.errorhandler(500)
+def server_error_handler(error):
+    return render_template("500.html", sentry_event_id=last_event_id(), name=session['name']), 500
 
 # =============================================================================
 # Login, New Account Pages
@@ -641,4 +664,4 @@ if __name__ == '__main__':
     os.environ["FLASK_ENV"] = 'development'
     port = int(os.environ.get('PORT', 5000))
     #login_manager.init_app(app)
-    app.run(host='0.0.0.0', port=port, use_reloader=False)
+    app.run(host='0.0.0.0', port=port, use_reloader=False, debug=False)
