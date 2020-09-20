@@ -5,16 +5,13 @@ Created on Sun Sep  6 18:25:20 2020
 @author: NBOLLIG
 """
 import random, string
-from passlib.hash import sha512_crypt
+import os
 
 """
-Generate a password hash using SHA-512 with a provided salt.
+Generate a plaintext password string
 """
-def make_hash(password, salt):
-    return sha512_crypt.using(salt=salt).hash(password)
-
-"""
-Used during password creation to create dynamic salt.
-"""
-def generate_salt(k=16):
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=k))
+def make_temp_password():
+    length = 13
+    chars = string.ascii_letters + string.digits + '!@#$%^&*()'
+    random.seed = (os.urandom(1024))
+    return ''.join(random.choice(chars) for i in range(length))

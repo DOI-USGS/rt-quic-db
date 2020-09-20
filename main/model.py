@@ -1,5 +1,6 @@
 from db import UsersDao, PlateDao, AssayDao, SampleDao, LocationDao, ObsDao, WCDao
 from data_upload_util import parse_rt_quic_csv, UploadObsCSV, UploadWellConditionCSV
+from user_utils import make_temp_password
 import os
 
 class ManageUser:
@@ -20,6 +21,23 @@ class ManageUser:
     
     def delete_user(self, user_ID):
         return self.userDao.delete_user(user_ID)
+    
+    def send_recovery(self, email):
+        #check if email exists
+        userID = self.userDao.check_email(email)
+        if userID == None:
+            return False
+        
+        # create temp password
+        password = make_temp_password()
+        
+        # store temp password
+        self.userDao.store_temp_password(userID, password)
+        
+        #TODO: send email
+        print("Temp password: " + password)
+        
+        return True              
 
 class ManageAssay:
     def __init__(self):

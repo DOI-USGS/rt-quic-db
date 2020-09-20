@@ -1,3 +1,4 @@
+
 body {
     padding-top: 100px; /* Padding for .navbar-fixed-top. Change value if navbar height changes. Remove if using .navbar-static-top. */
 }
@@ -295,7 +296,6 @@ h6 {
   transition: all 0.4s ease;
   cursor: pointer;
   font-size: 18px;
-  color: #fff;
   font-family: "Poppins", "Arial", "Helvetica Neue", sans-serif;
 }
 

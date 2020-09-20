@@ -233,3 +233,5 @@ ALTER TABLE `Users` ADD
 		`email` VARCHAR(80) NULL;
 ALTER TABLE `Users` DROP `name`;
 ALTER TABLE `Users` DROP `password`;
+ALTER TABLE `Users` ADD
+		`temp_password_flag` BOOLEAN NULL;

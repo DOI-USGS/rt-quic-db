@@ -81,6 +81,8 @@ Q_DELETE_USER = "DELETE FROM Users WHERE ID = %s;"
 Q_GET_USER_LOC = "SELECT L.loc_ID FROM Users U, LocAffiliatedWithUser L WHERE U.ID = L.user_ID AND L.user_ID = %s;"
 Q_DELETE_USER_LOC = "DELETE FROM LocAffiliatedWithUser WHERE user_ID = %s;"
 Q_ADD_USER_LOC = "INSERT INTO LocAffiliatedWithUser (loc_ID, user_ID) VALUES (%s, %s);"
+Q_USER_EMAIL = "SELECT ID from Users WHERE email=%s;"
+Q_USER_TEMP_PW = "UPDATE Users SET password_hash=%s, temp_password_flag=True WHERE ID = %s"
 
 Q_GET_LOCATION = "SELECT name from Location WHERE loc_ID=%s;"
 Q_UPDATE_LOCATION = "UPDATE Location SET name=%s WHERE loc_ID = %s;"
@@ -146,7 +148,7 @@ class UsersDao:
     Main user authentication method. Looks up user's salt and then checks the hash.
     """
     def authenticate(self, username, password):       
-        self.cursor.execute(Q_GET_USER_FOR_AUTH, (username,), multi=False)
+        self.cursor.execute(Q_GET_USER_FOR_AUTH, (username,))
         row = self.cursor.fetchone()
         self.cnx.commit()
         if row:
@@ -251,6 +253,25 @@ class UsersDao:
     def delete_user(self, user_ID):
         self.cursor.execute(Q_DELETE_USER, (user_ID,))
         self.cnx.commit()
+    
+    """
+    Check if the given email exists in the User table. If yes, returns user ID.
+    Otherwise returns None
+    """
+    def check_email(self, email):
+        self.cursor.execute(Q_USER_EMAIL, (email,))
+        row = self.cursor.fetchone()
+        self.cnx.commit()
+        if row == None:
+            return None
+        else:
+            return row[0]
+    
+    def store_temp_password(self, user_ID, password):
+        password_hash = sha512_crypt.hash(password)
+        self.cursor.execute(Q_USER_TEMP_PW, (password_hash, user_ID,))
+        self.cnx.commit()
+        
 
 class AssayDao:
     def __init__(self):

@@ -104,6 +104,9 @@ def login():
             if user is not None:
                 for key in user:
                     session[key] = user[key]
+            else:
+                # Login was unsuccessful
+                flash("Incorrect username or password")
         return redirect(url_for('index'))
 
 @app.route('/newAccount', methods=['GET', 'POST'])
@@ -145,6 +148,17 @@ def get_locs_for_reg():
         return jsonify({"status": "success", "result": locations})
     else:
         return jsonify({"status": "error"})
+
+@app.route('/sendRecoveryEmail')
+def send_recovery_email():
+    email = dict(request.args).get("email")
+    
+    userModel = ManageUser()
+    # Remove empty strings
+    if userModel.send_recovery(email):    
+        return jsonify({"status": "success"})
+    else:
+        return jsonify({"status": "email does not exist"})
 
 # =============================================================================
 # Simple visualization page
@@ -664,4 +678,4 @@ if __name__ == '__main__':
     os.environ["FLASK_ENV"] = 'development'
     port = int(os.environ.get('PORT', 5000))
     #login_manager.init_app(app)
-    app.run(host='0.0.0.0', port=port, use_reloader=False, debug=False)
+    app.run(host='0.0.0.0', port=port, use_reloader=False, debug=True)
