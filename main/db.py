@@ -75,7 +75,7 @@ Q_SELECT_OBS = "SELECT * FROM Observation WHERE plate_ID = 99 and wc_ID = 102"
 Q_CREATE_USER = "INSERT INTO Users (role, username, password_hash, first_name, last_name, email) VALUES (%s, %s, %s, %s, %s, %s);"
 Q_GET_USERS = "SELECT ID, username FROM Users;"
 Q_GET_USER = "SELECT first_name, role, username, password_hash from Users WHERE ID=%s;"
-Q_GET_USER_FOR_AUTH = "SELECT first_name, last_name, role, username, password_hash, email, ID from Users WHERE username=%s;"
+Q_GET_USER_FOR_AUTH = "SELECT first_name, last_name, role, username, password_hash, email, ID, temp_password_flag from Users WHERE username=%s;"
 Q_UPDATE_USER = "UPDATE Users SET name=%s, role=%s, username=%s, password=%s WHERE ID = %s"
 Q_DELETE_USER = "DELETE FROM Users WHERE ID = %s;"
 Q_GET_USER_LOC = "SELECT L.loc_ID FROM Users U, LocAffiliatedWithUser L WHERE U.ID = L.user_ID AND L.user_ID = %s;"
@@ -83,6 +83,7 @@ Q_DELETE_USER_LOC = "DELETE FROM LocAffiliatedWithUser WHERE user_ID = %s;"
 Q_ADD_USER_LOC = "INSERT INTO LocAffiliatedWithUser (loc_ID, user_ID) VALUES (%s, %s);"
 Q_USER_EMAIL = "SELECT ID from Users WHERE email=%s;"
 Q_USER_TEMP_PW = "UPDATE Users SET password_hash=%s, temp_password_flag=True WHERE ID = %s"
+Q_USER_SET_PW = "UPDATE Users SET password_hash=%s, temp_password_flag=False WHERE ID = %s"
 
 Q_GET_LOCATION = "SELECT name from Location WHERE loc_ID=%s;"
 Q_UPDATE_LOCATION = "UPDATE Location SET name=%s WHERE loc_ID = %s;"
@@ -152,13 +153,13 @@ class UsersDao:
         row = self.cursor.fetchone()
         self.cnx.commit()
         if row:
-            first_name, last_name, role, username, password_hash, email, user_ID = row
+            first_name, last_name, role, username, password_hash, email, user_ID, temp_password_flag = row
             if sha512_crypt.verify(password, password_hash):
                 # Get loc_ID and create dict to populate session cookie
                 loc_ID = self.get_data(user_ID).get('loc_ID')             
                 return {"name": first_name, "role": role, "username": username,  "first_name": first_name,
                         "last_name": last_name, "email": email, "loc_ID": loc_ID,
-                        "user_ID": user_ID}
+                        "user_ID": user_ID, "temp_password_flag": bool(temp_password_flag)}
             else:
                 return None # invalid password
         else:
@@ -272,7 +273,11 @@ class UsersDao:
         self.cursor.execute(Q_USER_TEMP_PW, (password_hash, user_ID,))
         self.cnx.commit()
         
-
+    def update_password(self, user_ID, password):
+        password_hash = sha512_crypt.hash(password)
+        self.cursor.execute(Q_USER_SET_PW, (password_hash, user_ID,))
+        self.cnx.commit()
+        
 class AssayDao:
     def __init__(self):
         self.cnx = mysql.connector.connect(**config)

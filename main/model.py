@@ -35,9 +35,13 @@ class ManageUser:
         self.userDao.store_temp_password(userID, password)
         
         #TODO: send email
+        # https://stackabuse.com/how-to-send-emails-with-gmail-using-python/
         print("Temp password: " + password)
         
-        return True              
+        return True       
+
+    def update_password(self, user_ID, password):
+        return self.userDao.update_password(user_ID, password)
 
 class ManageAssay:
     def __init__(self):

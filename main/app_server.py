@@ -43,9 +43,10 @@ def favicon():
 @app.route('/')
 @app.route('/index')
 def index():
-    if 'username' in session:
-        #return render_template("index.html", name=session['name'])
+    if 'username' in session and session.get('temp_password_flag') != True:
         return redirect(url_for('view_assay'))
+    elif 'username' in session and session.get('temp_password_flag') == True:
+        return render_template("login.html", temp_password_flag = True)
     else:
         return render_template("login.html")
 
@@ -101,7 +102,7 @@ def login():
                 password is not None and password != "":
             userModel = ManageUser()
             user = userModel.authenticate( username=username, password=password)
-            if user is not None:
+            if user is not None:                
                 for key in user:
                     session[key] = user[key]
             else:
@@ -160,6 +161,22 @@ def send_recovery_email():
     else:
         return jsonify({"status": "email does not exist"})
 
+@app.route('/changePassword', methods=['POST'])
+def change_password():
+    if request.method == 'POST':
+        pw1 = request.form['password1']
+        pw2 = request.form['password2']
+
+        assert(pw1 == pw2)
+
+        userModel = ManageUser()
+        userModel.update_password(session['user_ID'], pw1)
+        
+        if session.get('temp_password_flag') == True:
+            del session['temp_password_flag']
+        
+        return redirect(url_for('index'))
+    
 # =============================================================================
 # Simple visualization page
 # =============================================================================
