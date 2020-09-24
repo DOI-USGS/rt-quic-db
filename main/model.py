@@ -1,6 +1,6 @@
 from db import UsersDao, PlateDao, AssayDao, SampleDao, LocationDao, ObsDao, WCDao
 from data_upload_util import parse_rt_quic_csv, UploadObsCSV, UploadWellConditionCSV
-from user_utils import make_temp_password
+from user_utils import make_temp_password, send_password_recovery_email
 import os
 
 class ManageUser:
@@ -22,11 +22,14 @@ class ManageUser:
     def delete_user(self, user_ID):
         return self.userDao.delete_user(user_ID)
     
+    
+    """
+    """
     def send_recovery(self, email):
         #check if email exists
         userID = self.userDao.check_email(email)
         if userID == None:
-            return False
+            return {"status": "Email was not found!"}
         
         # create temp password
         password = make_temp_password()
@@ -34,11 +37,12 @@ class ManageUser:
         # store temp password
         self.userDao.store_temp_password(userID, password)
         
-        #TODO: send email
-        # https://stackabuse.com/how-to-send-emails-with-gmail-using-python/
+        # send email
         print("Temp password: " + password)
+        if send_password_recovery_email(email, password) == False:
+            return {"status": "Email failed. Please contact the administrator to reset your account."}
         
-        return True       
+        return {"status": "success"}
 
     def update_password(self, user_ID, password):
         return self.userDao.update_password(user_ID, password)

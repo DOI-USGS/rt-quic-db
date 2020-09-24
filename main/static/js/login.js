@@ -22,7 +22,7 @@ $(function() {
 			        	$('#response').text("Email was sent.");
 			        	$('#email_for_recovery').prop("disabled",true);
 			        } else {
-			        	$('#response').text("Email was not found!");
+			        	$('#response').text(data["status"]);
 			        };
 			   });
 			   return true;

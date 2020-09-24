@@ -155,11 +155,7 @@ def send_recovery_email():
     email = dict(request.args).get("email")
     
     userModel = ManageUser()
-    # Remove empty strings
-    if userModel.send_recovery(email):    
-        return jsonify({"status": "success"})
-    else:
-        return jsonify({"status": "email does not exist"})
+    return jsonify(userModel.send_recovery(email))
 
 @app.route('/changePassword', methods=['POST'])
 def change_password():
