@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Quake{% endblock %}
+{% block content %}
+
+<body>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Welcome to Quake!</h1>
+  </div>
+  
+  <p> We look forward to recieving your feedback about this pre-release version. 
+  At any time, please use the <a href="\enhancementRequest">Submit Enhancement Request</a> link in the navigation bar to submit a suggestion or report an issue. 
+  Your suggestions will be critical for helping to make this application more functional and usable. In particular, please let us know your thoughts about database 
+  fields, measurement units, form layouts, and desired features. </p>
+  <br>
+  
+  <p>
+  Quake currently supports the basic workflow of uploading an RT-QuIC assay, making edits within individual wells, and visualizing immunofluorescence curves. These instructions will 
+  walk you through this workflow. Note that each experiment ("assay") is connected to a research team ("location"), plate template, and default sample record.
+  </p>
+  
+  <br>
+  <div class="img-container" style="text-align:center">
+		<img src="/static/images/record_interdependence.jpg" style="width:300px" alt="Record interdependence">
+	</div>
+  <br>
+  
+  <p class="lead"> Edit Menu<p>
+  
+  <p> The Edit menu contains tools for managing samples, plate templates, and samples.
+  However, a "University of Wisconsin" location and a "Standard 96-well" plate template have already been created, so you likely will only need to ensure that a sample record is created to use with your assay. </p>
+  
+  <p style="margin-left:40px;margin-right:40px"> <b>Step 1.</b> Go to Edit > Manage Samples, click "Create new sample", type in the details for your sample, and then click the "Submit new sample" button at the bottom. Note that if an appropriate
+  sample record already exists, then you do not need to complete this step. </p>
+  
+  <br>
+  <div class="img-container" style="text-align:center">
+		<img src="/static/images/manage_samples.jpg" style="width:400px;" alt="Manage Samples">
+	</div>
+  <br>
+  
+  <p class="lead"> Upload Assay<p>
+  
+  <p> Now you will create a new assay using a .csv file taken from the analyzer's output. The Upload Assay tool is also housed in the Edit menu.</p>
+  
+  <p style="margin-left:40px;margin-right:40px"> <b>Step 2.</b> Go to Edit > Upload Assay. Ensure that the 96-well plate template, the UW location, and your default sample record is selected. Enter an assay name
+  and any other parameters that should apply to all wells in the assay. Press the Browse button at the bottom right to select the .csv file from your local file system. Press "Create assay" to upload. Note that 
+  this will take around 30-60 seconds to complete. </p>
+  
+  <br>
+  <div class="img-container" style="text-align:center">
+		<img src="/static/images/upload_assay.jpg" style="width:400px" alt="Upload Assay">
+	</div>
+  <br>
+  
+  <p class="lead"> View Assay and Well Edit<p>
+  
+  <p> Finally, you will be able to view the assay and make edits to individual wells.
+  
+  <p style="margin-left:40px;margin-right:40px"> <b>Step 3.</b> Go to Assay > View Assay, select your assay and all wells, and click Get Chart. You will see a grid of all IF curves.</p>
+  
+  <p style="margin-left:40px;margin-right:40px"> <b>Step 4.</b> Left-click to select one or more wells, then right-click and go to Well Edit to change the properties of those specific wells. <p/>
+  
+  <br>
+  <div class="img-container" style="text-align:center">
+		<img src="/static/images/IF_grid.jpg" style="width:400px" alt="Immunofluorescence Grid">
+	</div>
+  <br>
+  
+	<br>
+  <div class="img-container" style="text-align:center">
+		<img src="/static/images/well_edit.jpg" style="width:400px" alt="Well Edit">
+	</div>
+  <br>
+
+</div>
+
+
+</body>
+
+
+{% endblock %}

@@ -44,7 +44,7 @@ def favicon():
 @app.route('/index')
 def index():
     if 'username' in session and session.get('temp_password_flag') != True:
-        return redirect(url_for('view_assay'))
+        return render_template("home.html", name=session['name'])
     elif 'username' in session and session.get('temp_password_flag') == True:
         return render_template("login.html", temp_password_flag = True)
     else:
