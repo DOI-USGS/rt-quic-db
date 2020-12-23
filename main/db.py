@@ -142,9 +142,8 @@ DROP TABLE {};")
 class UsersDao:
 
     def __init__(self):
-        self.cnx = mysql.connector.connect(**config, AllowLoadLocalInfile = True)
+        self.cnx = mysql.connector.connect(**config)
         self.cursor = self.cnx.cursor()
-        self.cnx.commit()
 
     """
     Main user authentication method. Looks up user's salt and then checks the hash.
@@ -281,8 +280,9 @@ class UsersDao:
         
 class AssayDao:
     def __init__(self):
-        self.cnx = mysql.connector.connect(**config)
+        self.cnx = mysql.connector.connect(**config, allow_local_infile = True)
         self.cursor = self.cnx.cursor()
+        self.cnx.commit()
 
     def create_assay(self, data):
         for key in data.keys():
