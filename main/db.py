@@ -142,8 +142,9 @@ DROP TABLE {};")
 class UsersDao:
 
     def __init__(self):
-        self.cnx = mysql.connector.connect(**config)
+        self.cnx = mysql.connector.connect(**config, AllowLoadLocalInfile = True)
         self.cursor = self.cnx.cursor()
+        self.cnx.commit()
 
     """
     Main user authentication method. Looks up user's salt and then checks the hash.

@@ -2,3 +2,8 @@ flask
 flask-login
 mysql-connector-python
 simplejson
+pandas
+passlib
+python-dotenv
+sentry-sdk[flask]
+pygithub
