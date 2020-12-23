@@ -46,5 +46,6 @@ Subject: %s
         server.sendmail(gmail_user, to, email_text)
         server.close()
         return True
-    except:
+    except Exception as e:
+        print(e)
         return False
