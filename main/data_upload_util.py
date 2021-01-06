@@ -6,6 +6,7 @@ Created on Thu Jun 25 13:58:56 2020
 """
 import csv
 import io
+import numpy as np
 
 """
 Parse file into a dictionary of the following format:
@@ -19,26 +20,55 @@ Returns:
 """
 def parse_rt_quic_csv(file, decode="UTF8"):
     reading_fluor_data = False
+    wells_by_time_format = True
     rows = {}
     
     stream = io.StringIO(file.stream.read().decode(decode), newline=None)
     csv_reader = csv.reader(stream)
     
     for row in csv_reader:
+        if len(row) == 0:
+            continue
+        
         well_name = None
         content = None
         fluorescence_series = None
         
-        if (reading_fluor_data == True):
-            well_name = row[0]
-            content = row[1]
-            fluorescence_series = row[2:]
-            rows[well_name] = [content, fluorescence_series]
-            
-        if (reading_fluor_data == False) and row[1] == 'Time [sec]':
-            time_s_vals = row[2:]
+        # Set up before reading fluorescence data
+        if (reading_fluor_data == False) and row[0].startswith('Well'):
+            names = row[2:] # cache names if in time x wells format
+        
+        if (reading_fluor_data == False) and row[1].startswith('Time'):
             reading_fluor_data = True
+            # Applies to format with wells x time
+            if row[2] == '0':
+                time_s_vals = row[2:]
+                del names
+            # Applies to format with time x wells
+            else:
+                wells_by_time_format = False
+                time_s_vals = []
+                contents = row[2:]
+                table = []
+            continue # skip to next row
             
+        # When reading fluorescence data
+        if (reading_fluor_data == True):
+            if wells_by_time_format == True:
+                well_name = row[0]
+                content = row[1]
+                fluorescence_series = row[2:]
+                rows[well_name] = [content, fluorescence_series]
+            else:
+                time_s_vals.append(row[1])
+                table.append(row[2:])
+    
+    # Post-formatting for time x wells format
+    if wells_by_time_format == False:
+        table = np.array(table)
+        for j in range(table.shape[1]):
+            rows[names[j]] = [contents[j], list(table[:,j])]      
+
     return rows, time_s_vals
 
 
