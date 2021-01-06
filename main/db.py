@@ -615,7 +615,7 @@ class LocationDao:
 
 class WCDao:
     def __init__(self):
-        self.cnx = mysql.connector.connect(**config)
+        self.cnx = mysql.connector.connect(**config, allow_local_infile = True)
         self.cursor = self.cnx.cursor(buffered=True)
     
     """
