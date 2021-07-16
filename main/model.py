@@ -2,6 +2,8 @@ from db import UsersDao, PlateDao, AssayDao, SampleDao, LocationDao, ObsDao, WCD
 from data_upload_util import parse_rt_quic_csv, UploadObsCSV, UploadWellConditionCSV
 from user_utils import make_temp_password, send_password_recovery_email
 import os
+import random
+import string
 
 class ManageUser:
     def __init__(self):
@@ -92,7 +94,8 @@ class ManageAssay:
                 uploadObsCSV.add_observation(data, well_data, obs_data)
             
             # insert observations as a batch
-            temp_csv = uploadObsCSV.write_csv()
+            random_string = ''.join(random.sample(string.ascii_lowercase + string.digits, 15))
+            temp_csv = uploadObsCSV.write_csv(path = random_string)
             self.assayDao.load_observations(file = temp_csv)
             os.remove(temp_csv.name)
     
@@ -346,7 +349,8 @@ class ManageWC:
                 wcCSV.add_record(data)
         
         # insert records as a batch
-        temp_csv = wcCSV.write_csv()
+        random_string = ''.join(random.sample(string.ascii_lowercase + string.digits, 15))
+        temp_csv = wcCSV.write_csv(path = random_string)
         self.wcDao.load_well_updates(file = temp_csv)
         os.remove(temp_csv.name)
 

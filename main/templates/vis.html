@@ -36,12 +36,12 @@
 		  <form id="vis top form">
 			  <div class="form-group">
 			  	<label for="assay">Assay</label>
-			  	<select class="form-control" id="assay" name="assay_ID" placeholder="" value required><option value="empty" disabled hidden> -- select an option -- </option></select>
+			  	<select class="form-control" id="assay" name="assay_ID" placeholder="" value required><option value="" disabled hidden> -- select an option -- </option></select>
 			  </div>
 			  
 			  <div class="form-group">
 			  	<label for="assay">Well name</label>
-			  	<select class="form-control" id="wc_ID" name="wc_ID" placeholder="" value required><option value="empty" disabled hidden> -- select an option -- </option></select>
+			  	<select class="form-control" id="wc_ID" name="wc_ID" placeholder="" value required><option value="" disabled hidden> -- select an option -- </option></select>
 			  </div>
 		
 				<div class="form-group">
@@ -80,7 +80,7 @@
 						  </div>
 				      <div class="form-group">
 						  	<label for="sample_ID">Sample</label>
-						    <select class="form-control" id="sample_ID" name="sample_ID" placeholder="" required><option value="empty" hidden></option></select>
+						    <select class="form-control" id="sample_ID" name="sample_ID" placeholder="" required><option value="" hidden></option></select>
 						  </div>
 				      <div class="form-group">
 						  	<label for="contents">Contents</label>
@@ -146,7 +146,7 @@
 			assay_selector.value = assay_ID;
 			document.getElementById("cancelSelection").disabled = false;
 		} else {
-			assay_selector.value = "empty";
+			assay_selector.value = "";
 			wc_selector.disabled = true;
 		}
 		
@@ -159,7 +159,7 @@
 		    sample_selector.options[sample_selector.options.length] = new Option(samples[index], index);
 		}
 		
-		sample_selector.value = "empty";
+		sample_selector.value = "";
 	</script>
 
 	<script>

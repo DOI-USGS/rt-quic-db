@@ -13,8 +13,8 @@ from passlib.hash import sha512_crypt
 config = {
     'user': 'quicdbadmin',
     'password': 'quicdbadmin',
-    'host': '35.193.220.232',
-    'database': 'rt_quic_db',
+    'host': '146.148.99.121',
+    'database': 'nbollig$rt_quic_db',
     'raise_on_warnings': True
 }
 
