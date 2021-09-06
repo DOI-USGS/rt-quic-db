@@ -97,14 +97,19 @@ def login():
     if request.method == 'POST':
         username= request.form['username']
         password = request.form['password']
+        team_ID = 1 # TODO: Pull from form data
 
         if username is not None and username != "" and \
                 password is not None and password != "":
             userModel = ManageUser()
             user = userModel.authenticate( username=username, password=password)
             if user is not None:                
+                # Pull user authentication results into session cookie
                 for key in user:
                     session[key] = user[key]
+
+                # Pull other data into session cookie
+                session['team_ID'] = team_ID
             else:
                 # Login was unsuccessful
                 flash("Incorrect username or password")
@@ -120,10 +125,9 @@ def registration_page():
 @app.route('/submitRegistration', methods=['GET', 'POST'])
 def submit_registration():    
     if request.method == 'POST':
-        # parse data from form1
+        # parse data from form
         data = {}
         data['user_ID'] = '-1' # to ensure a new user is created
-        data['role'] = 'default' # automatically tag new user with default role
         data['username'] = request.form['username']
         data['first_name'] = request.form['first_name']
         data['last_name'] = request.form['last_name']
@@ -182,13 +186,13 @@ def simple_visualization():
         return render_template("login.html")
     else:
         # Load dictionary representing available assays from DV
-        assayModel = ManageAssay()
+        assayModel = ManageAssay(session)
         assays = assayModel.get_assays()
         
 #        # Retrive assay ID from page if called by post request
 #        if request.method == 'POST':
 #            assay_ID = dict(request.form).get('assay_ID')
-#            wcModel = ManageWC()
+#            wcModel = ManageWC(session)
 #            well_conditions = wcModel.get_wcs(assay_ID)
 #            return render_template("simple_vis.html", name=session['name'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID='', chart_data='')
 #        
@@ -203,7 +207,7 @@ def get_wells():
     else:
         # Retrive assay ID from page if called by post request
         assay_ID = request.args.get('assay_ID')
-        wcModel = ManageWC()
+        wcModel = ManageWC(session)
         well_conditions = wcModel.get_wcs(assay_ID)
         if well_conditions is not None:
             return jsonify({"status": "success", "result": well_conditions})
@@ -215,7 +219,7 @@ def get_wells():
 #def show_simple_visualization():
 #    if request.method == 'POST':
 #        # Load assay list from DB
-#        assayModel = ManageAssay()
+#        assayModel = ManageAssay(session)
 #        assays = assayModel.get_assays()
 #        
 #        # Retrieve form data
@@ -224,7 +228,7 @@ def get_wells():
 #        wc_ID = form_data.get('wc_ID')
 #        
 #        # Load wc list from DB
-#        wcModel = ManageWC()
+#        wcModel = ManageWC(session)
 #        well_conditions = wcModel.get_wcs(assay_ID)
 #        
 #        # TODO: GET CHART DATA USING wc_ID ====================================
@@ -241,7 +245,7 @@ def get_viz_data():
     assay_id = request.args.get('assay_id')
     wc_id = request.args.get('wc_id', "-1")
 
-    wcModel = ManageWC()
+    wcModel = ManageWC(session)
 
     if assay_id is not None:
         if wc_id == "-1" or wc_id is None:
@@ -261,7 +265,7 @@ def view_assay():
         return render_template("login.html")
     else:
         # Load dictionary representing available assays from DV
-        assayModel = ManageAssay()
+        assayModel = ManageAssay(session)
         assays = assayModel.get_assays()
         sampleModel = ManageSample()
         samples = sampleModel.get_samples()
@@ -271,7 +275,7 @@ def view_assay():
 @app.route('/fillWellEdit', methods=['GET', 'POST'])
 def get_well_data():
     wc_ID_list = request.args.getlist('wc_ID[]')
-    wcModel = ManageWC()
+    wcModel = ManageWC(session)
     data, _ = wcModel.get_well_data(wc_ID_list)
     return json.dumps(data)
 
@@ -288,7 +292,7 @@ def submit_well_edits():
             del data[key]
     
     # Save data to wells
-    wcModel = ManageWC()
+    wcModel = ManageWC(session)
     wcModel.save_well_data(data)
     
     return jsonify({"status": "success"})
@@ -349,7 +353,7 @@ def upload_plate():
             return redirect(url_for('new_project'))
 
         # process file
-        assayModel = ManageAssay()
+        assayModel = ManageAssay(session)
         assayModel.create_assay(f=f, data=form_data)
         flash('File uploaded successfully')
         
@@ -363,7 +367,7 @@ def upload_plate():
 def load_edit_assay():
     if 'username' in session:
         plates, samples, locations = get_plates_samples_locations()
-        assayModel = ManageAssay()
+        assayModel = ManageAssay(session)
         assays = assayModel.get_assays()
 
         assay_ID = dict(request.form).get('assay_ID')
@@ -383,7 +387,7 @@ def edit_assay():
         form_data = dict(request.form)
         
         # update assay
-        assayModel = ManageAssay()
+        assayModel = ManageAssay(session)
         assayModel.update_assay(data=form_data)
         flash('Updated successfully')
         
@@ -396,7 +400,7 @@ def delete_assay():
         assay_ID = dict(request.form).get('assay_ID')
         
         # delete assay
-        assayModel = ManageAssay()
+        assayModel = ManageAssay(session)
         assayModel.delete_assay(assay_ID)
         flash('Assay deleted')
         

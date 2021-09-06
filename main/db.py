@@ -26,21 +26,17 @@ Q_SELECT_USER = 'SELECT NAME, ROLE FROM Users WHERE USERNAME = %s AND PASSWORD =
 Q_CREATE_ASSAY = ("INSERT INTO Assay (temperature, shake_interval_min, scan_interval_min, "
                                     "duration_min, salt_type, salt_conc, substrate_type, substrate_conc, "
                                     "surfact_type, surfact_conc, start_date_time, name, other_assay_attr, "
-                                    "sample_ID, loc_ID) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                                    "plate_ID, loc_ID, user_ID) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
 Q_LAST_ID = "SELECT LAST_INSERT_ID();"
 
 Q_CREATE_WC = ("INSERT INTO Well_Condition (salt_type, salt_conc, substrate_type, substrate_conc,"
-                                            "surfact_type, surfact_conc, other_wc_attr, sample_ID, assay_ID, contents, well_name)"
-                                            " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
-
-Q_CREATE_OBS = ("INSERT INTO Observation (fluorescence, time_s, x_coord, y_coord," 
-                                        "plate_ID, wc_ID, index_in_well) "
-                                        "VALUES (%s, %s, %s, %s, %s, %s, %s)")
+                                            "surfact_type, surfact_conc, other_wc_attr, assay_ID, contents, well_name)"
+                                            " VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
 Q_LOAD_OBS = ("LOAD DATA LOCAL INFILE %s INTO TABLE Observation FIELDS TERMINATED BY ',' "
               "ENCLOSED BY '\"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (fluorescence, time_s, "
-              "x_coord, y_coord, plate_ID, wc_ID, index_in_well);")
+              "x_coord, y_coord, wc_ID, index_in_well);")
 
 Q_GET_PLATES = "SELECT plate_ID, plate_type FROM Plate;"
 
@@ -51,13 +47,13 @@ Q_GET_LOCATIONS = "SELECT loc_ID, name FROM Location;"
 Q_GET_ASSAYS = "SELECT assay_ID, name FROM Assay;"
 
 Q_GET_ASSAY = ("SELECT temperature, shake_interval_min, scan_interval_min, duration_min, "
-            "salt_type, salt_conc, substrate_type, substrate_conc, start_date_time, other_assay_attr, sample_ID, loc_ID, name, surfact_type, surfact_conc "
+            "salt_type, salt_conc, substrate_type, substrate_conc, start_date_time, other_assay_attr, plate_ID, loc_ID, name, surfact_type, surfact_conc "
             "FROM Assay WHERE assay_ID = %s;")
 
 Q_UPDATE_ASSAY = ("UPDATE Assay SET temperature=%s, shake_interval_min=%s, scan_interval_min=%s, "
                                     "duration_min=%s, salt_type=%s, salt_conc=%s, substrate_type=%s, substrate_conc=%s, "
                                     "surfact_type=%s, surfact_conc=%s, start_date_time=%s, name=%s, other_assay_attr=%s, "
-                                    "sample_ID=%s, loc_ID=%s WHERE assay_ID=%s;")
+                                    "plate_ID=%s, loc_ID=%s WHERE assay_ID=%s;")
 Q_DELETE_ASSAY = "DELETE FROM Assay WHERE assay_ID = %s;"
 
 
@@ -65,17 +61,14 @@ Q_GET_SAMPLE = "SELECT species, sex, age, tissue_matrix, other_sample_attr, name
 
 Q_UPDATE_SAMPLE = "UPDATE Sample SET species=%s, sex=%s, age=%s, tissue_matrix=%s, other_sample_attr=%s, name=%s WHERE sample_ID = %s"
 
-TEMP_NEW_RECORD_NAME = "<new record>"
 Q_CREATE_SAMPLE = "INSERT INTO Sample (species, sex, age, tissue_matrix, other_sample_attr, name) VALUES (%s,%s,%s,%s,%s,%s);"
 
 Q_DELETE_SAMPLE = "DELETE FROM Sample WHERE sample_ID = %s;"
 
-Q_SELECT_OBS = "SELECT * FROM Observation WHERE plate_ID = 99 and wc_ID = 102"
-
-Q_CREATE_USER = "INSERT INTO Users (role, username, password_hash, first_name, last_name, email) VALUES (%s, %s, %s, %s, %s, %s);"
+Q_CREATE_USER = "INSERT INTO Users (username, password_hash, first_name, last_name, email) VALUES (%s, %s, %s, %s, %s);"
 Q_GET_USERS = "SELECT ID, username FROM Users;"
-Q_GET_USER = "SELECT first_name, role, username, password_hash from Users WHERE ID=%s;"
-Q_GET_USER_FOR_AUTH = "SELECT first_name, last_name, role, username, password_hash, email, ID, temp_password_flag from Users WHERE username=%s;"
+Q_GET_USER = "SELECT first_name, username, password_hash from Users WHERE ID=%s;"
+Q_GET_USER_FOR_AUTH = "SELECT first_name, last_name, username, password_hash, email, ID, temp_password_flag from Users WHERE username=%s;"
 Q_UPDATE_USER = "UPDATE Users SET name=%s, role=%s, username=%s, password=%s WHERE ID = %s"
 Q_DELETE_USER = "DELETE FROM Users WHERE ID = %s;"
 Q_GET_USER_LOC = "SELECT L.loc_ID FROM Users U, LocAffiliatedWithUser L WHERE U.ID = L.user_ID AND L.user_ID = %s;"
@@ -153,12 +146,11 @@ class UsersDao:
         row = self.cursor.fetchone()
         self.cnx.commit()
         if row:
-            first_name, last_name, role, username, password_hash, email, user_ID, temp_password_flag = row
+            first_name, last_name, username, password_hash, email, user_ID, temp_password_flag = row
             if sha512_crypt.verify(password, password_hash):
-                # Get loc_ID and create dict to populate session cookie
-                loc_ID = self.get_data(user_ID).get('loc_ID')             
-                return {"name": first_name, "role": role, "username": username,  "first_name": first_name,
-                        "last_name": last_name, "email": email, "loc_ID": loc_ID,
+                # Create dict to populate session cookie
+                return {"name": first_name, "username": username,  "first_name": first_name,
+                        "last_name": last_name, "email": email,
                         "user_ID": user_ID, "temp_password_flag": bool(temp_password_flag)}
             else:
                 return None # invalid password
@@ -198,15 +190,14 @@ class UsersDao:
         #get data from Users table
         data = {}
         data['name'] = xstr(row[0])
-        data['role'] = xstr(row[1])
         data['username'] = xstr(row[2])
         data['password'] = xstr(row[3])
         
         # get location data for user
-        self.cursor.execute(Q_GET_USER_LOC, (user_ID,))
-        row = self.cursor.fetchone()
-        if row != None:
-            data['loc_ID'] = xstr(row[0])
+        # self.cursor.execute(Q_GET_USER_LOC, (user_ID,))
+        # row = self.cursor.fetchone()
+        # if row != None:
+        #     data['loc_ID'] = xstr(row[0])
         
         self.cnx.commit()
         return data
@@ -215,7 +206,6 @@ class UsersDao:
         user_ID = nstr(data['user_ID'])
         first_name = nstr(data['first_name'])
         last_name = nstr(data['last_name'])
-        role = nstr(data['role'])
         username = nstr(data['username'])
         password_hash = sha512_crypt.hash(data['password'])
         email = nstr(data['email'])
@@ -224,20 +214,20 @@ class UsersDao:
         if user_ID != '-1':
             self.cursor.execute(Q_UPDATE_USER, (name, role, username, password, user_ID)) #TODO: Update this and query to use both names and password hash
         
-            # get old loc ID
-            self.cursor.execute(Q_GET_USER_LOC, (user_ID,))
-            row = self.cursor.fetchone()
-            old_loc_ID = 'empty' #the form sends the string 'empty' if no location is selected
-            if row != None:
-                old_loc_ID = row[0]
-            
-            # change loc ID in LocAffiliatedWithUser if loc_ID has been updated
-            if old_loc_ID != new_loc_ID:
-                self.cursor.execute(Q_DELETE_USER_LOC, (user_ID,))
-                if new_loc_ID != 'empty':
-                    self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
+            # # get old loc ID
+            # self.cursor.execute(Q_GET_USER_LOC, (user_ID,))
+            # row = self.cursor.fetchone()
+            # old_loc_ID = 'empty' #the form sends the string 'empty' if no location is selected
+            # if row != None:
+            #     old_loc_ID = row[0]
+            #
+            # # change loc ID in LocAffiliatedWithUser if loc_ID has been updated
+            # if old_loc_ID != new_loc_ID:
+            #     self.cursor.execute(Q_DELETE_USER_LOC, (user_ID,))
+            #     if new_loc_ID != 'empty':
+            #         self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
         else:
-            self.cursor.execute(Q_CREATE_USER, (role, username, password_hash, first_name, last_name, email))
+            self.cursor.execute(Q_CREATE_USER, (username, password_hash, first_name, last_name, email))
             
             # update LocAffiliatedWithUser if location was provided
             if new_loc_ID != 'empty':
@@ -247,7 +237,7 @@ class UsersDao:
                 row = self.cursor.fetchone()
                 user_ID = row[0]
                 
-                self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
+                # self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
             
         self.cnx.commit()
     
@@ -279,7 +269,8 @@ class UsersDao:
         self.cnx.commit()
         
 class AssayDao:
-    def __init__(self):
+    def __init__(self, session):
+        self.session = session
         self.cnx = mysql.connector.connect(**config, allow_local_infile = True)
         self.cursor = self.cnx.cursor()
         self.cnx.commit()
@@ -302,14 +293,15 @@ class AssayDao:
         start_date_time = data.get('start_date_time')
         name = data.get('assay_name')
         other_assay_attr = data.get('other_assay_attr')
-        sample_ID = data.get('sample')
+        plate_ID = data.get('plate')
         loc_ID = data.get('location')
+        user_ID = self.session.get('user_ID')
         
         # create new assay
         self.cursor.execute(Q_CREATE_ASSAY, (temperature, shake_interval_min, scan_interval_min, 
                                              duration_min, salt_type, salt_conc, substrate_type, substrate_conc,
                                              surfact_type, surfact_conc, start_date_time, name, other_assay_attr,
-                                             sample_ID, loc_ID))
+                                             plate_ID, loc_ID, user_ID))
         
         # retrieve ID of new assay record
         self.cursor.execute(Q_LAST_ID)
@@ -327,7 +319,6 @@ class AssayDao:
         surfact_type = None
         surfact_conc = None
         other_wc_attr = None
-        sample_ID = data['sample']
         assay_ID = data['assay_ID']
         contents = well_data['contents']
         well_name = well_data['well_name']
@@ -335,7 +326,7 @@ class AssayDao:
         
         # create new well condition record
         self.cursor.execute(Q_CREATE_WC, (salt_type, salt_conc, substrate_type, substrate_conc, 
-                                             surfact_type, surfact_conc, other_wc_attr, sample_ID, assay_ID, contents, well_name))
+                                             surfact_type, surfact_conc, other_wc_attr, assay_ID, contents, well_name))
         
         # retrieve ID of new assay record
         self.cursor.execute(Q_LAST_ID)
@@ -343,19 +334,6 @@ class AssayDao:
         new_wc_ID = row[0]
         well_data['wc_ID'] = new_wc_ID
         
-        self.cnx.commit()
-    
-    def create_observation(self, data, well_data, obs_data):
-        fluorescence = obs_data['fluorescence']
-        time_s = obs_data['time_s'] 
-        x_coord = obs_data['x_coord'] 
-        y_coord = obs_data['y_coord'] 
-        plate_ID = data['plate']
-        wc_ID = well_data['wc_ID']
-        index_in_well = obs_data['index_in_well']
-        
-        # create new observation record
-        self.cursor.execute(Q_CREATE_OBS, (fluorescence, time_s, x_coord, y_coord, plate_ID, wc_ID, index_in_well))        
         self.cnx.commit()
     
     def load_observations(self, file):
@@ -392,7 +370,7 @@ class AssayDao:
         data['substrate_conc'] = xstr(row[7])
         data['start_date_time'] = xstr(row[8])
         data['other_assay_attr'] = xstr(row[9])
-        data['sample_ID'] = xstr(row[10])
+        data['plate_ID'] = xstr(row[10])
         data['loc_ID'] = xstr(row[11])
         data['name'] = xstr(row[12])
         data['surfact_type'] = xstr(row[13])
@@ -413,7 +391,7 @@ class AssayDao:
         substrate_conc = nstr(data['substrate_conc'])
         start_date_time = nstr(data['start_date_time'])
         other_assay_attr = nstr(data['other_assay_attr'])
-        sample_ID = nstr(data['sample'])
+        plate_ID = nstr(data['plate'])
         loc_ID = nstr(data['location'])
         name = nstr(data['assay_name'])
         surfact_type = nstr(data['surfact_type'])
@@ -422,7 +400,7 @@ class AssayDao:
         self.cursor.execute(Q_UPDATE_ASSAY, (temperature, shake_interval_min, scan_interval_min, 
                                              duration_min, salt_type, salt_conc, substrate_type, substrate_conc,
                                              surfact_type, surfact_conc, start_date_time, name, other_assay_attr,
-                                             sample_ID, loc_ID, assay_ID))
+                                             plate_ID, loc_ID, assay_ID))
         
         self.cnx.commit()
     
@@ -538,36 +516,6 @@ class ObsDao:
     def __init__(self):
         self.cnx = mysql.connector.connect(**config)
         self.cursor = self.cnx.cursor()
-
-    def get_plate(self):
-        self.cursor.execute(Q_SELECT_OBS)
-        #  need to change this to allow for different plates
-
-        """ row = self.cursor.fetchone()
-        
-        while row is not None:
-            print(row)
-            row = self.cursor.fetchone() """
-
-        rows = self.cursor.fetchall()
-        self.cnx.commit()
-        return json.dumps(rows)
-
-    # def get_data(self, sample_ID):
-    #     sample_ID = str(sample_ID)
-    #     self.cursor.execute(Q_GET_SAMPLE, (sample_ID,))
-    #     row = self.cursor.fetchone()
-
-    #     data = {}
-    #     data['species'] = xstr(row[0])
-    #     data['sex'] = xstr(row[1])
-    #     data['age'] = xstr(row[2])
-    #     data['tissue_matrix'] = xstr(row[3])
-    #     data['other_sample_attr'] = xstr(row[4])
-    #     data['name'] = xstr(row[5])
-
-    #     self.cnx.commit()
-    #     return data
     
 class LocationDao:
     def __init__(self):

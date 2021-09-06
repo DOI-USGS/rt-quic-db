@@ -79,19 +79,18 @@ class UploadObsCSV:
     
     def __init__(self):
         self.rows = []
-        header = ['fluorescence', 'time_s', 'x_coord', 'y_coord', 'plate_ID', 'wc_ID', 'index_in_well']
+        header = ['fluorescence', 'time_s', 'x_coord', 'y_coord', 'wc_ID', 'index_in_well']
         self.rows.append(header)
     
     def add_observation(self, data, well_data, obs_data):
         fluorescence = obs_data['fluorescence']
         time_s = obs_data['time_s'] 
         x_coord = obs_data['x_coord'] 
-        y_coord = obs_data['y_coord'] 
-        plate_ID = data['plate']
+        y_coord = obs_data['y_coord']
         wc_ID = well_data['wc_ID']
         index_in_well = obs_data['index_in_well']
         
-        new_row = [fluorescence, time_s, x_coord, y_coord, plate_ID, wc_ID, index_in_well]
+        new_row = [fluorescence, time_s, x_coord, y_coord, wc_ID, index_in_well]
         self.rows.append(new_row)
     
     def write_csv(self, path = 'temp_observation_load.csv'):

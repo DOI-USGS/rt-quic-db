@@ -16,10 +16,6 @@
 		    <select class="form-control" id="plate" name="plate" required></select>
 		  </div>
 		  <div class="form-group">
-		  	<label for="sample">Default sample*</label>
-		    <select class="form-control" id="sample" name="sample" required></select>
-		  </div>
-		  <div class="form-group">
 		    <label for="location">Location*</label>
 		    <select class="form-control" id="location" name="location" required></select>
 		  </div>
@@ -121,10 +117,6 @@
 		    plate_selector.options[plate_selector.options.length] = new Option(plates[index], index);
 		}
 		
-		var sample_selector = document.getElementById("sample");
-		for(index in samples) {
-		    sample_selector.options[sample_selector.options.length] = new Option(samples[index], index);
-		}
 		
 		var location_selector = document.getElementById("location");
 		for(index in locations) {

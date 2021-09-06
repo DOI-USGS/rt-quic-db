@@ -50,8 +50,9 @@ class ManageUser:
         return self.userDao.update_password(user_ID, password)
 
 class ManageAssay:
-    def __init__(self):
-        self.assayDao = AssayDao()
+    def __init__(self, session):
+        self.assayDao = AssayDao(session)
+        self.session = session
 
     def create_assay(self, f, data):
         # Create assay
@@ -86,9 +87,6 @@ class ManageAssay:
                 obs_data['y_coord'] = 0
                 obs_data['well_name'] = well_name
                 obs_data['index_in_well'] = i
-
-                # Insert one observation record at a time - very slow
-                #self.assayDao.create_observation(data, well_data, obs_data)
                 
                 # Add observation to UploadObsCSV object
                 uploadObsCSV.add_observation(data, well_data, obs_data)
@@ -162,9 +160,9 @@ class ManageLocation:
 
 
 class ManageWC:
-    def __init__(self):
+    def __init__(self, session):
         self.wcDao = WCDao()
-        self.assayDao = AssayDao()
+        self.assayDao = AssayDao(session)
     
     def get_wcs(self, assay_ID):
         return self.wcDao.get_wcs(assay_ID)
@@ -231,7 +229,7 @@ class ManageWC:
                     d[field] = (wc_data[field], 'wc') # data specified at well level
                 else:
                     if field != 'other_wc_attr':
-                        d[field] = (assay_data[field], 'assay') # data specified at assay level
+                        d[field] = (assay_data.get(field), 'assay') # data specified at assay level
                     else:
                         d[field] = None # only at wc level
             well_data[wc_ID] = d

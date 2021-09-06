@@ -16,8 +16,8 @@
 		  	<select class="form-control" id="assay" name="assay_ID" placeholder="" value required><option value="empty" disabled hidden> -- select an option -- </option></select>
 		  </div>
 		  <div class="form-group">
-		  	<label for="sample">Default sample*</label>
-		    <select class="form-control" id="sample" name="sample" placeholder="" required><option value="empty" disabled hidden></option></select>
+		  	<label for="sample">Plate template*</label>
+		    <select class="form-control" id="plate" name="plate" placeholder="" required><option value="empty" disabled hidden></option></select>
 		  </div>
 		  <div class="form-group">
 		    <label for="location">Location*</label>
@@ -148,15 +148,15 @@
 			var assay_data = '';
 		}
 		
-		var sample_selector = document.getElementById("sample");
-		for(index in samples) {
-		    sample_selector.options[sample_selector.options.length] = new Option(samples[index], index);
+		var plate_selector = document.getElementById("plate");
+		for(index in plates) {
+		    plate_selector.options[plate_selector.options.length] = new Option(plates[index], index);
 		}
 		
-		if (typeof assay_data['sample_ID'] !== 'undefined') {
-			sample_selector.value = assay_data['sample_ID'];
+		if (typeof assay_data['plate_ID'] !== 'undefined') {
+			plate_selector.value = assay_data['plate_ID'];
 		} else {
-			sample_selector.value = "empty";
+			plate_selector.value = "empty";
 		}
 		
 		var location_selector = document.getElementById("location");
