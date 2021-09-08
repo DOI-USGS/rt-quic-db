@@ -104,6 +104,11 @@
 										<li class="nav-item"><a class = "nav-link" href="/managePlate">Manage Plate Templates</a></li>
 					        </ul>
 					      </li>
+					      <li class="dropdown" id="admin_dropdown">
+					        <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					          Admin<span class="caret"></span></a>
+					        <ul class="dropdown-menu" aria-labelledby="navbarDropdown" id="admin_links"></ul>
+					      </li>
                 <li class="dropdown">
 					        <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					          Analysis<span class="caret"></span></a>
@@ -132,5 +137,27 @@
     </div>
     <!-- /.container -->
 </nav>
+
+<script>
+var security_points = {{ sec_pts | tojson | safe}};
+
+// Fill in admin links
+var admin_links = document.getElementById('admin_links');
+
+if (security_points.includes(800)) {
+	var entry = document.createElement('li');
+	entry.classList.add('nav-item');
+	entry.insertAdjacentHTML("beforeend", "<a class = 'nav-link' href='/manageUser'>Manage Users</a>");
+	admin_links.appendChild(entry);
+}
+
+// Determine if admin menu should appear
+var admin_menu_condition = Boolean(security_points.includes(800)||(security_points.includes(810))||(security_points.includes(820))||(security_points.includes(830))||(security_points.includes(840))||(security_points.includes(850)));
+if (!admin_menu_condition) {
+	document.getElementById('admin_dropdown').remove();
+}
+
+</script>
+
 
 {% block content %}{% endblock %}

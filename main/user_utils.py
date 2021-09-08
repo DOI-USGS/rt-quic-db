@@ -7,7 +7,9 @@ Created on Sun Sep  6 18:25:20 2020
 import random, string
 import os
 import smtplib
+import model
 
+START_ADMIN_SEC_PTS = 500
 
 """
 Generate a plaintext password string
@@ -49,3 +51,24 @@ Subject: %s
     except Exception as e:
         print(e)
         return False
+
+"""
+Check the session cookie for a security point
+"""
+def has_security_point(session, sec_point, refresh=True):
+    if refresh:
+        refresh_user_security(session)
+    security_points = session['security_points']
+    if session['activated'] == 1 and sec_point in security_points:
+        return True
+    else:
+        return False
+
+"""
+Update the activation status and security points for the user_id cached in the session cookie.
+"""
+def refresh_user_security(session):
+    user_ID = session['user_ID']
+    userModel = model.ManageUser()
+    session['activated'] = userModel.get_activation_status(user_ID)
+    session['security_points'] = userModel.get_security_points(user_ID)

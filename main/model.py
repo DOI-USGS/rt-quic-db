@@ -12,8 +12,8 @@ class ManageUser:
     def authenticate(self, username, password):
         return self.userDao.authenticate(username, password)
 
-    def get_users(self):
-        return self.userDao.get_users()
+    def get_users(self, team_ID):
+        return self.userDao.get_users(team_ID)
     
     def get_data(self, user_ID):
         return self.userDao.get_data(user_ID)
@@ -23,6 +23,12 @@ class ManageUser:
     
     def delete_user(self, user_ID):
         return self.userDao.delete_user(user_ID)
+
+    def get_security_points(self, user_ID):
+        return self.userDao.get_security_points(user_ID)
+
+    def get_activation_status(self, user_ID):
+        return self.userDao.get_activation_status(user_ID)
     
     
     """
@@ -38,7 +44,7 @@ class ManageUser:
         
         # store temp password
         self.userDao.store_temp_password(userID, password)
-        
+
         # send email
         print("Temp password: " + password)
         if send_password_recovery_email(email, password) == False:

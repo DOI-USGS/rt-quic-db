@@ -2,45 +2,89 @@
 {% block title %}Manage Users{% endblock %}
 {% block content %}
 
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+
 <body>
 
 <div class="container">
   <div class="page-header">
     <h1>Manage Users</h1>
   </div>
-  <form method="post" action="/editUser">
+  <form method="post" action="/editUserAdmin">
 		<div class="form-group">
 			<label for="user_ID">User</label>
-		  <div class="input-group">
-		  	<select class="form-control" id="user_ID" name="user_ID" placeholder="" required><option value="empty" disabled hidden> -- select an option -- </option></select>
-		  	<div class="input-group-btn">
-		  		<button class="btn btn-warning" type="button" id="createUser">Create new user</button>
-		  	</div>
-			</div>
+			<small class="form-text text-muted"><span style='padding-left:20px' class='glyphicon glyphicon-eye-close'></span> = inactive</small>
+		  <select class="selectpicker form-control" id="user_ID" name="user_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="empty" disabled hidden> -- select an option -- </option></select>
 		</div>
 	  <div class="form-group">
-	  	<label for="user_name">New name</label>
-	    <input type="text" class="form-control" id="user_name" name="user_name" placeholder="" required>
-	  </div>
-	  <div class="form-group">
-	    <label for="role">Role</label>
-	    <input type="text" class="form-control" id="role" name="role" placeholder="">
-	  </div>
-	  <div class="form-group">
 	  	<label for="username">username</label>
-	    <input type="text" class="form-control" id="username" name="username" placeholder="" required>
+	    <input type="text" class="form-control" id="username" name="username" placeholder="" readonly>
 	  </div>
 	  <div class="form-group">
-	  	<label for="password">Password (not secure)</label>
-	    <input type="text" class="form-control" id="password" name="password" placeholder="">
+	  	<label for="email">Email</label>
+	    <input type="text" class="form-control" id="email" name="email" placeholder="" readonly>
 	  </div>
-	  <div class="form-group">
-	    <label for="loc_ID">Location</label>
-	    <select class="form-control" id="loc_ID" name="loc_ID" placeholder="" required><option value="empty"></option></select>
-	  </div>
-
+	  <div class="form-group form-check">
+		  <input class="form-check-input" type="checkbox" id="activated" name="activated" disabled>
+		  <label class="form-check-label" for="activated">Active</label>
+		</div>
 		<div class="form-group">
-			<button class="btn btn-primary" type="submit" id="submitButton">Update user</button>
+			<label for="security_points">Security Points</label>
+			<select class="selectpicker form-control" id="security_points" name="security_points" data-live-search="true" required disabled multiple>
+			  <optgroup label="Assays">
+			    <option value='100' title='100'>100: View assays</option>
+					<option value='110' title='110'>110: Upload assays</option>
+					<option value='120' title='120'>120: Edit only assays created by self</option>
+					<option value='130' title='130'>130: Edit all assays</option>
+					<option value='140' title='140'>140: Delete only assays created by self</option>
+					<option value='150' title='150'>150: Delete all assays</option>
+					<option value='160' title='160'>160: Well edit only assays created by self</option>
+					<option value='170' title='170'>170: Well edit all assays</option>
+			  </optgroup>
+			  <optgroup label="Samples">
+					<option value='200' title='200'>200: Create samples</option>
+					<option value='210' title='210'>210: Edit only samples created by self</option>
+					<option value='220' title='220'>220: Edit all samples</option>
+					<option value='230' title='230'>230: Delete only samples created by self</option>
+					<option value='240' title='240'>240: Delete all samples</option>
+			  </optgroup>
+			  <optgroup label="Admin: Plate Templates">
+			    <option value='500' title='500'>500: Can access Manage Plate Templates activity</option>
+					<option value='510' title='510'>510: Create plate templates</option>
+					<option value='520' title='520'>520: Edit plate templates</option>
+					<option value='530' title='530'>530: Delete plate templates</option>
+			  </optgroup>
+			  <optgroup label="Admin: Locations">
+			    <option value='600' title='600'>600: Can access Manage Locations activity</option>
+					<option value='610' title='610'>610: Create new locations for your team</option>
+					<option value='620' title='620'>620: Update location in your team</option>
+					<option value='630' title='630'>630: Delete location in your team</option>
+			  </optgroup>
+			  <optgroup label="Admin: Teams">
+			    <option value='700' title='700'>700: Can access Manage Team activity</option>
+					<option value='710' title='710'>710: Can create a new research team</option>
+					<option value='720' title='720'>720: Update research team settings</option>
+					<option value='730' title='730'>730: Can delete a research team</option>
+			  </optgroup>
+			  <optgroup label="Admin: Users">
+			    <option value='800' title='800'>800: Can access Manage Users activity</option>
+					<option value='810' title='810'>810: Can activate new and inactive users</option>
+					<option value='820' title='820'>820: Can inactivate users</option>
+					<option value='830' title='830'>830: Can modify non-admin security points of any user</option>
+					<option value='840' title='840'>840: Can modify admin security points of any user</option>
+					<option value='850' title='850'>850: Can delete a user</option>
+			  </optgroup>
+			  <optgroup label="Data Reporting">
+			    <option value='900' title='900'>900: May access data designated by any research team for analytics</option>
+			  </optgroup>
+			</select>
+		</div>
+		<div class="form-group">
+			<button class="btn btn-primary" type="submit" id="submitButton" disabled>Update user</button>
 			<button class="btn btn-danger" type="button" id="deleteButton" disabled>Delete user</button>
 			<button class="btn btn-link" type ="button" id="cancelSelection" onclick="location.href='/manageUser'" disabled>Cancel selection</button>
 		</div>
@@ -58,10 +102,10 @@
 	{% endwith %}
 	
 	</div>
-	
 
-	<script>		
-		// Declare selector
+	<script>	
+	
+		// Declare selectors
 		var user_selector = document.getElementById('user_ID');
 		
 		// Delete button
@@ -81,70 +125,38 @@
 		var user_ID = '{{user_ID}}';
 		
 		for(index in users) {
-		    user_selector.options[user_selector.options.length] = new Option(users[index], index);
-		}
-		
-		var locations = {{ locations | tojson | safe}};
-		var location_selector = document.getElementById("loc_ID");
-		for(index in locations) {
-		    location_selector.options[location_selector.options.length] = new Option(locations[index], index);
+				name = users[index][0];
+				active = users[index][1];
+				option = new Option(name, index);
+				if (active == 0) {
+					content = name + "<span style='padding-left:12px' class='glyphicon glyphicon-eye-close'></span>";
+				} else {
+					content = name;
+				}		
+				option.setAttribute("data-tokens", name);
+				option.setAttribute("data-content", content);
+		    user_selector.options[user_selector.options.length] = option;
 		}
 		
 		// Adapt form for editing a selected record
 		if (user_ID !== '') {
-			test = 1;
 			user_selector.value = user_ID;
 			var user_data = {{ user_data | tojson | safe}};
-			document.getElementById("createUser").disabled = true;
+			document.getElementById("submitButton").disabled = false;
 			document.getElementById("cancelSelection").disabled = false;
 			document.getElementById("deleteButton").disabled = false;
+			document.getElementById("activated").disabled = false;
+			$(function () {
+      	$("#security_points").prop('disabled', false);
+				$("#security_points").selectpicker('refresh');
+      });
 		} else {
 			user_selector.value = "empty";
 			var user_data = '';
 		}
 		
-		// Create new record
-		TEMP_NAME = "Creating new record...";
 		
-		var create_button = document.getElementById("createUser");
-		var delete_button = document.getElementById("deleteButton");
-		var submit_button = document.getElementById("submitButton");
-		var cancel_button = document.getElementById("cancelSelection");
-		
-		create_button.onclick = function() {
-				user_selector.disabled = true;
-				delete_button.disabled = true;
-				submit_button.textContent = "Submit new user";
-				cancel_button.textContent = "Cancel create";
-				cancel_button.disabled = false;
-				add_temp_rec();
-				document.getElementById("user_name").focus();
-		};
-		
-		function add_temp_rec() {
-			user_selector.options[user_selector.options.length] = new Option(TEMP_NAME, -1);
-			user_selector.value = -1;
-		};
-		
-		submit_button.onclick = function() {
-			user_selector.disabled = false;
-		};
-		
-		// Populate form fields with available data
-		var name_text = document.getElementById("user_name");
-		if (typeof user_data['name'] !== 'undefined') {
-			name_text.value = user_data['name'];
-		} else {
-			name_text.value = "";
-		}		
-		
-		var role_text = document.getElementById("role");
-		if (typeof user_data['role'] !== 'undefined') {
-			role_text.value = user_data['role'];
-		} else {
-			role_text.value = "";
-		}
-		
+		// Populate form fields with available data	
 		var username_text = document.getElementById("username");
 		if (typeof user_data['username'] !== 'undefined') {
 			username_text.value = user_data['username'];
@@ -152,17 +164,24 @@
 			username_text.value = "";
 		}
 		
-		var password_text = document.getElementById("password");
-		if (typeof user_data['password'] !== 'undefined') {
-			password_text.value = user_data['password'];
+		var email_text = document.getElementById("email");
+		if (typeof user_data['email'] !== 'undefined') {
+			email_text.value = user_data['email'];
 		} else {
-			password_text.value = "";
+			email_text.value = "";
 		}
 		
-		if (typeof user_data['loc_ID'] !== 'undefined') {
-			location_selector.value = user_data['loc_ID'];
-		} else {
-			location_selector.value = "empty";
+		var active_check = document.getElementById("activated");
+		if (typeof user_data['activated'] !== 'undefined') {
+			active_check.checked = Boolean(Number(user_data['activated']));
+		}
+		
+		var security_point_list = user_data['security_points'];
+		if (typeof security_point_list !== 'undefined') {
+			$(function () {
+      	$("#security_points").selectpicker('val', security_point_list);
+      	$("#security_points").selectpicker('refresh');
+      });
 		}
 		
 	</script>

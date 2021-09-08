@@ -3,12 +3,13 @@ from model import ManageUser, ManagePlate, ManageAssay, ManageSample, ManageLoca
 import os
 from pathlib import Path
 from flask import Flask, escape, request, render_template, send_from_directory, session
-from flask import flash, redirect, url_for
+from flask import flash, redirect, url_for, abort
 from flask.json import jsonify
 import simplejson as json
 from werkzeug.utils import secure_filename
 from werkzeug.exceptions import HTTPException
 from dotenv import load_dotenv
+from user_utils import has_security_point, refresh_user_security, START_ADMIN_SEC_PTS
 
 load_dotenv(os.path.join(Path(os.getcwd()).parent, 'vars.env'))
 
@@ -32,7 +33,6 @@ app.secret_key = "super secret key"
 ALLOWED_EXTENSIONS = {'.txt', '.csv'}
 
 
-
 login_manager = LoginManager()
 
 
@@ -43,18 +43,22 @@ def favicon():
 @app.route('/')
 @app.route('/index')
 def index():
-    if 'username' in session and session.get('temp_password_flag') != True:
-        return render_template("home.html", name=session['name'])
-    elif 'username' in session and session.get('temp_password_flag') == True:
+    if session.get('activated')==1 and ('username' in session) and session.get('temp_password_flag') != True:
+        print(session)
+        return render_template("home.html", name=session['name'], sec_pts=session['security_points'])
+    elif session.get('activated')==1 and session.get('temp_password_flag') == True:
         return render_template("login.html", temp_password_flag = True)
+    elif session.get('activated')==0:
+        flash("Your account is inactive. Please contact your research team's administrator to activate your account.")
+        return render_template("login.html")
     else:
         return render_template("login.html")
 
 @app.route('/about')
 def about():
-    if 'username' in session:
-        #return render_template("index.html", name=session['name'])
-        return render_template("about.html", name=session['name'])
+    if session.get('activated')==1 and ('username' in session):
+        #return render_template("index.html", name=session['name'], sec_pts=session['security_points'])
+        return render_template("about.html", name=session['name'], sec_pts=session['security_points'])
     else:
         return render_template("login.html")
 
@@ -86,7 +90,11 @@ def trigger_error():
 
 @app.errorhandler(500)
 def server_error_handler(error):
-    return render_template("500.html", sentry_event_id=last_event_id(), name=session['name']), 500
+    return render_template("500.html", sentry_event_id=last_event_id(), name=session['name'], sec_pts=session['security_points']), 500
+
+@app.errorhandler(403)
+def forbidden_handler(error):
+    return render_template("403.html", sentry_event_id=last_event_id(), name=session['name'], sec_pts=session['security_points'], message=str(error)), 403
 
 # =============================================================================
 # Login, New Account Pages
@@ -117,7 +125,7 @@ def login():
 
 @app.route('/newAccount', methods=['GET', 'POST'])
 def registration_page():
-    if 'username' in session:
+    if session.get('activated')==1 and ('username' in session):
         return redirect(url_for('view_assay'))
     else:
         return render_template("register.html")
@@ -194,10 +202,10 @@ def simple_visualization():
 #            assay_ID = dict(request.form).get('assay_ID')
 #            wcModel = ManageWC(session)
 #            well_conditions = wcModel.get_wcs(assay_ID)
-#            return render_template("simple_vis.html", name=session['name'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID='', chart_data='')
+#            return render_template("simple_vis.html", name=session['name'], sec_pts=session['security_points'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID='', chart_data='')
 #        
         # Default (initial) page load
-        return render_template("simple_vis.html", name=session['name'], assays=assays, well_conditions='', assay_ID='', wc_ID='', chart_data='')
+        return render_template("simple_vis.html", name=session['name'], sec_pts=session['security_points'], assays=assays, well_conditions='', assay_ID='', wc_ID='', chart_data='')
 
 
 @app.route('/getWellsForAssay')
@@ -237,7 +245,7 @@ def get_wells():
 #        chart_data = "I'm a chart!"
 #        # =====================================================================
 #        
-#        return render_template("simple_vis.html", name=session['name'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID=wc_ID, chart_data=chart_data)
+#        return render_template("simple_vis.html", name=session['name'], sec_pts=session['security_points'], assays=assays, well_conditions=well_conditions, assay_ID=assay_ID, wc_ID=wc_ID, chart_data=chart_data)
 
 
 @app.route('/showCharts')
@@ -270,7 +278,7 @@ def view_assay():
         sampleModel = ManageSample()
         samples = sampleModel.get_samples()
         
-        return render_template("vis.html", name=session['name'], assays=assays, well_conditions='', assay_ID='', wc_ID='', samples=samples)
+        return render_template("vis.html", name=session['name'], sec_pts=session['security_points'], assays=assays, well_conditions='', assay_ID='', wc_ID='', samples=samples)
 
 @app.route('/fillWellEdit', methods=['GET', 'POST'])
 def get_well_data():
@@ -327,7 +335,7 @@ def new_project():
         return render_template("login.html")
     else:
         plates, samples, locations = get_plates_samples_locations()
-        return render_template("add_project.html", name=session['name'], plates=plates, samples=samples, locations=locations)
+        return render_template("add_project.html", name=session['name'], sec_pts=session['security_points'], plates=plates, samples=samples, locations=locations)
 
 
 def allowed_file(filename):
@@ -365,7 +373,7 @@ def upload_plate():
 
 @app.route('/editAssay', methods=['GET', 'POST'])
 def load_edit_assay():
-    if 'username' in session:
+    if session.get('activated')==1 and ('username' in session):
         plates, samples, locations = get_plates_samples_locations()
         assayModel = ManageAssay(session)
         assays = assayModel.get_assays()
@@ -374,9 +382,9 @@ def load_edit_assay():
         
         if assay_ID != None:
             data = assayModel.get_data(int(assay_ID))
-            return render_template("edit_assay.html", name=session['name'], plates=plates, samples=samples, locations=locations, assays = assays, assay_ID = assay_ID, assay_data=data)
+            return render_template("edit_assay.html", name=session['name'], sec_pts=session['security_points'], plates=plates, samples=samples, locations=locations, assays = assays, assay_ID = assay_ID, assay_data=data)
         else:
-            return render_template("edit_assay.html", name=session['name'], plates=plates, samples=samples, locations=locations, assays = assays, assay_data = '')
+            return render_template("edit_assay.html", name=session['name'], sec_pts=session['security_points'], plates=plates, samples=samples, locations=locations, assays = assays, assay_data = '')
     else:
         return render_template("login.html")
 
@@ -406,7 +414,7 @@ def delete_assay():
         
         plates, samples, locations = get_plates_samples_locations()
         assays = assayModel.get_assays()
-        return render_template("edit_assay.html", name=session['name'], plates=plates, samples=samples, locations=locations, assays = assays, assay_data = '')
+        return render_template("edit_assay.html", name=session['name'], sec_pts=session['security_points'], plates=plates, samples=samples, locations=locations, assays = assays, assay_data = '')
 
 # =============================================================================
 # Manage Samples
@@ -414,7 +422,7 @@ def delete_assay():
 
 @app.route('/manageSample', methods=['GET', 'POST'])
 def load_manage_sample():
-    if 'username' in session:
+    if session.get('activated')==1 and ('username' in session):
         sampleModel = ManageSample()
         samples = sampleModel.get_samples()
         
@@ -422,9 +430,9 @@ def load_manage_sample():
     
         if sample_ID != None:
             sample_data = sampleModel.get_data(int(sample_ID))
-            return render_template("manage_samples.html", name=session['name'], samples=samples, sample_ID = sample_ID, sample_data=sample_data)
+            return render_template("manage_samples.html", name=session['name'], sec_pts=session['security_points'], samples=samples, sample_ID = sample_ID, sample_data=sample_data)
         else:
-            return render_template("manage_samples.html", name=session['name'], samples=samples, sample_data = '')
+            return render_template("manage_samples.html", name=session['name'], sec_pts=session['security_points'], samples=samples, sample_data = '')
     else:
         return render_template("login.html")
 
@@ -454,7 +462,7 @@ def delete_sample():
         flash('Sample deleted')
         
         samples = sampleModel.get_samples()
-        return render_template("manage_samples.html", name=session['name'], samples=samples, sample_data='')
+        return render_template("manage_samples.html", name=session['name'], sec_pts=session['security_points'], samples=samples, sample_data='')
 
 # =============================================================================
 # Manage Locations
@@ -462,7 +470,7 @@ def delete_sample():
 
 @app.route('/manageLocation', methods=['GET', 'POST'])
 def load_manage_loc():
-    if 'username' in session:
+    if session.get('activated')==1 and ('username' in session):
         locationModel = ManageLocation()
         locations = locationModel.get_locations()
         
@@ -470,9 +478,9 @@ def load_manage_loc():
     
         if loc_ID != None:
             loc_data = locationModel.get_data(int(loc_ID))
-            return render_template("manage_loc.html", name=session['name'],loc_ID = loc_ID, loc_data=loc_data, locations=locations)
+            return render_template("manage_loc.html", name=session['name'], sec_pts=session['security_points'],loc_ID = loc_ID, loc_data=loc_data, locations=locations)
         else:
-            return render_template("manage_loc.html", name=session['name'], loc_data = '', locations=locations)
+            return render_template("manage_loc.html", name=session['name'], sec_pts=session['security_points'], loc_data = '', locations=locations)
     else:
         return render_template("login.html")
 
@@ -508,28 +516,77 @@ def delete_loc():
 
 @app.route('/manageUser', methods=['GET', 'POST'])
 def load_manage_user():
-    if 'username' in session:
+    if session.get('activated')==1 and ('username' in session):
+        # VALIDATE SEC.PT. 800: Can access Manage Users activity
+        if not has_security_point(session, 800):
+            abort(403, "You are not authorized to view the Manage Users activity.")
+
         userModel = ManageUser()
-        users = userModel.get_users()
-        locationModel = ManageLocation()
-        locations = locationModel.get_locations()
-        
+        users = userModel.get_users(session['team_ID'])  # like users[user_ID] = ("last, first", activated)
+        users.pop(session['user_ID'], None)  # delete self from retrieved user data if it is there
+
         user_ID = dict(request.form).get('user_ID')
     
         if user_ID != None:
             user_data = userModel.get_data(int(user_ID))
-            return render_template("manage_user.html", name=session['name'], users=users, user_ID = user_ID, user_data=user_data, locations=locations)
+            return render_template("manage_user.html", name=session['name'], sec_pts=session['security_points'], users=users, user_ID = user_ID, user_data=user_data)
         else:
-            return render_template("manage_user.html", name=session['name'], users=users, user_data = '', locations=locations)
+            return render_template("manage_user.html", name=session['name'], sec_pts=session['security_points'], users=users, user_data = '')
     else:
         return render_template("login.html")
 
-@app.route('/editUser', methods=['GET', 'POST'])
+@app.route('/editUserAdmin', methods=['GET', 'POST'])
 def edit_user():
     if request.method == 'POST':
         # get form data
         form_data = dict(request.form)
-        
+
+        # delete read-only form elements
+        form_data.pop('username', None)
+        form_data.pop('email', None)
+
+        # convert activated to int (no value if unchecked)
+        if form_data.get('activated', None) != None:
+            form_data['activated'] = 1
+        else:
+            form_data['activated'] = 0
+
+        # VALIDATE SEC.PT. 810: Can activate new and inactive users
+        if (form_data.get('activated', None) == 1) and not has_security_point(session, 810):
+            form_data.pop('activated', None)
+            flash("You are not authorized to activate a user. Activation status will not be changed.")
+
+        # VALIDATE SEC.PT. 820: Can inactivate users
+        if (form_data.get('activated',None) == 0) and not has_security_point(session, 820, refresh=False):
+            form_data.pop('activated', None)
+            flash("You are not authorized to inactivate a user. Activation status will not be changed.")
+
+        # Get all security points
+        form_data['security_points'] = request.form.getlist('security_points')
+        form_data['security_points'] = [int(p) for p in form_data['security_points']]
+        if len(form_data['security_points']) > 0:  # security point data was sent from form
+            security_points_nonadmin = [p for p in form_data['security_points'] if p in range(1, START_ADMIN_SEC_PTS)]
+            security_points_admin = [p for p in form_data['security_points'] if p in range(START_ADMIN_SEC_PTS, 1000)]
+            form_data.pop('security_points', None)
+            form_data['security_points_nonadmin'] = security_points_nonadmin
+            form_data['security_points_admin'] = security_points_admin
+
+            if not has_security_point(session, 830, refresh=False) and not has_security_point(session, 840, refresh=False):
+                flash("You are not authorized to modify security points. No security points will be changed.")
+                form_data.pop('security_points_nonadmin', None)
+                form_data.pop('security_points_admin', None)
+            elif not has_security_point(session, 830, refresh=False) and has_security_point(session, 840, refresh=False):
+                flash("You are not authorized to modify non-admin security points. No non-admin security points will be changed.")
+                form_data.pop('security_points_nonadmin', None)
+            elif has_security_point(session, 830, refresh=False) and not has_security_point(session, 840, refresh=False):
+                flash("You are not authorized to modify admin security points. No admin security points will be changed.")
+                form_data.pop('security_points_admin', None)
+        else:
+            # No security point data was received from the form
+            form_data.pop('security_points', None)
+
+        print(form_data)
+
         # update user
         userModel = ManageUser()
         userModel.create_update_user(data=form_data)
@@ -556,7 +613,7 @@ def delete_user():
 
 @app.route('/managePlate', methods=['GET', 'POST'])
 def load_manage_plate():
-    if 'username' in session:
+    if session.get('activated')==1 and ('username' in session):
         plateModel = ManagePlate()
         plates = plateModel.get_plates()
         
@@ -564,9 +621,9 @@ def load_manage_plate():
     
         if plate_ID != None:
             plate_data = plateModel.get_data(int(plate_ID))
-            return render_template("manage_plate.html", name=session['name'], plates=plates, plate_ID = plate_ID, plate_data=plate_data)
+            return render_template("manage_plate.html", name=session['name'], sec_pts=session['security_points'], plates=plates, plate_ID = plate_ID, plate_data=plate_data)
         else:
-            return render_template("manage_plate.html", name=session['name'], plates=plates, plate_data = '')
+            return render_template("manage_plate.html", name=session['name'], sec_pts=session['security_points'], plates=plates, plate_data = '')
     else:
         return render_template("login.html")
 
@@ -633,10 +690,10 @@ def logout():
 
 @app.route('/enhancementRequest', methods=['GET', 'POST'])
 def load_enhancement_request():
-    if 'username' in session:
+    if session.get('activated')==1 and ('username' in session):
         locationModel = ManageLocation()
         locations = locationModel.get_locations()
-        return render_template("enhancement_form.html", name=session['name'], username = session['username'], loc_ID = '', locations=locations)
+        return render_template("enhancement_form.html", name=session['name'], sec_pts=session['security_points'], username = session['username'], loc_ID = '', locations=locations)
     else:
         return render_template("login.html")
 

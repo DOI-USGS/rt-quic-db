@@ -8,6 +8,7 @@ import random
 import string
 
 from passlib.hash import sha512_crypt
+from user_utils import START_ADMIN_SEC_PTS
 
 
 config = {
@@ -66,10 +67,10 @@ Q_CREATE_SAMPLE = "INSERT INTO Sample (species, sex, age, tissue_matrix, other_s
 Q_DELETE_SAMPLE = "DELETE FROM Sample WHERE sample_ID = %s;"
 
 Q_CREATE_USER = "INSERT INTO Users (username, password_hash, first_name, last_name, email) VALUES (%s, %s, %s, %s, %s);"
-Q_GET_USERS = "SELECT ID, username FROM Users;"
-Q_GET_USER = "SELECT first_name, username, password_hash from Users WHERE ID=%s;"
+Q_GET_USERS_IN_TEAM = "SELECT u.ID, u.last_name, u.first_name, u.activated FROM Users AS u, TeamAffiliatedWithUser as ta WHERE ta.user_ID = u.ID and ta.team_ID=%s;"
+Q_GET_USER = "SELECT username, email, activated FROM Users WHERE ID=%s;"
 Q_GET_USER_FOR_AUTH = "SELECT first_name, last_name, username, password_hash, email, ID, temp_password_flag from Users WHERE username=%s;"
-Q_UPDATE_USER = "UPDATE Users SET name=%s, role=%s, username=%s, password=%s WHERE ID = %s"
+Q_UPDATE_USER_ACTIVATION = "UPDATE Users SET activated=%s WHERE ID = %s;"
 Q_DELETE_USER = "DELETE FROM Users WHERE ID = %s;"
 Q_GET_USER_LOC = "SELECT L.loc_ID FROM Users U, LocAffiliatedWithUser L WHERE U.ID = L.user_ID AND L.user_ID = %s;"
 Q_DELETE_USER_LOC = "DELETE FROM LocAffiliatedWithUser WHERE user_ID = %s;"
@@ -77,6 +78,12 @@ Q_ADD_USER_LOC = "INSERT INTO LocAffiliatedWithUser (loc_ID, user_ID) VALUES (%s
 Q_USER_EMAIL = "SELECT ID from Users WHERE email=%s;"
 Q_USER_TEMP_PW = "UPDATE Users SET password_hash=%s, temp_password_flag=True WHERE ID = %s"
 Q_USER_SET_PW = "UPDATE Users SET password_hash=%s, temp_password_flag=False WHERE ID = %s"
+Q_GET_USER_SEC_POINTS = "Select security_point_ID from UserSecurity where user_ID=%s;"
+Q_GET_USER_ACTIVATION_STATUS = "SELECT activated FROM Users WHERE ID=%s;"
+Q_CLEAR_SECURITY_POINTS = "DELETE FROM UserSecurity WHERE user_ID=%s;"
+Q_CLEAR_SECURITY_POINTS_NONADMIN = "DELETE FROM UserSecurity WHERE user_ID=%s AND security_point_ID < " + str(START_ADMIN_SEC_PTS) + ";"
+Q_CLEAR_SECURITY_POINTS_ADMIN = "DELETE FROM UserSecurity WHERE user_ID=%s AND security_point_ID >= " + str(START_ADMIN_SEC_PTS) + ";"
+Q_ADD_SECURITY_POINT = "INSERT INTO UserSecurity (user_ID, security_point_ID) VALUES (%s, %s);"
 
 Q_GET_LOCATION = "SELECT name from Location WHERE loc_ID=%s;"
 Q_UPDATE_LOCATION = "UPDATE Location SET name=%s WHERE loc_ID = %s;"
@@ -148,15 +155,33 @@ class UsersDao:
         if row:
             first_name, last_name, username, password_hash, email, user_ID, temp_password_flag = row
             if sha512_crypt.verify(password, password_hash):
+                security_points = self.get_security_points(user_ID)
+                activated = self.get_activation_status(user_ID)
                 # Create dict to populate session cookie
                 return {"name": first_name, "username": username,  "first_name": first_name,
                         "last_name": last_name, "email": email,
-                        "user_ID": user_ID, "temp_password_flag": bool(temp_password_flag)}
+                        "user_ID": user_ID, "temp_password_flag": bool(temp_password_flag),
+                        "security_points":security_points, "activated":activated}
             else:
                 return None # invalid password
         else:
             return None # username not found
-        
+
+    def get_security_points(self, user_ID):
+        security_points = []
+        self.cursor.execute(Q_GET_USER_SEC_POINTS, (user_ID,))
+        rows = self.cursor.fetchall()
+        if len(rows) > 0:
+            for row in rows:
+                security_points.append(row[0])
+        self.cnx.commit()
+        return security_points
+
+    def get_activation_status(self, user_ID):
+        self.cursor.execute(Q_GET_USER_ACTIVATION_STATUS, (user_ID,))
+        row = self.cursor.fetchone()
+        return int(row[0])
+
     """
     Deprecated method - relies on plaintext password field.
     """
@@ -171,49 +196,74 @@ class UsersDao:
     
     """
     Return a dictionary of the form:
-        dict[user_ID] = name
+        dict[user_ID] = (name, activated)
     """
-    def get_users(self):
-        self.cursor.execute(Q_GET_USERS, multi=False)
+    def get_users(self, team_ID):
+        self.cursor.execute(Q_GET_USERS_IN_TEAM, (team_ID,), multi=False)
         rows = self.cursor.fetchall()
         d = {}
         for row in rows:
-            d[row[0]] = row[1]
+            name = "%s, %s" % (row[1], row[2])  # last name, first name
+            activated = row[3]
+            d[row[0]] = (name, activated)
         self.cnx.commit()
         return d 
     
     def get_data(self, user_ID):
         user_ID = str(user_ID)
+
+        # Get info from User table
         self.cursor.execute(Q_GET_USER, (user_ID,))
         row = self.cursor.fetchone()
-        
-        #get data from Users table
+
         data = {}
-        data['name'] = xstr(row[0])
-        data['username'] = xstr(row[2])
-        data['password'] = xstr(row[3])
-        
-        # get location data for user
-        # self.cursor.execute(Q_GET_USER_LOC, (user_ID,))
-        # row = self.cursor.fetchone()
-        # if row != None:
-        #     data['loc_ID'] = xstr(row[0])
-        
+        data['username'] = xstr(row[0])
+        data['email'] = xstr(row[1])
+        data['activated'] = xstr(row[2])
         self.cnx.commit()
+
+        # Get security points
+        security_points = self.get_security_points(user_ID)
+        data['security_points'] = security_points
+
         return data
     
     def create_update_user(self, data):
+        """
+        Creates or updates user with data stored in the dictionary parameter `data`. If data['user_ID']=-1, then a new
+        user is created, otherwise the provided ID is updated.
+        """
+
         user_ID = nstr(data['user_ID'])
-        first_name = nstr(data['first_name'])
-        last_name = nstr(data['last_name'])
-        username = nstr(data['username'])
-        password_hash = sha512_crypt.hash(data['password'])
-        email = nstr(data['email'])
-        new_loc_ID = nstr(data['loc_ID'])
-        
+
         if user_ID != '-1':
-            self.cursor.execute(Q_UPDATE_USER, (name, role, username, password, user_ID)) #TODO: Update this and query to use both names and password hash
-        
+            if 'activated' in data:
+                # Update user activation flag
+                activated = nstr(data['activated'])
+                self.cursor.execute(Q_UPDATE_USER_ACTIVATION, (activated, user_ID))
+                self.cnx.commit()
+
+            if 'security_points' in data:
+                security_points = data['security_points']
+                self.cursor.execute(Q_CLEAR_SECURITY_POINTS, (user_ID,))
+                for security_point_ID in security_points:
+                    self.cursor.execute(Q_ADD_SECURITY_POINT, (user_ID, security_point_ID))
+                    self.cnx.commit()
+
+            if 'security_points_nonadmin' in data:
+                security_points = data['security_points_nonadmin']
+                self.cursor.execute(Q_CLEAR_SECURITY_POINTS_NONADMIN, (user_ID,))
+                for security_point_ID in security_points:
+                    self.cursor.execute(Q_ADD_SECURITY_POINT, (user_ID, security_point_ID))
+                    self.cnx.commit()
+
+            if 'security_points_admin' in data:
+                security_points = data['security_points_admin']
+                self.cursor.execute(Q_CLEAR_SECURITY_POINTS_ADMIN, (user_ID,))
+                for security_point_ID in security_points:
+                    self.cursor.execute(Q_ADD_SECURITY_POINT, (user_ID, security_point_ID))
+                    self.cnx.commit()
+
             # # get old loc ID
             # self.cursor.execute(Q_GET_USER_LOC, (user_ID,))
             # row = self.cursor.fetchone()
@@ -227,17 +277,24 @@ class UsersDao:
             #     if new_loc_ID != 'empty':
             #         self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
         else:
+            # User account creation
+            first_name = nstr(data['first_name'])
+            last_name = nstr(data['last_name'])
+            username = nstr(data['username'])
+            password_hash = sha512_crypt.hash(data['password'])
+            email = nstr(data['email'])
+
             self.cursor.execute(Q_CREATE_USER, (username, password_hash, first_name, last_name, email))
             
-            # update LocAffiliatedWithUser if location was provided
-            if new_loc_ID != 'empty':
-                
-                # retrieve ID of new record
-                self.cursor.execute(Q_LAST_ID)
-                row = self.cursor.fetchone()
-                user_ID = row[0]
-                
-                # self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
+            # # update LocAffiliatedWithUser if location was provided
+            # if new_loc_ID != 'empty':
+            #
+            #     # retrieve ID of new record
+            #     self.cursor.execute(Q_LAST_ID)
+            #     row = self.cursor.fetchone()
+            #     user_ID = row[0]
+            #
+            #     # self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
             
         self.cnx.commit()
     
