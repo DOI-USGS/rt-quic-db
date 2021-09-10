@@ -152,7 +152,8 @@ if (security_points.includes(800)) {
 }
 
 // Determine if admin menu should appear
-var admin_menu_condition = Boolean(security_points.includes(800)||(security_points.includes(810))||(security_points.includes(820))||(security_points.includes(830))||(security_points.includes(840))||(security_points.includes(850)));
+//var admin_menu_condition = Boolean(security_points.includes(800)||(security_points.includes(810))||(security_points.includes(820))||(security_points.includes(830))||(security_points.includes(840))||(security_points.includes(850)));
+var admin_menu_condition = Boolean(security_points.includes(800));
 if (!admin_menu_condition) {
 	document.getElementById('admin_dropdown').remove();
 }

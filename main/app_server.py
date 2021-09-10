@@ -44,6 +44,7 @@ def favicon():
 @app.route('/index')
 def index():
     if session.get('activated')==1 and ('username' in session) and session.get('temp_password_flag') != True:
+        refresh_user_security(session)
         print(session)
         return render_template("home.html", name=session['name'], sec_pts=session['security_points'])
     elif session.get('activated')==1 and session.get('temp_password_flag') == True:
@@ -538,6 +539,9 @@ def load_manage_user():
 @app.route('/editUserAdmin', methods=['GET', 'POST'])
 def edit_user():
     if request.method == 'POST':
+        # instantiate user model
+        userModel = ManageUser()
+
         # get form data
         form_data = dict(request.form)
 
@@ -545,11 +549,16 @@ def edit_user():
         form_data.pop('username', None)
         form_data.pop('email', None)
 
-        # convert activated to int (no value if unchecked)
+        # convert form activated to int (no value if unchecked)
         if form_data.get('activated', None) != None:
             form_data['activated'] = 1
         else:
             form_data['activated'] = 0
+
+        # drop activation data if it matches prior db value
+        prior_activation_status = userModel.get_activation_status(form_data['user_ID'])
+        if form_data['activated'] == prior_activation_status:
+            form_data.pop('activated', None)
 
         # VALIDATE SEC.PT. 810: Can activate new and inactive users
         if (form_data.get('activated', None) == 1) and not has_security_point(session, 810):
@@ -559,7 +568,7 @@ def edit_user():
         # VALIDATE SEC.PT. 820: Can inactivate users
         if (form_data.get('activated',None) == 0) and not has_security_point(session, 820, refresh=False):
             form_data.pop('activated', None)
-            flash("You are not authorized to inactivate a user. Activation status will not be changed.")
+            #flash("You are not authorized to inactivate a user. Activation status will not be changed.")  # this message would appear whenever a user without 820 submits the form, since the UI will have disabled the checkbox
 
         # Get all security points
         form_data['security_points'] = request.form.getlist('security_points')
@@ -576,10 +585,10 @@ def edit_user():
                 form_data.pop('security_points_nonadmin', None)
                 form_data.pop('security_points_admin', None)
             elif not has_security_point(session, 830, refresh=False) and has_security_point(session, 840, refresh=False):
-                flash("You are not authorized to modify non-admin security points. No non-admin security points will be changed.")
+                #flash("You are not authorized to modify non-admin security points. No non-admin security points will be changed.")  # Form validation prevents need for message.
                 form_data.pop('security_points_nonadmin', None)
             elif has_security_point(session, 830, refresh=False) and not has_security_point(session, 840, refresh=False):
-                flash("You are not authorized to modify admin security points. No admin security points will be changed.")
+                #flash("You are not authorized to modify admin security points. No admin security points will be changed.")  # Form validation prevents need for message.
                 form_data.pop('security_points_admin', None)
         else:
             # No security point data was received from the form
@@ -587,23 +596,29 @@ def edit_user():
 
         print(form_data)
 
-        # update user
-        userModel = ManageUser()
-        userModel.create_update_user(data=form_data)
-        flash('Updated successfully')
+        # update user if there is data other than user_ID
+        if len(list(form_data.keys())) > 1:
+            userModel.create_update_user(data=form_data)
+            flash('Updated successfully')
+        else:
+            flash('No changes were applied')
         
         return redirect(url_for('load_manage_user'))
 
 @app.route('/deleteUser', methods=['GET', 'POST'])
 def delete_user():
     if request.method == 'POST':
-        # get form data
-        user_ID = dict(request.form).get('user_ID')
-        
-        # delete user
-        userModel = ManageUser()
-        userModel.delete_user(user_ID)
-        flash('User deleted')
+        # VALIDATE SEC.PT. 850: Can delete a user
+        if has_security_point(session, 850):
+            # get form data
+            user_ID = dict(request.form).get('user_ID')
+
+            # delete user
+            userModel = ManageUser()
+            userModel.delete_user(user_ID)
+            flash('User deleted')
+        else:
+            flash('You are not authorized to delete a user.')
         
         return redirect(url_for('load_manage_user'))
 
