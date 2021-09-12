@@ -1,3 +1,30 @@
+
+<!-- TEAM SELECTION-->
+$(function() {
+    $('#teamidpopup').on('shown.bs.modal', function() {
+      $.getJSON($SCRIPT_ROOT + '/getTeams', {}, function(data) {
+        fillTeamSelector(data)
+      });
+      return false;
+    });
+  });
+
+function fillTeamSelector(data) {
+	var team_selector = document.getElementById("popup_team_ID");
+	for(index in data) {
+	    team_selector.options[team_selector.options.length] = new Option(data[index], index);
+	}
+}
+
+$(function() {
+	$('#popup_team_ID_submit').click(function() {
+		var id = $("#popup_team_ID").val();
+		var data = {'team_ID': id}
+		$.getJSON($SCRIPT_ROOT + '/changeTeamID', data);
+		$("#teamidpopup").modal('hide');
+	});
+});
+
 <!-- WELL EDIT -->
 $(document).on('contextmenu', function(e) {
 	  var top = e.pageY - 10;

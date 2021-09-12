@@ -12,7 +12,7 @@
 		<div class="form-group">
 			<label for="sample">Sample</label>
 		  <div class="input-group">
-		  	<select class="form-control" id="sample" name="sample" placeholder="" required><option value="empty" disabled hidden> -- select an option -- </option></select>
+		  	<select class="selectpicker form-control" id="sample" name="sample" data-show-icon="true" data-live-search="true" placeholder="" required><option value="empty" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
 		  	<div class="input-group-btn">
 		  		<button class="btn btn-warning" type="button" id="createSample">Create new sample</button>
 		  	</div>
@@ -85,19 +85,22 @@
 		
 		var sample_selector = document.getElementById("sample");
 		for(index in samples) {
-		    sample_selector.options[sample_selector.options.length] = new Option(samples[index], index);
+		    name = samples[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    sample_selector.options[sample_selector.options.length] = option;
 		}
 		
 	
 		// Adapt form for editing a selected record
 		if (sample_ID !== '') {
-			sample_selector.value = sample_ID;
+			$("#sample").selectpicker('val', sample_ID);
 			var sample_data = {{ sample_data | tojson | safe}};
 			document.getElementById("createSample").disabled = true;
 			document.getElementById("cancelSelection").disabled = false;
 			document.getElementById("deleteSample").disabled = false;
 		} else {
-			sample_selector.value = "empty";
+			$("#sample").selectpicker('val', "empty");
 			var sample_data = '';
 		}
 		
@@ -110,7 +113,10 @@
 		var cancel_button = document.getElementById("cancelSelection");
 		
 		create_button.onclick = function() {
-				sample_selector.disabled = true;
+				$(function () {
+	      	$("#sample").prop('disabled', true);
+					$("#sample").selectpicker('refresh');
+	      }); 
 				delete_button.disabled = true;
 				submit_button.textContent = "Submit new sample";
 				cancel_button.textContent = "Cancel create";
@@ -120,12 +126,17 @@
 		};
 		
 		function add_temp_rec() {
-			sample_selector.options[sample_selector.options.length] = new Option(TEMP_NAME, -1);
-			sample_selector.value = -1;
+			var option = new Option(TEMP_NAME, -1);
+			option.setAttribute("title", TEMP_NAME);
+			sample_selector.options[sample_selector.options.length] = option;
+			$("#sample").selectpicker('val', -1);
 		};
 		
 		submit_button.onclick = function() {
-			sample_selector.disabled = false;
+			$(function () {
+	      	$("#sample").prop('disabled', false);
+					$("#sample").selectpicker('refresh');
+	    }); 
 		};
 		
 		// Populate form fields with available data
@@ -169,6 +180,25 @@
 			other_text.value = sample_data['other_sample_attr'];
 		} else {
 			other_text.value = "";
+		}
+		
+		// Disable components based on security points
+		if (!security_points.includes(210)) {
+			document.getElementById("createSample").disabled = true;
+		}
+		
+		if (!security_points.includes(210) && !security_points.includes(220) && !security_points.includes(230)) {
+			document.getElementById("submitButton").disabled = true;
+			document.getElementById("sample_name").readOnly = true;
+			document.getElementById("species").readOnly = true;
+			document.getElementById("sex").readOnly = true;
+			document.getElementById("age").readOnly = true;
+			document.getElementById("tissue_matrix").readOnly = true;
+			document.getElementById("other_sample_attr").readOnly = true;
+		}
+		
+		if (!security_points.includes(240) && !security_points.includes(250)) {
+			document.getElementById("deleteSample").disabled = true;
 		}
 		
 	</script>

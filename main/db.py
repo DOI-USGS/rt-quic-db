@@ -39,9 +39,9 @@ Q_LOAD_OBS = ("LOAD DATA LOCAL INFILE %s INTO TABLE Observation FIELDS TERMINATE
               "ENCLOSED BY '\"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (fluorescence, time_s, "
               "x_coord, y_coord, wc_ID, index_in_well);")
 
-Q_GET_PLATES = "SELECT plate_ID, plate_type FROM Plate;"
+Q_GET_PLATES_IN_TEAM = "SELECT plate_ID, plate_type FROM Plate WHERE team_ID=%s;"
 
-Q_GET_SAMPLES = "SELECT sample_ID, name FROM Sample;"
+Q_GET_SAMPLES_IN_TEAM = "SELECT sample_ID, name FROM Sample WHERE team_ID=%s;"
 
 Q_GET_LOCATIONS = "SELECT loc_ID, name FROM Location;"
 
@@ -59,12 +59,10 @@ Q_DELETE_ASSAY = "DELETE FROM Assay WHERE assay_ID = %s;"
 
 
 Q_GET_SAMPLE = "SELECT species, sex, age, tissue_matrix, other_sample_attr, name FROM Sample WHERE sample_ID = %s;"
-
 Q_UPDATE_SAMPLE = "UPDATE Sample SET species=%s, sex=%s, age=%s, tissue_matrix=%s, other_sample_attr=%s, name=%s WHERE sample_ID = %s"
-
-Q_CREATE_SAMPLE = "INSERT INTO Sample (species, sex, age, tissue_matrix, other_sample_attr, name) VALUES (%s,%s,%s,%s,%s,%s);"
-
+Q_CREATE_SAMPLE = "INSERT INTO Sample (species, sex, age, tissue_matrix, other_sample_attr, name, team_ID, created_by) VALUES (%s,%s,%s,%s,%s,%s,%s,%s);"
 Q_DELETE_SAMPLE = "DELETE FROM Sample WHERE sample_ID = %s;"
+Q_GET_SAMPLE_CREATED_BY_USER = "SELECT created_by FROM Sample WHERE sample_ID=%s;"
 
 Q_CREATE_USER = "INSERT INTO Users (username, password_hash, first_name, last_name, email) VALUES (%s, %s, %s, %s, %s);"
 Q_GET_USERS_IN_TEAM = "SELECT u.ID, u.last_name, u.first_name, u.activated FROM Users AS u, TeamAffiliatedWithUser as ta WHERE ta.user_ID = u.ID and ta.team_ID=%s;"
@@ -84,6 +82,7 @@ Q_CLEAR_SECURITY_POINTS = "DELETE FROM UserSecurity WHERE user_ID=%s;"
 Q_CLEAR_SECURITY_POINTS_NONADMIN = "DELETE FROM UserSecurity WHERE user_ID=%s AND security_point_ID < " + str(START_ADMIN_SEC_PTS) + ";"
 Q_CLEAR_SECURITY_POINTS_ADMIN = "DELETE FROM UserSecurity WHERE user_ID=%s AND security_point_ID >= " + str(START_ADMIN_SEC_PTS) + ";"
 Q_ADD_SECURITY_POINT = "INSERT INTO UserSecurity (user_ID, security_point_ID) VALUES (%s, %s);"
+Q_GET_TEAMS_OF_USER = "SELECT TA.team_ID, T.name FROM TeamAffiliatedWithUser TA, Team T WHERE TA.team_ID = T.team_ID AND user_ID=%s;"
 
 Q_GET_LOCATION = "SELECT name from Location WHERE loc_ID=%s;"
 Q_UPDATE_LOCATION = "UPDATE Location SET name=%s WHERE loc_ID = %s;"
@@ -92,7 +91,7 @@ Q_DELETE_LOCATION = "DELETE FROM Location WHERE loc_ID = %s;"
 
 Q_GET_PLATE = "SELECT plate_type, other_plate_attr, columns, rows from Plate WHERE plate_ID=%s;"
 Q_UPDATE_PLATE = "UPDATE Plate SET plate_type=%s, other_plate_attr=%s, columns=%s, rows=%s WHERE plate_ID = %s;"
-Q_CREATE_PLATE = "INSERT INTO Plate (plate_type, other_plate_attr, columns, rows) VALUES (%s, %s, %s, %s);"
+Q_CREATE_PLATE = "INSERT INTO Plate (plate_type, other_plate_attr, columns, rows, team_ID) VALUES (%s, %s, %s, %s, %s);"
 Q_DELETE_PLATE = "DELETE FROM Plate WHERE plate_ID = %s;"
 
 Q_GET_WCS = "SELECT wc_ID, well_name FROM Well_Condition WHERE assay_ID=%s;"
@@ -227,76 +226,90 @@ class UsersDao:
         data['security_points'] = security_points
 
         return data
-    
-    def create_update_user(self, data):
-        """
-        Creates or updates user with data stored in the dictionary parameter `data`. If data['user_ID']=-1, then a new
-        user is created, otherwise the provided ID is updated.
-        """
 
-        user_ID = nstr(data['user_ID'])
-
-        if user_ID != '-1':
-            if 'activated' in data:
-                # Update user activation flag
-                activated = nstr(data['activated'])
-                self.cursor.execute(Q_UPDATE_USER_ACTIVATION, (activated, user_ID))
-                self.cnx.commit()
-
-            if 'security_points' in data:
-                security_points = data['security_points']
-                self.cursor.execute(Q_CLEAR_SECURITY_POINTS, (user_ID,))
-                for security_point_ID in security_points:
-                    self.cursor.execute(Q_ADD_SECURITY_POINT, (user_ID, security_point_ID))
-                    self.cnx.commit()
-
-            if 'security_points_nonadmin' in data:
-                security_points = data['security_points_nonadmin']
-                self.cursor.execute(Q_CLEAR_SECURITY_POINTS_NONADMIN, (user_ID,))
-                for security_point_ID in security_points:
-                    self.cursor.execute(Q_ADD_SECURITY_POINT, (user_ID, security_point_ID))
-                    self.cnx.commit()
-
-            if 'security_points_admin' in data:
-                security_points = data['security_points_admin']
-                self.cursor.execute(Q_CLEAR_SECURITY_POINTS_ADMIN, (user_ID,))
-                for security_point_ID in security_points:
-                    self.cursor.execute(Q_ADD_SECURITY_POINT, (user_ID, security_point_ID))
-                    self.cnx.commit()
-
-            # # get old loc ID
-            # self.cursor.execute(Q_GET_USER_LOC, (user_ID,))
-            # row = self.cursor.fetchone()
-            # old_loc_ID = 'empty' #the form sends the string 'empty' if no location is selected
-            # if row != None:
-            #     old_loc_ID = row[0]
-            #
-            # # change loc ID in LocAffiliatedWithUser if loc_ID has been updated
-            # if old_loc_ID != new_loc_ID:
-            #     self.cursor.execute(Q_DELETE_USER_LOC, (user_ID,))
-            #     if new_loc_ID != 'empty':
-            #         self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
-        else:
-            # User account creation
-            first_name = nstr(data['first_name'])
-            last_name = nstr(data['last_name'])
-            username = nstr(data['username'])
-            password_hash = sha512_crypt.hash(data['password'])
-            email = nstr(data['email'])
-
-            self.cursor.execute(Q_CREATE_USER, (username, password_hash, first_name, last_name, email))
-            
-            # # update LocAffiliatedWithUser if location was provided
-            # if new_loc_ID != 'empty':
-            #
-            #     # retrieve ID of new record
-            #     self.cursor.execute(Q_LAST_ID)
-            #     row = self.cursor.fetchone()
-            #     user_ID = row[0]
-            #
-            #     # self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
-            
+    """
+    Return a dictionary of the form:
+        dict[team_ID] = name
+    """
+    def get_teams(self, user_ID):
+        user_ID = str(user_ID)
+        self.cursor.execute(Q_GET_TEAMS_OF_USER, (user_ID,), multi=False)
+        rows = self.cursor.fetchall()
+        d = {}
+        for row in rows:
+            d[row[0]] = row[1]
         self.cnx.commit()
+        return d
+
+    def create_update_user(self, data):
+            """
+            Creates or updates user with data stored in the dictionary parameter `data`. If data['user_ID']=-1, then a new
+            user is created, otherwise the provided ID is updated.
+            """
+
+            user_ID = nstr(data['user_ID'])
+
+            if user_ID != '-1':
+                if 'activated' in data:
+                    # Update user activation flag
+                    activated = nstr(data['activated'])
+                    self.cursor.execute(Q_UPDATE_USER_ACTIVATION, (activated, user_ID))
+                    self.cnx.commit()
+
+                if 'security_points' in data:
+                    security_points = data['security_points']
+                    self.cursor.execute(Q_CLEAR_SECURITY_POINTS, (user_ID,))
+                    for security_point_ID in security_points:
+                        self.cursor.execute(Q_ADD_SECURITY_POINT, (user_ID, security_point_ID))
+                        self.cnx.commit()
+
+                if 'security_points_nonadmin' in data:
+                    security_points = data['security_points_nonadmin']
+                    self.cursor.execute(Q_CLEAR_SECURITY_POINTS_NONADMIN, (user_ID,))
+                    for security_point_ID in security_points:
+                        self.cursor.execute(Q_ADD_SECURITY_POINT, (user_ID, security_point_ID))
+                        self.cnx.commit()
+
+                if 'security_points_admin' in data:
+                    security_points = data['security_points_admin']
+                    self.cursor.execute(Q_CLEAR_SECURITY_POINTS_ADMIN, (user_ID,))
+                    for security_point_ID in security_points:
+                        self.cursor.execute(Q_ADD_SECURITY_POINT, (user_ID, security_point_ID))
+                        self.cnx.commit()
+
+                # # get old loc ID
+                # self.cursor.execute(Q_GET_USER_LOC, (user_ID,))
+                # row = self.cursor.fetchone()
+                # old_loc_ID = 'empty' #the form sends the string 'empty' if no location is selected
+                # if row != None:
+                #     old_loc_ID = row[0]
+                #
+                # # change loc ID in LocAffiliatedWithUser if loc_ID has been updated
+                # if old_loc_ID != new_loc_ID:
+                #     self.cursor.execute(Q_DELETE_USER_LOC, (user_ID,))
+                #     if new_loc_ID != 'empty':
+                #         self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
+            else:
+                # User account creation
+                first_name = nstr(data['first_name'])
+                last_name = nstr(data['last_name'])
+                username = nstr(data['username'])
+                password_hash = sha512_crypt.hash(data['password'])
+                email = nstr(data['email'])
+
+                self.cursor.execute(Q_CREATE_USER, (username, password_hash, first_name, last_name, email))
+
+                # # update LocAffiliatedWithUser if location was provided
+                # if new_loc_ID != 'empty':
+                #
+                #     # retrieve ID of new record
+                #     self.cursor.execute(Q_LAST_ID)
+                #     row = self.cursor.fetchone()
+                #     user_ID = row[0]
+                #
+                #     # self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
+
+            self.cnx.commit()
     
     def delete_user(self, user_ID):
         self.cursor.execute(Q_DELETE_USER, (user_ID,))
@@ -466,7 +479,8 @@ class AssayDao:
         self.cnx.commit()
         
 class PlateDao:
-    def __init__(self):
+    def __init__(self, session):
+        self.session = session
         self.cnx = mysql.connector.connect(**config)
         self.cursor = self.cnx.cursor()
     
@@ -475,7 +489,8 @@ class PlateDao:
         dict[plate_ID] = plate_type
     """
     def get_plates(self):
-        self.cursor.execute(Q_GET_PLATES, multi=False)
+        team_ID = self.session['team_ID']
+        self.cursor.execute(Q_GET_PLATES_IN_TEAM, (team_ID,), multi=False)
         rows = self.cursor.fetchall()
         d = {}
         for row in rows:
@@ -503,11 +518,12 @@ class PlateDao:
         other_plate_attr = nstr(data['other_plate_attr'])
         columns = nstr(data['columns'])
         rows = nstr(data['rows'])
+        team_ID = self.session['team_ID']
         
         if plate_ID != '-1':
             self.cursor.execute(Q_UPDATE_PLATE, (plate_type, other_plate_attr, columns, rows, plate_ID))
         else:
-            self.cursor.execute(Q_CREATE_PLATE, (plate_type, other_plate_attr, columns, rows))
+            self.cursor.execute(Q_CREATE_PLATE, (plate_type, other_plate_attr, columns, rows, team_ID))
             
         self.cnx.commit()
     
@@ -516,16 +532,18 @@ class PlateDao:
         self.cnx.commit()
 
 class SampleDao:
-    def __init__(self):
+    def __init__(self, session):
         self.cnx = mysql.connector.connect(**config)
         self.cursor = self.cnx.cursor()
+        self.session = session
     
     """
     Return a dictionary of the form:
         dict[sample_ID] = name
     """
     def get_samples(self):
-        self.cursor.execute(Q_GET_SAMPLES, multi=False)
+        team_ID = self.session['team_ID']
+        self.cursor.execute(Q_GET_SAMPLES_IN_TEAM, (team_ID,), multi=False)
         rows = self.cursor.fetchall()
         d = {}
         for row in rows:
@@ -557,17 +575,32 @@ class SampleDao:
         tissue_matrix = nstr(data['tissue_matrix'])
         other_sample_attr = nstr(data['other_sample_attr'])
         name = nstr(data['sample_name'])
+        team_ID = self.session['team_ID']
+        user_ID = self.session['user_ID']
 
         if sample_ID != '-1':
             self.cursor.execute(Q_UPDATE_SAMPLE, (species, sex, age, tissue_matrix, other_sample_attr, name, sample_ID))
         else:
-            self.cursor.execute(Q_CREATE_SAMPLE, (species, sex, age, tissue_matrix, other_sample_attr, name))
+            self.cursor.execute(Q_CREATE_SAMPLE, (species, sex, age, tissue_matrix, other_sample_attr, name, team_ID, user_ID))
         
         self.cnx.commit()
     
     def delete_sample(self, sample_ID):
         self.cursor.execute(Q_DELETE_SAMPLE, (sample_ID,))
         self.cnx.commit()
+
+    def get_created_by_user(self, sample_ID):
+        sample_ID = str(sample_ID)
+
+        # Get info from User table
+        self.cursor.execute(Q_GET_SAMPLE_CREATED_BY_USER, (sample_ID,))
+        row = self.cursor.fetchone()
+
+        user_ID = None
+        if row[0] != None:
+            user_ID = int(row[0])
+
+        return user_ID
 
 class ObsDao:
     def __init__(self):

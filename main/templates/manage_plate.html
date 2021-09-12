@@ -12,7 +12,7 @@
 		<div class="form-group">
 			<label for="plate_ID">Plate template</label>
 		  <div class="input-group">
-		  	<select class="form-control" id="plate_ID" name="plate_ID" placeholder="" required><option value="empty" disabled hidden> -- select an option -- </option></select>
+		  	<select class="selectpicker form-control" id="plate_ID" name="plate_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="empty" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
 		  	<div class="input-group-btn">
 		  		<button class="btn btn-warning" type="button" id="createPlate">Create new template</button>
 		  	</div>
@@ -77,7 +77,10 @@
 		var plate_ID = '{{plate_ID}}';
 		
 		for(index in plates) {
-		    plate_selector.options[plate_selector.options.length] = new Option(plates[index], index);
+				name = plates[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    plate_selector.options[plate_selector.options.length] = option;
 		}
 		
 		// Adapt form for editing a selected record
@@ -88,7 +91,7 @@
 			document.getElementById("cancelSelection").disabled = false;
 			document.getElementById("deleteButton").disabled = false;
 		} else {
-			plate_selector.value = "empty";
+			$("#plate_ID").selectpicker('val', "empty");
 			var plate_data = '';
 		}
 		
@@ -101,22 +104,30 @@
 		var cancel_button = document.getElementById("cancelSelection");
 		
 		create_button.onclick = function() {
-				plate_selector.disabled = true;
 				delete_button.disabled = true;
 				submit_button.textContent = "Submit new template";
 				cancel_button.textContent = "Cancel create";
 				cancel_button.disabled = false;
 				add_temp_rec();
+				$(function () {
+	      	$("#plate_ID").prop('disabled', true);
+					$("#plate_ID").selectpicker('refresh');
+	      });  
 				document.getElementById("plate_type").focus();
 		};
 		
 		function add_temp_rec() {
-			plate_selector.options[plate_selector.options.length] = new Option(TEMP_NAME, -1);
-			plate_selector.value = -1;
+			var option = new Option(TEMP_NAME, -1);
+			option.setAttribute("title", TEMP_NAME);
+			plate_selector.options[plate_selector.options.length] = option;
+			$("#plate_ID").selectpicker('val', -1);
 		};
 		
 		submit_button.onclick = function() {
-			plate_selector.disabled = false;
+				$(function () {
+	      	$("#plate_ID").prop('disabled', false);
+					$("#plate_ID").selectpicker('refresh');
+	      });  
 		};
 		
 		// Populate form fields with available data
@@ -147,6 +158,23 @@
 		} else {
 			other_text.value = "";
 		}		
+		
+		// Disable components based on security points
+		if (!security_points.includes(510)) {
+			document.getElementById("createPlate").disabled = true;
+		}
+		
+		if (!security_points.includes(520) && !security_points.includes(510)) {
+			document.getElementById("submitButton").disabled = true;
+			document.getElementById("plate_type").readOnly = true;
+			document.getElementById("columns").readOnly = true;
+			document.getElementById("rows").readOnly = true;
+			document.getElementById("other_plate_attr").readOnly = true;
+		}
+		
+		if (!security_points.includes(530)) {
+			document.getElementById("deleteButton").disabled = true;
+		}
 		
 	</script>
 

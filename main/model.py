@@ -29,7 +29,9 @@ class ManageUser:
 
     def get_activation_status(self, user_ID):
         return self.userDao.get_activation_status(user_ID)
-    
+
+    def get_teams(self, user_ID):
+        return self.userDao.get_teams(user_ID)
     
     """
     """
@@ -116,8 +118,9 @@ class ManageAssay:
         self.assayDao.delete_assay(assay_ID)
 
 class ManagePlate:
-    def __init__(self):
-        self.plateDao = PlateDao() 
+    def __init__(self, session):
+        self.plateDao = PlateDao(session)
+        self.session = session
     
     def get_plates(self):
         return self.plateDao.get_plates()
@@ -133,8 +136,9 @@ class ManagePlate:
     
 
 class ManageSample:
-    def __init__(self):
-        self.sampleDao = SampleDao()
+    def __init__(self, session):
+        self.sampleDao = SampleDao(session)
+        self.session = session
     
     def get_samples(self):
         return self.sampleDao.get_samples()
@@ -147,6 +151,9 @@ class ManageSample:
     
     def delete_sample(self, sample_ID):
         return self.sampleDao.delete_sample(sample_ID)
+
+    def get_created_by_user(self, sample_ID):
+        return self.sampleDao.get_created_by_user(sample_ID)
 
 class ManageLocation:
     def __init__(self):

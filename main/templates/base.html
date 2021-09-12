@@ -15,7 +15,6 @@
     <!--    main style-->
     <link href="/static/css/main.css" rel="stylesheet">
 
-
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
@@ -93,15 +92,13 @@
         <!-- Navbar links -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="navbar-nav mr-auto">
-                <li class="dropdown">
+                <li class="dropdown" id="non_admin_dropdown">
 					        <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					          Edit<span class="caret"></span></a>
-					        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+					        <ul class="dropdown-menu" aria-labelledby="navbarDropdown" id="non_admin_links">
 					          <li class="nav-item"><a class = "nav-link" href="/newProject">Upload Assay</a></li>
 										<li class="nav-item"><a class = "nav-link" href="/editAssay">Edit Assay</a></li>
-										<li class="nav-item"><a class = "nav-link" href="/manageSample">Manage Samples</a></li>
 										<li class="nav-item"><a class = "nav-link" href="/manageLocation">Manage Locations</a></li>
-										<li class="nav-item"><a class = "nav-link" href="/managePlate">Manage Plate Templates</a></li>
 					        </ul>
 					      </li>
 					      <li class="dropdown" id="admin_dropdown">
@@ -126,6 +123,7 @@
                         {% if name %} {{ name }}{% else %} {{Guest}} {% endif %}<span class="caret"></span></a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <li class="nav-item"><a class = "nav-link" href="/logout">Logout</a></li>
+                        <li class="nav-item"><a class = "nav-link" href="/removeTeamID">Change research team</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">
@@ -138,11 +136,64 @@
     <!-- /.container -->
 </nav>
 
+<div class="modal" id="teamidpopup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">  	
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h3 class="modal-title">Select Research Team</h3>
+	      </div>
+	      <div class="modal-body">
+	      		<form id="teampopup_form" onsubmit="return false;">
+						  <div class="form-group">
+						    <select class="form-control" id="popup_team_ID" name="popup_team_ID" placeholder="" required><option value="empty" disabled hidden> -- select an option -- </option></select>
+						 	</div>
+					</form>
+	      </div>
+	      <div class="modal-footer">
+		        <button class="btn btn-primary" id="popup_team_ID_submit" form="teampopup_form">Submit</button>
+				</div>
+	    </div>
+  </div> 
+</div>
+
 <script>
 var security_points = {{ sec_pts | tojson | safe}};
 
+// Check for team_ID
+var team_ID = '{{team_ID}}';
+if (team_ID == '') {
+	$(function () {
+		$('#teamidpopup').modal({backdrop:'static', keyboard:false});
+		$('#teamidpopup').modal('show');
+  }); 
+}
+
+// Fill in non-admin links
+var non_admin_links = document.getElementById('non_admin_links');
+
+if (security_points.includes(200)) {
+	var entry = document.createElement('li');
+	entry.classList.add('nav-item');
+	entry.insertAdjacentHTML("beforeend", "<a class = 'nav-link' href='/manageSample'>Manage Samples</a>");
+	non_admin_links.appendChild(entry);
+}
+
+// Determine if non-admin menu should appear
+var non_admin_menu_condition = Boolean(security_points.includes(100)||security_points.includes(110)||security_points.includes(200));
+if (!non_admin_menu_condition) {
+	document.getElementById('non_admin_dropdown').remove();
+}
+
+
 // Fill in admin links
 var admin_links = document.getElementById('admin_links');
+
+if (security_points.includes(500)) {
+	var entry = document.createElement('li');
+	entry.classList.add('nav-item');
+	entry.insertAdjacentHTML("beforeend", "<a class = 'nav-link' href='/managePlate'>Manage Plate Templates</a>");
+	admin_links.appendChild(entry);
+}
 
 if (security_points.includes(800)) {
 	var entry = document.createElement('li');
@@ -153,12 +204,16 @@ if (security_points.includes(800)) {
 
 // Determine if admin menu should appear
 //var admin_menu_condition = Boolean(security_points.includes(800)||(security_points.includes(810))||(security_points.includes(820))||(security_points.includes(830))||(security_points.includes(840))||(security_points.includes(850)));
-var admin_menu_condition = Boolean(security_points.includes(800));
+var admin_menu_condition = Boolean(security_points.includes(800)||security_points.includes(500));
 if (!admin_menu_condition) {
 	document.getElementById('admin_dropdown').remove();
 }
 
 </script>
+
+<!-- Selectpicker -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
 
 
 {% block content %}{% endblock %}
