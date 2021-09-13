@@ -27,7 +27,7 @@ Q_SELECT_USER = 'SELECT NAME, ROLE FROM Users WHERE USERNAME = %s AND PASSWORD =
 Q_CREATE_ASSAY = ("INSERT INTO Assay (temperature, shake_interval_min, scan_interval_min, "
                                     "duration_min, salt_type, salt_conc, substrate_type, substrate_conc, "
                                     "surfact_type, surfact_conc, start_date_time, name, other_assay_attr, "
-                                    "plate_ID, loc_ID, user_ID) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
+                                    "plate_ID, loc_ID, created_by, team_ID) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)")
 
 Q_LAST_ID = "SELECT LAST_INSERT_ID();"
 
@@ -43,9 +43,9 @@ Q_GET_PLATES_IN_TEAM = "SELECT plate_ID, plate_type FROM Plate WHERE team_ID=%s;
 
 Q_GET_SAMPLES_IN_TEAM = "SELECT sample_ID, name FROM Sample WHERE team_ID=%s;"
 
-Q_GET_LOCATIONS = "SELECT loc_ID, name FROM Location;"
+Q_GET_LOCATIONS_IN_TEAM = "SELECT loc_ID, name FROM Location WHERE team_ID=%s;"
 
-Q_GET_ASSAYS = "SELECT assay_ID, name FROM Assay;"
+Q_GET_ASSAYS_IN_TEAM = "SELECT assay_ID, name FROM Assay WHERE team_ID=%s;"
 
 Q_GET_ASSAY = ("SELECT temperature, shake_interval_min, scan_interval_min, duration_min, "
             "salt_type, salt_conc, substrate_type, substrate_conc, start_date_time, other_assay_attr, plate_ID, loc_ID, name, surfact_type, surfact_conc "
@@ -365,13 +365,14 @@ class AssayDao:
         other_assay_attr = data.get('other_assay_attr')
         plate_ID = data.get('plate')
         loc_ID = data.get('location')
-        user_ID = self.session.get('user_ID')
+        created_by = self.session.get('user_ID')
+        team_ID = self.session.get('team_ID')
         
         # create new assay
         self.cursor.execute(Q_CREATE_ASSAY, (temperature, shake_interval_min, scan_interval_min, 
                                              duration_min, salt_type, salt_conc, substrate_type, substrate_conc,
                                              surfact_type, surfact_conc, start_date_time, name, other_assay_attr,
-                                             plate_ID, loc_ID, user_ID))
+                                             plate_ID, loc_ID, created_by, team_ID))
         
         # retrieve ID of new assay record
         self.cursor.execute(Q_LAST_ID)
@@ -416,7 +417,8 @@ class AssayDao:
         dict[assay_ID] = name
     """
     def get_assays(self):
-        self.cursor.execute(Q_GET_ASSAYS, multi=False)
+        team_ID = self.session.get('team_ID')
+        self.cursor.execute(Q_GET_ASSAYS_IN_TEAM, (team_ID,), multi=False)
         rows = self.cursor.fetchall()
         d = {}
         for row in rows:
@@ -608,16 +610,18 @@ class ObsDao:
         self.cursor = self.cnx.cursor()
     
 class LocationDao:
-    def __init__(self):
+    def __init__(self, session):
         self.cnx = mysql.connector.connect(**config)
         self.cursor = self.cnx.cursor()
+        self.session = session
     
     """
     Return a dictionary of the form:
         dict[loc_ID] = name
     """
     def get_locations(self):
-        self.cursor.execute(Q_GET_LOCATIONS, multi=False)
+        team_ID = self.session['team_ID']
+        self.cursor.execute(Q_GET_LOCATIONS_IN_TEAM, (team_ID,), multi=False)
         rows = self.cursor.fetchall()
         d = {}
         for row in rows:

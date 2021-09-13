@@ -13,15 +13,15 @@
   	<div class="col-md-6 col-sm-6">
 		  <div class="form-group">
 		  	<label for="assay">Assay*</label>
-		  	<select class="form-control" id="assay" name="assay_ID" placeholder="" value required><option value="empty" disabled hidden> -- select an option -- </option></select>
+		  	<select class="selectpicker form-control" id="assay" name="assay_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
 		  </div>
 		  <div class="form-group">
-		  	<label for="sample">Plate template*</label>
-		    <select class="form-control" id="plate" name="plate" placeholder="" required><option value="empty" disabled hidden></option></select>
+		  	<label for="plate">Plate template*</label>
+		    <select class="selectpicker form-control" id="plate" name="plate" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
 		  </div>
 		  <div class="form-group">
 		    <label for="location">Location*</label>
-		    <select class="form-control" id="location" name="location" placeholder="" required><option value="empty" disabled hidden></option></select>
+		    <select class="selectpicker form-control" id="location" name="location" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
 		  </div>
 		  <div class="form-group">
 		  	<label for="assay_name">New assay name*</label>
@@ -130,12 +130,14 @@
 		// Populate selectors and select base on input data
 		var assays = {{ assays | tojson | safe}};
 		var plates = {{ plates | tojson | safe}};
-		var samples = {{ samples | tojson | safe}};
 		var locations = {{ locations | tojson | safe}};
 		var assay_ID = '{{assay_ID}}'
 	
 		for(index in assays) {
-		    assay_selector.options[assay_selector.options.length] = new Option(assays[index], index);
+		    name = assays[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    assay_selector.options[assay_selector.options.length] = option;
 		}	
 		
 		if (assay_ID !== '') {
@@ -144,30 +146,37 @@
 			document.getElementById("cancelSelection").disabled = false;
 			document.getElementById("deleteButton").disabled = false;
 		} else {
-			assay_selector.value = "empty";
+			$("#assay").selectpicker('val', "");
 			var assay_data = '';
 		}
 		
 		var plate_selector = document.getElementById("plate");
 		for(index in plates) {
-		    plate_selector.options[plate_selector.options.length] = new Option(plates[index], index);
+		    name = plates[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    plate_selector.options[plate_selector.options.length] = option;
 		}
 		
 		if (typeof assay_data['plate_ID'] !== 'undefined') {
-			plate_selector.value = assay_data['plate_ID'];
+			$("#plate").selectpicker('val', assay_data['plate_ID']);
 		} else {
-			plate_selector.value = "empty";
+			$("#plate").selectpicker('val', "");
 		}
 		
 		var location_selector = document.getElementById("location");
 		for(index in locations) {
-		    location_selector.options[location_selector.options.length] = new Option(locations[index], index);
+		    name = locations[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    location_selector.options[location_selector.options.length] = option;
 		}
 		
 		if (typeof assay_data['loc_ID'] !== 'undefined') {
-			location_selector.value = assay_data['loc_ID'];
+			$("#location").selectpicker('val', assay_data['loc_ID']);
+			
 		} else {
-			location_selector.value = "empty";
+			$("#location").selectpicker('val', "");
 		}
 	
 		

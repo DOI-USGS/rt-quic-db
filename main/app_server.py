@@ -178,7 +178,7 @@ def submit_registration():
 
 @app.route('/getLocationsForReg')
 def get_locs_for_reg():
-    locationModel = ManageLocation()
+    locationModel = ManageLocation(session)
     locations = locationModel.get_locations()   
     
     if locations is not None:
@@ -348,7 +348,7 @@ def get_plates_samples_locations():
     samples = sampleModel.get_samples()
     
     # get current locations
-    locationModel = ManageLocation()
+    locationModel = ManageLocation(session)
     locations = locationModel.get_locations()
     
     return plates, samples, locations
@@ -358,8 +358,8 @@ def new_project():
     if 'username' not in session:
         return render_template("login.html")
     else:
-        plates, samples, locations = get_plates_samples_locations()
-        return render_template("add_project.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], plates=plates, samples=samples, locations=locations)
+        plates, _, locations = get_plates_samples_locations()
+        return render_template("add_project.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], plates=plates, locations=locations)
 
 
 def allowed_file(filename):
@@ -398,7 +398,7 @@ def upload_plate():
 @app.route('/editAssay', methods=['GET', 'POST'])
 def load_edit_assay():
     if session.get('activated')==1 and ('username' in session):
-        plates, samples, locations = get_plates_samples_locations()
+        plates, _, locations = get_plates_samples_locations()
         assayModel = ManageAssay(session)
         assays = assayModel.get_assays()
 
@@ -406,9 +406,9 @@ def load_edit_assay():
         
         if assay_ID != None:
             data = assayModel.get_data(int(assay_ID))
-            return render_template("edit_assay.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], plates=plates, samples=samples, locations=locations, assays = assays, assay_ID = assay_ID, assay_data=data)
+            return render_template("edit_assay.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], plates=plates, locations=locations, assays = assays, assay_ID = assay_ID, assay_data=data)
         else:
-            return render_template("edit_assay.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], plates=plates, samples=samples, locations=locations, assays = assays, assay_data = '')
+            return render_template("edit_assay.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], plates=plates, locations=locations, assays = assays, assay_data = '')
     else:
         return render_template("login.html")
 
@@ -438,7 +438,7 @@ def delete_assay():
         
         plates, samples, locations = get_plates_samples_locations()
         assays = assayModel.get_assays()
-        return render_template("edit_assay.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], plates=plates, samples=samples, locations=locations, assays = assays, assay_data = '')
+        return redirect(url_for('load_edit_assay'))
 
 # =============================================================================
 # Manage Samples
@@ -541,7 +541,7 @@ def delete_sample():
 @app.route('/manageLocation', methods=['GET', 'POST'])
 def load_manage_loc():
     if session.get('activated')==1 and ('username' in session):
-        locationModel = ManageLocation()
+        locationModel = ManageLocation(session)
         locations = locationModel.get_locations()
         
         loc_ID = dict(request.form).get('loc_ID')
@@ -561,7 +561,7 @@ def edit_loc():
         form_data = dict(request.form)
         
         # create or update location
-        locationModel = ManageLocation()
+        locationModel = ManageLocation(session)
         locationModel.create_update_loc(data=form_data)
         flash('Updated successfully')
         
@@ -574,7 +574,7 @@ def delete_loc():
         loc_ID = dict(request.form).get('loc_ID')
         
         # delete location
-        locationModel = ManageLocation()
+        locationModel = ManageLocation(session)
         locationModel.delete_loc(loc_ID)
         flash('Location deleted')
         
@@ -796,7 +796,7 @@ def logout():
 @app.route('/enhancementRequest', methods=['GET', 'POST'])
 def load_enhancement_request():
     if session.get('activated')==1 and ('username' in session):
-        locationModel = ManageLocation()
+        locationModel = ManageLocation(session)
         locations = locationModel.get_locations()
         return render_template("enhancement_form.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], username = session['username'], loc_ID = '', locations=locations)
     else:

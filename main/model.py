@@ -156,8 +156,9 @@ class ManageSample:
         return self.sampleDao.get_created_by_user(sample_ID)
 
 class ManageLocation:
-    def __init__(self):
-        self.locationDao = LocationDao()
+    def __init__(self, session):
+        self.locationDao = LocationDao(session)
+        self.session = session
     
     def get_locations(self):
         return self.locationDao.get_locations()

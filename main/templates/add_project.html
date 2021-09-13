@@ -13,11 +13,11 @@
   	<div class="col-md-6 col-sm-6">
 		  <div class="form-group">
 		    <label for="plate">Plate template*</label>
-		    <select class="form-control" id="plate" name="plate" required></select>
+		    <select class="selectpicker form-control" id="plate" name="plate" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled selected hidden> -- select an option -- </option></select>
 		  </div>
 		  <div class="form-group">
 		    <label for="location">Location*</label>
-		    <select class="form-control" id="location" name="location" required></select>
+		    <select class="selectpicker form-control" id="location" name="location" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled selected hidden> -- select an option -- </option></select>
 		  </div>
 		  <div class="form-group">
 		  	<label for="assay_name">Assay name*</label>
@@ -109,18 +109,30 @@
 
 	<script>
 		var plates = JSON.parse('{{ plates | tojson | safe}}');
-		var samples = JSON.parse('{{ samples | tojson | safe}}');
 		var locations = JSON.parse('{{ locations | tojson | safe}}');
 			
 		var plate_selector = document.getElementById("plate");
 		for(index in plates) {
-		    plate_selector.options[plate_selector.options.length] = new Option(plates[index], index);
+				name = plates[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    plate_selector.options[plate_selector.options.length] = option;
 		}
 		
+		if (typeof plates[0] == 'undefined') {
+			$("#plate").selectpicker('val', "");
+		}
 		
 		var location_selector = document.getElementById("location");
 		for(index in locations) {
-		    location_selector.options[location_selector.options.length] = new Option(locations[index], index);
+		    name = locations[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    location_selector.options[location_selector.options.length] = option;
+		}
+		
+		if (typeof locations[0] == 'undefined') {
+			$("#location").selectpicker('val', "");
 		}
 	</script>
 
