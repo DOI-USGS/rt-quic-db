@@ -293,9 +293,13 @@ def get_viz_data():
 # =============================================================================
 @app.route('/vis', methods=['GET', 'POST'])
 def view_assay():
-    if 'username' not in session:
+    if session.get('activated')!=1 or ('username' not in session):
         return render_template("login.html")
     else:
+        # VALIDATE SEC.PT. 100: Can access View Assay activity
+        if not has_security_point(session, 100):
+            abort(403, "You are not authorized to access the View Assay activity.")
+
         # Load dictionary representing available assays from DV
         assayModel = ManageAssay(session)
         assays = assayModel.get_assays()
@@ -315,8 +319,27 @@ def get_well_data():
 def submit_well_edits():
     # get form data
     form_data = dict(request.args)
+    assay_ID = form_data['assay_ID']
+
+    assayModel = ManageAssay(session)
+
+    # VALIDATE SEC.PT. 160: Well edit only assays created by self
+    #    and
+    # VALIDATE SEC.PT. 170: Well edit all assays
+    if has_security_point(session, 170):
+        pass
+    elif has_security_point(session, 160, refresh=False):
+        created_by = assayModel.get_created_by_user(assay_ID)
+        if created_by == session['user_ID']:
+            pass
+        else:
+            return jsonify({"status": "error", "message":"You are not authorized to edit wells on assays created by other users."})
+    else:
+        return jsonify({"status": "error", "message": "You are not authorized to edit wells."})
+
     form_data['wc_ID'] = form_data['wc_ID'].split(",")
-    
+    wcModel = ManageWC(session)
+
     # Remove empty strings
     data = form_data.copy()
     for key in form_data:
@@ -324,12 +347,9 @@ def submit_well_edits():
             del data[key]
     
     # Save data to wells
-    wcModel = ManageWC(session)
     wcModel.save_well_data(data)
     
     return jsonify({"status": "success"})
-
-
 
 # =============================================================================
 # Edit Menu
@@ -355,9 +375,13 @@ def get_plates_samples_locations():
 
 @app.route('/newProject')
 def new_project():
-    if 'username' not in session:
+    if session.get('activated')!=1 or ('username' not in session):
         return render_template("login.html")
     else:
+        # VALIDATE SEC.PT. 110: Upload assays
+        if not has_security_point(session, 110):
+            abort(403, "You are not authorized to access the Upload Assay activity.")
+
         plates, _, locations = get_plates_samples_locations()
         return render_template("add_project.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], plates=plates, locations=locations)
 
@@ -370,25 +394,29 @@ def allowed_file(filename):
 @app.route('/loadPlate', methods=['GET', 'POST'])
 def upload_plate():
     if request.method == 'POST':
-        # get form data
-        form_data = dict(request.form)
-        
-        # check if the post request has the file
-        if 'plate_file' not in request.files:
-            flash('No file entered')
-            return "No file entered"
-        
-        # get file
-        f = request.files['plate_file']
-        if f.filename == '':
-            flash('File not detected')
-            return redirect(url_for('new_project'))
+        # VALIDATE SEC.PT. 110: Upload assays
+        if has_security_point(session, 110):
+            # get form data
+            form_data = dict(request.form)
 
-        # process file
-        assayModel = ManageAssay(session)
-        assayModel.create_assay(f=f, data=form_data)
-        flash('File uploaded successfully')
-        
+            # check if the post request has the file
+            if 'plate_file' not in request.files:
+                flash('No file entered')
+                return "No file entered"
+
+            # get file
+            f = request.files['plate_file']
+            if f.filename == '':
+                flash('File not detected')
+                return redirect(url_for('new_project'))
+
+            # process file
+            assayModel = ManageAssay(session)
+            assayModel.create_assay(f=f, data=form_data)
+            flash('File uploaded successfully')
+        else:
+            flash('You are not authorized to upload assays.')
+
         return redirect(url_for('new_project'))
 
 # =============================================================================
@@ -398,6 +426,10 @@ def upload_plate():
 @app.route('/editAssay', methods=['GET', 'POST'])
 def load_edit_assay():
     if session.get('activated')==1 and ('username' in session):
+        # VALIDATE SEC.PT. 115: Can access Edit Assay activity
+        if not has_security_point(session, 115):
+            abort(403, "You are not authorized to access the Edit Assay activity.")
+
         plates, _, locations = get_plates_samples_locations()
         assayModel = ManageAssay(session)
         assays = assayModel.get_assays()
@@ -417,9 +449,26 @@ def edit_assay():
     if request.method == 'POST':
         # get form data
         form_data = dict(request.form)
-        
-        # update assay
         assayModel = ManageAssay(session)
+        assay_ID = int(form_data['assay_ID'])
+
+        # VALIDATE SEC.PT. 120: Edit only assays created by self
+        #    and
+        # VALIDATE SEC.PT. 130: Edit all assays
+        if has_security_point(session, 130):
+            pass
+        elif has_security_point(session, 120, refresh=False):
+            created_by = assayModel.get_created_by_user(assay_ID)
+            if created_by == session['user_ID']:
+                pass
+            else:
+                flash('You are not authorized to edit assays created by other users.')
+                return redirect(url_for('load_edit_assay'))
+        else:
+            flash('You are not authorized to edit assays.')
+            return redirect(url_for('load_edit_assay'))
+
+        # update assay
         assayModel.update_assay(data=form_data)
         flash('Updated successfully')
         
@@ -430,9 +479,26 @@ def delete_assay():
     if request.method == 'POST':
         # get form data
         assay_ID = dict(request.form).get('assay_ID')
-        
-        # delete assay
+
         assayModel = ManageAssay(session)
+
+        # VALIDATE SEC.PT. 140: Delete only assays created by self
+        #    and
+        # VALIDATE SEC.PT. 150: Delete all assays
+        if has_security_point(session, 150):
+            pass
+        elif has_security_point(session, 140, refresh=False):
+            created_by = assayModel.get_created_by_user(assay_ID)
+            if created_by == session['user_ID']:
+                pass
+            else:
+                flash('You are not authorized to delete assays created by other users.')
+                return redirect(url_for('load_edit_assay'))
+        else:
+            flash('You are not authorized to delete assays.')
+            return redirect(url_for('load_edit_assay'))
+
+        # delete assay
         assayModel.delete_assay(assay_ID)
         flash('Assay deleted')
         
@@ -484,7 +550,7 @@ def edit_sample():
             # VALIDATE SEC.PT. 220: Edit only samples created by self
             #    and
             # VALIDATE SEC.PT. 230: Edit all samples
-            if has_security_point(session, 230, refresh=False):
+            if has_security_point(session, 230):
                 pass
             elif has_security_point(session, 220, refresh=False):
                 created_by = sampleModel.get_created_by_user(sample_ID)
@@ -514,7 +580,7 @@ def delete_sample():
         # VALIDATE SEC.PT. 240: Delete only samples created by self
         #    and
         # VALIDATE SEC.PT. 250: Delete all samples
-        if has_security_point(session, 250, refresh=False):
+        if has_security_point(session, 250):
             pass
         elif has_security_point(session, 240, refresh=False):
             created_by = sampleModel.get_created_by_user(sample_ID)

@@ -58,7 +58,13 @@ $(function() {
     $('#well_edit_save').click(function() {
 			var data = $("#well_edit_form").serializeArray();
 			data[data.length] = { name: "wc_ID", value: wc_IDs_global };
-			$.getJSON($SCRIPT_ROOT + '/submitWellEdits', data);
+			var assay_ID = $('#assay').val();
+			data[data.length] = { name: "assay_ID", value: assay_ID };
+			$.getJSON($SCRIPT_ROOT + '/submitWellEdits', data, function(output_data){
+				if (output_data['status'] == "error") {
+					alert(output_data['message']);
+				}
+			});
 			$("#well_edit").modal('hide');
     });
   });
@@ -264,26 +270,33 @@ function drawChart(id, assay_name, wc_name, figData, grid = false){
 
 ///////////// SimpleVis page ////////
 $(function() {
-    $('select#assay').change(function() {
-    $('select#wc_ID').children().remove();
+    $('#assay').change(function() {
+    	$('#wc_ID').children().remove();
 
-     $.getJSON($SCRIPT_ROOT + '/getWellsForAssay', {
-       assay_ID: $('select#assay').val(),
-     }, function(data) {
-       updateWells(data.result)
-     });
-     return false;
-   });
+	     $.getJSON($SCRIPT_ROOT + '/getWellsForAssay', {
+	       assay_ID: $('#assay').val(),
+	     }, function(data) {
+	       updateWells(data.result)
+	     });
+	     return false;
+	   });
  });
 
 function updateWells(well_conditions){
 
-    var wc_selector = document.getElementById('wc_ID');
-    wc_selector.options[0] = new Option(" -- All -- ", -1);
+	var wc_selector = document.getElementById('wc_ID');
+   wc_selector.options[0] = new Option(" -- All -- ", -1);
 	for(index in well_conditions) {
-		   wc_selector.options[wc_selector.options.length] = new Option(well_conditions[index], index);
+		name = well_conditions[index];
+		var option = new Option(name, index);
+		option.setAttribute("data-tokens", name);
+		wc_selector.options[wc_selector.options.length] = option;
 	}
-    wc_selector.disabled = false;
+   $(function () {
+		$("#wc_ID").prop('disabled', false);
+		$("#wc_ID").selectpicker('refresh');
+	});
+	$("#wc_ID").selectpicker('val', -1);
 }
 
 <!-- WELL SELECTION -->

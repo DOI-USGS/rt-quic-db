@@ -96,8 +96,6 @@
 					        <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					          Edit<span class="caret"></span></a>
 					        <ul class="dropdown-menu" aria-labelledby="navbarDropdown" id="non_admin_links">
-					          <li class="nav-item"><a class = "nav-link" href="/newProject">Upload Assay</a></li>
-										<li class="nav-item"><a class = "nav-link" href="/editAssay">Edit Assay</a></li>
 										<li class="nav-item"><a class = "nav-link" href="/manageLocation">Manage Locations</a></li>
 					        </ul>
 					      </li>
@@ -106,11 +104,10 @@
 					          Admin<span class="caret"></span></a>
 					        <ul class="dropdown-menu" aria-labelledby="navbarDropdown" id="admin_links"></ul>
 					      </li>
-                <li class="dropdown">
+                <li class="dropdown" id="analysis_dropdown">
 					        <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					          Analysis<span class="caret"></span></a>
-					        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-					          <li class="nav-item"><a class = "nav-link" href="/vis">View Assay</a></li>
+					        <ul class="dropdown-menu" aria-labelledby="navbarDropdown" id="analysis_links">
 					        </ul>
 					      </li>
                 <li class="nav-item text-nowrap">
@@ -168,8 +165,22 @@ if (team_ID == '') {
   }); 
 }
 
-// Fill in non-admin links
+// Fill in Edit links
 var non_admin_links = document.getElementById('non_admin_links');
+
+if (security_points.includes(110)) {
+	var entry = document.createElement('li');
+	entry.classList.add('nav-item');
+	entry.insertAdjacentHTML("beforeend", "<a class = 'nav-link' href='/newProject'>Upload Assay</a>");
+	non_admin_links.appendChild(entry);
+}
+
+if (security_points.includes(115)) {
+	var entry = document.createElement('li');
+	entry.classList.add('nav-item');
+	entry.insertAdjacentHTML("beforeend", "<a class = 'nav-link' href='/editAssay'>Edit Assay</a>");
+	non_admin_links.appendChild(entry);
+}
 
 if (security_points.includes(200)) {
 	var entry = document.createElement('li');
@@ -178,12 +189,26 @@ if (security_points.includes(200)) {
 	non_admin_links.appendChild(entry);
 }
 
-// Determine if non-admin menu should appear
-var non_admin_menu_condition = Boolean(security_points.includes(100)||security_points.includes(110)||security_points.includes(200));
+// Determine if Edit menu should appear
+var non_admin_menu_condition = Boolean(security_points.includes(110)||security_points.includes(115)||security_points.includes(200));
 if (!non_admin_menu_condition) {
 	document.getElementById('non_admin_dropdown').remove();
 }
 
+// Fill in Analysis links
+var analysis_links = document.getElementById('analysis_links');
+if (security_points.includes(100)) {
+	var entry = document.createElement('li');
+	entry.classList.add('nav-item');
+	entry.insertAdjacentHTML("beforeend", "<a class = 'nav-link' href='/vis'>View Assay</a>");
+	analysis_links.appendChild(entry);
+}
+
+// Determine if Analysis menu should appear
+var analysis_menu_condition = Boolean(security_points.includes(100));
+if (!analysis_menu_condition) {
+	document.getElementById('analysis_dropdown').remove();
+}
 
 // Fill in admin links
 var admin_links = document.getElementById('admin_links');

@@ -93,7 +93,7 @@
 		</div>
 		<div class="col-md-12 text-right">
 			<div class="form-group">
-				<button class="btn btn-primary" type="submit">Update assay</button>
+				<button class="btn btn-primary" type="submit" id="submitButton">Update assay</button>
 				<button class="btn btn-danger" type="button" id="deleteButton" disabled>Delete assay</button>
 				<button class="btn btn-link" type ="button" id="cancelSelection" onclick="document.location.href='/editAssay'" disabled>Cancel selection</button>
 			</div>
@@ -270,6 +270,36 @@
 			other_text.value = assay_data['other_assay_attr'];
 		} else {
 			other_text.value = "";
+		}
+		
+		// Disable components based on security points		
+		if (!security_points.includes(120) && !security_points.includes(130)) {
+			document.getElementById("submitButton").disabled = true;
+			$(function () {
+	      	$("#plate").prop('disabled', true);
+					$("#plate").selectpicker('refresh');
+	      });  
+			$(function () {
+	      	$("#location").prop('disabled', true);
+					$("#location").selectpicker('refresh');
+	      });  
+			document.getElementById("assay_name").readOnly = true;
+			document.getElementById("temperature").readOnly = true;
+			document.getElementById("shake_interval_min").readOnly = true;
+			document.getElementById("scan_interval_min").readOnly = true;
+			document.getElementById("duration_min").readOnly = true;
+			document.getElementById("salt_type").readOnly = true;
+			document.getElementById("salt_conc").readOnly = true;
+			document.getElementById("substrate_type").readOnly = true;
+			document.getElementById("substrate_conc").readOnly = true;
+			document.getElementById("surfact_type").readOnly = true;
+			document.getElementById("surfact_conc").readOnly = true;
+			document.getElementById("other_assay_attr").readOnly = true;
+			$("#start_date_time").prop('disabled', true);
+		}
+		
+		if (!security_points.includes(140) && !security_points.includes(150)) {
+			document.getElementById("deleteButton").disabled = true;
 		}
 		
 	</script>

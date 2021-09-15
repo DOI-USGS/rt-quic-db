@@ -117,6 +117,9 @@ class ManageAssay:
     def delete_assay(self, assay_ID):
         self.assayDao.delete_assay(assay_ID)
 
+    def get_created_by_user(self, assay_ID):
+        return self.assayDao.get_created_by_user(assay_ID)
+
 class ManagePlate:
     def __init__(self, session):
         self.plateDao = PlateDao(session)
@@ -165,7 +168,7 @@ class ManageLocation:
     
     def get_data(self, loc_ID):
         return self.locationDao.get_data(loc_ID)
-    
+
     def create_update_loc(self, data):
         self.locationDao.create_update_loc(data)
     
@@ -242,7 +245,7 @@ class ManageWC:
                 if wc_data[field] != '':
                     d[field] = (wc_data[field], 'wc') # data specified at well level
                 else:
-                    if field != 'other_wc_attr':
+                    if field != 'other_wc_attr' and field != 'sample_ID':
                         d[field] = (assay_data.get(field), 'assay') # data specified at assay level
                     else:
                         d[field] = None # only at wc level

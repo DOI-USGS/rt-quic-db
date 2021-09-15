@@ -36,19 +36,19 @@
 		  <form id="vis top form">
 			  <div class="form-group">
 			  	<label for="assay">Assay</label>
-			  	<select class="form-control" id="assay" name="assay_ID" placeholder="" value required><option value="" disabled hidden> -- select an option -- </option></select>
+			  	<select class="selectpicker form-control" id="assay" name="assay_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
 			  </div>
 			  
 			  <div class="form-group">
-			  	<label for="assay">Well name</label>
-			  	<select class="form-control" id="wc_ID" name="wc_ID" placeholder="" value required><option value="" disabled hidden> -- select an option -- </option></select>
+			  	<label for="wc_ID">Well name</label>
+			  	<select class="selectpicker form-control" id="wc_ID" name="wc_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
 			  </div>
 		
 				<div class="form-group">
 					<button id="chartBtn" class="btn btn-primary">Get chart</button>
 					<button class="btn btn-link" type ="button" id="cancelSelection" onclick="document.location.href='/vis'">Cancel selection</button>
 				</div>
-			</form>
+			</form>			
 </div>
 
 <!-- container for chart data -->
@@ -57,7 +57,7 @@
 
 <!-- Well Edit -->
 <div class="dropdown-menu dropdown-menu-sm" id="context-menu">
-  <li><a href="#" data-toggle="modal" data-target="#well_edit">Well Edit</a></li>
+  <li><a href="#" data-toggle="modal" data-target="#well_edit" id="well_edit_link">Well Edit</a></li>
   <li><a href="javascript:clearSelectedCells();">Clear Selection</a></li>
 </div>
 
@@ -66,8 +66,8 @@
   <div class="modal-dialog" role="document">  	
 	    <div class="modal-content">
 	      <div class="modal-header">
-	        <h3 class="modal-title" id="exampleModalLabel">Well Edit</h3>
 	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h3 class="modal-title" id="exampleModalLabel">Well Edit</h3>
 	      </div>
 	      <div class="modal-body">
 	      		<form id="well_edit_form">
@@ -139,15 +139,22 @@
 		var assay_ID = '{{assay_ID}}'
 		
 		for(index in assays) {
-		    assay_selector.options[assay_selector.options.length] = new Option(assays[index], index);
+		    name = assays[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    assay_selector.options[assay_selector.options.length] = option;
 		}
 		
 		if (assay_ID !== '') {
-			assay_selector.value = assay_ID;
+			$("#assay").selectpicker('val', assay_ID);
 			document.getElementById("cancelSelection").disabled = false;
 		} else {
-			assay_selector.value = "";
-			wc_selector.disabled = true;
+			$("#assay").selectpicker('val', "");
+			$("#wc_ID").selectpicker('val', "");
+			$(function () {
+				$("#wc_ID").prop('disabled', true);
+				$("#wc_ID").selectpicker('refresh');
+			}); 
 		}
 		
 		// Populate selector with available records
@@ -160,6 +167,18 @@
 		}
 		
 		sample_selector.value = "";
+		
+		
+		// Disable components based on security points
+		if (!security_points.includes(160) && !security_points.includes(170)) {
+			document.getElementById('well_edit_link').disabled = true;
+			$('#well_edit_link').removeAttr('data-target');
+			$('#well_edit_link').removeAttr('data-toggle');
+	    document.getElementById('well_edit_link').style.pointerEvents = 'none';
+	    document.getElementById('well_edit_link').style.color = 'grey';
+	    document.getElementById('well_edit_link').style.cursor = 'default';
+		}
+		
 	</script>
 
 	<script>
