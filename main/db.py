@@ -14,7 +14,7 @@ from user_utils import START_ADMIN_SEC_PTS
 config = {
     'user': 'quicdbadmin',
     'password': 'quicdbadmin',
-    'host': '146.148.99.121',
+    'host': 'localhost',
     'database': 'nbollig$rt_quic_db',
     'raise_on_warnings': True
 }
@@ -85,9 +85,9 @@ Q_CLEAR_SECURITY_POINTS_ADMIN = "DELETE FROM UserSecurity WHERE user_ID=%s AND s
 Q_ADD_SECURITY_POINT = "INSERT INTO UserSecurity (user_ID, security_point_ID) VALUES (%s, %s);"
 Q_GET_TEAMS_OF_USER = "SELECT TA.team_ID, T.name FROM TeamAffiliatedWithUser TA, Team T WHERE TA.team_ID = T.team_ID AND user_ID=%s;"
 
-Q_GET_LOCATION = "SELECT name from Location WHERE loc_ID=%s;"
-Q_UPDATE_LOCATION = "UPDATE Location SET name=%s WHERE loc_ID = %s;"
-Q_CREATE_LOCATION = "INSERT INTO Location (name) VALUES (%s);"
+Q_GET_LOCATION = "SELECT name, address_1, address_2, city, state, zip from Location WHERE loc_ID=%s;"
+Q_UPDATE_LOCATION = "UPDATE Location SET name=%s, address_1=%s, address_2=%s, city=%s, state=%s, zip=%s WHERE loc_ID = %s;"
+Q_CREATE_LOCATION = "INSERT INTO Location (name, team_ID, address_1, address_2, city, state, zip) VALUES (%s, %s, %s, %s, %s, %s, %s);"
 Q_DELETE_LOCATION = "DELETE FROM Location WHERE loc_ID = %s;"
 
 Q_GET_PLATE = "SELECT plate_type, other_plate_attr, columns, rows from Plate WHERE plate_ID=%s;"
@@ -138,6 +138,24 @@ sample_ID = VALUES(sample_ID), assay_ID = VALUES(assay_ID), contents = VALUES(co
 well_name = VALUES(well_name); \
 DROP TABLE {};")
 
+Q_C_GET_STATES = "SELECT ID, name from C_USSTATES;"
+
+class CategoryDao:
+    def __init__(self):
+        self.cnx = mysql.connector.connect(**config)
+        self.cursor = self.cnx.cursor()
+
+    def get_states(self):
+        """
+        Returns dictionary of the form dict[ID] = name
+        """
+        self.cursor.execute(Q_C_GET_STATES, multi=False)
+        rows = self.cursor.fetchall()
+        d = {}
+        for row in rows:
+            d[row[0]] = row[1]
+        self.cnx.commit()
+        return d
 
 class UsersDao:
 
@@ -650,6 +668,11 @@ class LocationDao:
         
         data = {}
         data['name'] = xstr(row[0])
+        data['add1'] = xstr(row[1])
+        data['add2'] = xstr(row[2])
+        data['city'] = xstr(row[3])
+        data['state'] = xstr(row[4])
+        data['zip'] = xstr(row[5])
         
         self.cnx.commit()
         return data
@@ -657,11 +680,17 @@ class LocationDao:
     def create_update_loc(self, data):
         loc_ID = nstr(data['loc_ID'])
         name = nstr(data['location_name'])
+        team_ID = nstr(self.session['team_ID'])
+        add1 = nstr(data['add1'])
+        add2 = nstr(data['add2'])
+        city = nstr(data['city'])
+        state = nstr(data['state'])
+        zip = nstr(data['zip'])
         
         if loc_ID != '-1':
-            self.cursor.execute(Q_UPDATE_LOCATION, (name, loc_ID))
+            self.cursor.execute(Q_UPDATE_LOCATION, (name, add1, add2, city, state, zip, loc_ID))
         else:
-            self.cursor.execute(Q_CREATE_LOCATION, (name, ))
+            self.cursor.execute(Q_CREATE_LOCATION, (name, team_ID, add1, add2, city, state, zip))
             
         self.cnx.commit()
     

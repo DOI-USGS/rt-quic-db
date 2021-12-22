@@ -12,7 +12,7 @@
 		<div class="form-group">
 			<label for="loc_ID">Location</label>
 		  <div class="input-group">
-		  	<select class="form-control" id="loc_ID" name="loc_ID" placeholder="" required><option value="empty" disabled hidden> -- select an option -- </option></select>
+		  	<select class="selectpicker form-control" id="loc_ID" name="loc_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
 		  	<div class="input-group-btn">
 		  		<button class="btn btn-warning" type="button" id="createLoc">Create new location</button>
 		  	</div>
@@ -21,6 +21,27 @@
 	  <div class="form-group">
 	  	<label for="location_name">New name</label>
 	    <input type="text" class="form-control" id="location_name" name="location_name" placeholder="" required>
+	  </div>
+	  
+	  <div class="form-group">
+	  	<label for="add1">Address 1</label>
+	    <input type="text" class="form-control" id="add1" name="add1" placeholder="" required>
+	  </div>
+	  <div class="form-group">
+	  	<label for="add2">Address 2</label>
+	    <input type="text" class="form-control" id="add2" name="add2" placeholder="" required>
+	  </div>
+	  <div class="form-group">
+	  	<label for="city">City</label>
+	    <input type="text" class="form-control" id="city" name="city" placeholder="" required>
+	  </div>
+	  <div class="form-group">
+	  	<label for="state">State</label>
+	    <select class="selectpicker form-control" id="state" name="state" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
+	  </div>
+	  <div class="form-group">
+	  	<label for="zip">ZIP</label>
+	    <input type="text" class="form-control" id="zip" name="zip" placeholder="" required>
 	  </div>
 
 		<div class="form-group">
@@ -45,8 +66,9 @@
 	
 
 	<script>			
-		// Declare selector
+		// Declare selectors
 		var loc_selector = document.getElementById('loc_ID');
+		var state_selector = document.getElementById('state');
 		
 		// Delete button
 		var delete_button = document.getElementById('deleteButton');
@@ -59,24 +81,36 @@
 		    post('/manageLocation', {loc_ID: loc_selector.value});
 		});
 	
-		// Populate selector with available records
+		// Populate location selector with available records
 		var locations = {{ locations | tojson | safe}};
 		
 		var loc_ID = '{{loc_ID}}';
 		
 		for(index in locations) {
-		    loc_selector.options[loc_selector.options.length] = new Option(locations[index], index);
+		    name = locations[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    loc_selector.options[loc_selector.options.length] = option;
+		}
+		
+		// Populate state selector with available records
+		var states = {{ states | tojson | safe}};
+		for(index in states) {
+		    name = states[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    state_selector.options[state_selector.options.length] = option;
 		}
 		
 		// Adapt form for editing a selected record
 		if (loc_ID !== '') {
-			loc_selector.value = loc_ID;
+			$("#loc_ID").selectpicker('val', loc_ID);
 			var loc_data = {{ loc_data | tojson | safe}};
 			document.getElementById("createLoc").disabled = true;
 			document.getElementById("cancelSelection").disabled = false;
 			document.getElementById("deleteButton").disabled = false;
 		} else {
-			loc_selector.value = "empty";
+			$("#loc_ID").selectpicker('val', "");;
 			var loc_data = '';
 		};
 		
@@ -89,7 +123,10 @@
 		var cancel_button = document.getElementById("cancelSelection");
 		
 		create_button.onclick = function() {
-				loc_selector.disabled = true;
+				$(function () {
+					$("#loc_ID").prop('disabled', true);
+					$("#loc_ID").selectpicker('refresh');
+				});  
 				delete_button.disabled = true;
 				submit_button.textContent = "Submit new location";
 				cancel_button.textContent = "Cancel create";
@@ -98,13 +135,18 @@
 				document.getElementById("location_name").focus();
 		};
 		
-		function add_temp_rec() {
-			loc_selector.options[loc_selector.options.length] = new Option(TEMP_NAME, -1);
-			loc_selector.value = -1;
+		function add_temp_rec() {			
+			var option = new Option(TEMP_NAME, -1);
+			option.setAttribute("title", TEMP_NAME);
+			loc_selector.options[loc_selector.options.length] = option;
+			$("#loc_ID").selectpicker('val', -1);
 		};
 		
 		submit_button.onclick = function() {
-			loc_selector.disabled = false;
+			$(function () {
+				$("#loc_ID").prop('disabled', false);
+				$("#loc_ID").selectpicker('refresh');
+			});  
 		};
 		
 		// Populate form fields with available data
@@ -114,6 +156,40 @@
 		} else {
 			name_text.value = "";
 		}		
+		
+		var add1_text = document.getElementById("add1");
+		if (typeof loc_data['add1'] !== 'undefined') {
+			add1_text.value = loc_data['add1'];
+		} else {
+			add1_text.value = "";
+		}	
+		
+		var add2_text = document.getElementById("add2");
+		if (typeof loc_data['add2'] !== 'undefined') {
+			add2_text.value = loc_data['add2'];
+		} else {
+			add2_text.value = "";
+		}	
+		
+		var city_text = document.getElementById("city");
+		if (typeof loc_data['city'] !== 'undefined') {
+			city_text.value = loc_data['city'];
+		} else {
+			city_text.value = "";
+		}	
+		
+		if (typeof loc_data['state'] !== 'undefined') {
+			$("#state").selectpicker('val', loc_data['state']);
+		} else {
+			$("#state").selectpicker('val', "");
+		}
+		
+		var zip_text = document.getElementById("zip");
+		if (typeof loc_data['zip'] !== 'undefined') {
+			zip_text.value = loc_data['zip'];
+		} else {
+			zip_text.value = "";
+		}	
 		
 	</script>
 

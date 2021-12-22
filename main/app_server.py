@@ -1,5 +1,5 @@
 from flask_login import LoginManager
-from model import ManageUser, ManagePlate, ManageAssay, ManageSample, ManageLocation, ManageWC
+from model import ManageUser, ManagePlate, ManageAssay, ManageSample, ManageLocation, ManageWC, ManageCategory
 import os
 from pathlib import Path
 from flask import Flask, escape, request, render_template, send_from_directory, session
@@ -609,14 +609,16 @@ def load_manage_loc():
     if session.get('activated')==1 and ('username' in session):
         locationModel = ManageLocation(session)
         locations = locationModel.get_locations()
-        
+        catModel = ManageCategory()
+        states = catModel.get_states()
+
         loc_ID = dict(request.form).get('loc_ID')
     
         if loc_ID != None:
             loc_data = locationModel.get_data(int(loc_ID))
-            return render_template("manage_loc.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'],loc_ID = loc_ID, loc_data=loc_data, locations=locations)
+            return render_template("manage_loc.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'],loc_ID = loc_ID, loc_data=loc_data, locations=locations, states=states)
         else:
-            return render_template("manage_loc.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], loc_data = '', locations=locations)
+            return render_template("manage_loc.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], loc_data = '', locations=locations, states=states)
     else:
         return render_template("login.html")
 
