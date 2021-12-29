@@ -7,6 +7,8 @@ Created on Sun Sep  6 18:25:20 2020
 import random, string
 import os
 import smtplib
+from werkzeug.routing import RequestRedirect
+
 import model
 
 START_ADMIN_SEC_PTS = 500
@@ -61,6 +63,8 @@ def has_security_point(session, sec_point, refresh=True):
     security_points = session['security_points']
     if session['activated'] == 1 and sec_point in security_points:
         return True
+    elif session['activated'] != 1:
+        raise RequestRedirect('/index')
     else:
         return False
 

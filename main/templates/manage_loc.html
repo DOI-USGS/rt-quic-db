@@ -29,7 +29,7 @@
 	  </div>
 	  <div class="form-group">
 	  	<label for="add2">Address 2</label>
-	    <input type="text" class="form-control" id="add2" name="add2" placeholder="" required>
+	    <input type="text" class="form-control" id="add2" name="add2" placeholder="">
 	  </div>
 	  <div class="form-group">
 	  	<label for="city">City</label>
@@ -190,6 +190,28 @@
 		} else {
 			zip_text.value = "";
 		}	
+		
+		// Disable components based on security points
+		if (!security_points.includes(610)) {
+			document.getElementById("createLoc").disabled = true;
+		}
+		
+		if (!security_points.includes(620) && !security_points.includes(610)) {
+			document.getElementById("submitButton").disabled = true;
+			document.getElementById("location_name").readOnly = true;
+			document.getElementById("add1").readOnly = true;
+			document.getElementById("add2").readOnly = true;
+			document.getElementById("city").readOnly = true;
+			$(function () {
+					$("#state").prop('disabled', true);
+					$("#state").selectpicker('refresh');
+				});  
+			document.getElementById("zip").readOnly = true;
+		}
+		
+		if (!security_points.includes(630)) {
+			document.getElementById("deleteButton").disabled = true;
+		}
 		
 	</script>
 

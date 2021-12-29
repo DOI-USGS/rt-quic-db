@@ -1,5 +1,5 @@
 from flask_login import LoginManager
-from model import ManageUser, ManagePlate, ManageAssay, ManageSample, ManageLocation, ManageWC, ManageCategory
+from model import ManageUser, ManagePlate, ManageAssay, ManageSample, ManageLocation, ManageWC, ManageCategory, ManageTeam
 import os
 from pathlib import Path
 from flask import Flask, escape, request, render_template, send_from_directory, session
@@ -164,7 +164,7 @@ def submit_registration():
         data['first_name'] = request.form['first_name']
         data['last_name'] = request.form['last_name']
         data['email'] = request.form['email']
-        data['loc_ID'] = request.form['location']
+        data['team_ID'] = request.form['team']
         data['password'] = request.form['password']
         data['password_confirm'] = request.form['confirm_password']
         
@@ -176,13 +176,13 @@ def submit_registration():
         
     return redirect(url_for('index'))
 
-@app.route('/getLocationsForReg')
-def get_locs_for_reg():
-    locationModel = ManageLocation(session)
-    locations = locationModel.get_locations()   
+@app.route('/getTeamsForReg')
+def get_teams_for_reg():
+    teamModel = ManageTeam()
+    teams = teamModel.get_teams()
     
-    if locations is not None:
-        return jsonify({"status": "success", "result": locations})
+    if teams is not None:
+        return jsonify({"status": "success", "result": teams})
     else:
         return jsonify({"status": "error"})
 
@@ -208,7 +208,7 @@ def change_password():
             del session['temp_password_flag']
         
         return redirect(url_for('index'))
-    
+
 # =============================================================================
 # Simple visualization page
 # =============================================================================
@@ -601,12 +601,22 @@ def delete_sample():
         return redirect(url_for('load_manage_sample'))
 
 # =============================================================================
+# Manage Teams
+# =============================================================================
+
+
+
+# =============================================================================
 # Manage Locations
 # =============================================================================
 
 @app.route('/manageLocation', methods=['GET', 'POST'])
 def load_manage_loc():
     if session.get('activated')==1 and ('username' in session):
+        # VALIDATE SEC.PT. 600: Can access Manage Locations activity
+        if not has_security_point(session, 600):
+            abort(403, "You are not authorized to access the Manage Locations activity.")
+
         locationModel = ManageLocation(session)
         locations = locationModel.get_locations()
         catModel = ManageCategory()
@@ -627,7 +637,17 @@ def edit_loc():
     if request.method == 'POST':
         # get form data
         form_data = dict(request.form)
-        
+
+        # VALIDATE SEC.PT. 610: Create new locations for your team
+        if not has_security_point(session, 610) and int(form_data.get('loc_ID', None)) == -1:
+            flash('You are not authorized to create a location.')
+            return redirect(url_for('load_manage_loc'))
+
+        # VALIDATE SEC.PT. 620: Update location in your team
+        if not has_security_point(session, 620, refresh=False) and int(form_data.get('loc_ID', None)) != -1:
+            flash('You are not authorized to edit locations.')
+            return redirect(url_for('load_manage_loc'))
+
         # create or update location
         locationModel = ManageLocation(session)
         locationModel.create_update_loc(data=form_data)
@@ -638,13 +658,16 @@ def edit_loc():
 @app.route('/deleteLoc', methods=['GET', 'POST'])
 def delete_loc():
     if request.method == 'POST':
-        # get form data
-        loc_ID = dict(request.form).get('loc_ID')
-        
-        # delete location
-        locationModel = ManageLocation(session)
-        locationModel.delete_loc(loc_ID)
-        flash('Location deleted')
+        if has_security_point(session, 630):
+            # get form data
+            loc_ID = dict(request.form).get('loc_ID')
+
+            # delete location
+            locationModel = ManageLocation(session)
+            locationModel.delete_loc(loc_ID)
+            flash('Location deleted')
+        else:
+            flash('You are not authorized to delete a location.')
         
         return redirect(url_for('load_manage_loc'))
 

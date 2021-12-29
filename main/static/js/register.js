@@ -1,18 +1,18 @@
 // Fill Locations in Reg Page
 $(function() {
    $(document).ready(function() {
-	   $.getJSON('/getLocationsForReg', function(data) {
-	     updateLocs(data.result);
+	   $.getJSON('/getTeamsForReg', function(data) {
+	     updateTeams(data.result);
 	   });
 	   
 	   return false;
    });
  });
 
-function updateLocs(locs){
-   var loc_selector = document.getElementById('location');
+function updateTeams(teams){
+   var team_selector = document.getElementById('team');
    
-	for(index in locs) {
-		   loc_selector.options[loc_selector.options.length] = new Option(locs[index], index);
+	for(index in teams) {
+		   team_selector.options[team_selector.options.length] = new Option(teams[index], index);
 	}
 }

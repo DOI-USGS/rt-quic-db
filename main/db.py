@@ -73,7 +73,7 @@ Q_UPDATE_USER_ACTIVATION = "UPDATE Users SET activated=%s WHERE ID = %s;"
 Q_DELETE_USER = "DELETE FROM Users WHERE ID = %s;"
 Q_GET_USER_LOC = "SELECT L.loc_ID FROM Users U, LocAffiliatedWithUser L WHERE U.ID = L.user_ID AND L.user_ID = %s;"
 Q_DELETE_USER_LOC = "DELETE FROM LocAffiliatedWithUser WHERE user_ID = %s;"
-Q_ADD_USER_LOC = "INSERT INTO LocAffiliatedWithUser (loc_ID, user_ID) VALUES (%s, %s);"
+Q_AFFILIATE_USER_TEAM = "INSERT INTO teamaffiliatedwithuser (user_ID, team_ID) VALUES (%s, %s);"
 Q_USER_EMAIL = "SELECT ID from Users WHERE email=%s;"
 Q_USER_TEMP_PW = "UPDATE Users SET password_hash=%s, temp_password_flag=True WHERE ID = %s"
 Q_USER_SET_PW = "UPDATE Users SET password_hash=%s, temp_password_flag=False WHERE ID = %s"
@@ -90,9 +90,9 @@ Q_UPDATE_LOCATION = "UPDATE Location SET name=%s, address_1=%s, address_2=%s, ci
 Q_CREATE_LOCATION = "INSERT INTO Location (name, team_ID, address_1, address_2, city, state, zip) VALUES (%s, %s, %s, %s, %s, %s, %s);"
 Q_DELETE_LOCATION = "DELETE FROM Location WHERE loc_ID = %s;"
 
-Q_GET_PLATE = "SELECT plate_type, other_plate_attr, columns, rows from Plate WHERE plate_ID=%s;"
+Q_GET_PLATE = "SELECT plate_type, other_plate_attr, columns, `rows` from Plate WHERE plate_ID=%s;"
 Q_UPDATE_PLATE = "UPDATE Plate SET plate_type=%s, other_plate_attr=%s, columns=%s, rows=%s WHERE plate_ID = %s;"
-Q_CREATE_PLATE = "INSERT INTO Plate (plate_type, other_plate_attr, columns, rows, team_ID) VALUES (%s, %s, %s, %s, %s);"
+Q_CREATE_PLATE = "INSERT INTO Plate (plate_type, other_plate_attr, columns, `rows`, team_ID) VALUES (%s, %s, %s, %s, %s);"
 Q_DELETE_PLATE = "DELETE FROM Plate WHERE plate_ID = %s;"
 
 Q_GET_WCS = "SELECT wc_ID, well_name FROM Well_Condition WHERE assay_ID=%s;"
@@ -140,6 +140,8 @@ DROP TABLE {};")
 
 Q_C_GET_STATES = "SELECT ID, name from C_USSTATES;"
 
+Q_GET_TEAMS = "SELECT team_ID, name FROM Team;"
+
 class CategoryDao:
     def __init__(self):
         self.cnx = mysql.connector.connect(**config)
@@ -150,6 +152,26 @@ class CategoryDao:
         Returns dictionary of the form dict[ID] = name
         """
         self.cursor.execute(Q_C_GET_STATES, multi=False)
+        rows = self.cursor.fetchall()
+        d = {}
+        for row in rows:
+            d[row[0]] = row[1]
+        self.cnx.commit()
+        return d
+
+class TeamDao:
+    def __init__(self, session=None):
+        self.cnx = mysql.connector.connect(**config)
+        self.cursor = self.cnx.cursor()
+        self.session = session
+
+    """
+    Return a dictionary of the form:
+        dict[loc_ID] = name
+    """
+
+    def get_teams(self):
+        self.cursor.execute(Q_GET_TEAMS, multi=False)
         rows = self.cursor.fetchall()
         d = {}
         for row in rows:
@@ -315,18 +337,17 @@ class UsersDao:
                 username = nstr(data['username'])
                 password_hash = sha512_crypt.hash(data['password'])
                 email = nstr(data['email'])
+                team_ID = nstr(data['team_ID'])
 
                 self.cursor.execute(Q_CREATE_USER, (username, password_hash, first_name, last_name, email))
 
-                # # update LocAffiliatedWithUser if location was provided
-                # if new_loc_ID != 'empty':
-                #
-                #     # retrieve ID of new record
-                #     self.cursor.execute(Q_LAST_ID)
-                #     row = self.cursor.fetchone()
-                #     user_ID = row[0]
-                #
-                #     # self.cursor.execute(Q_ADD_USER_LOC, (new_loc_ID, user_ID))
+                # update teamaffiliatedwithuser table
+                # retrieve ID of new record
+                self.cursor.execute(Q_LAST_ID)
+                row = self.cursor.fetchone()
+                user_ID = row[0]
+
+                self.cursor.execute(Q_AFFILIATE_USER_TEAM, (user_ID, team_ID))
 
             self.cnx.commit()
     

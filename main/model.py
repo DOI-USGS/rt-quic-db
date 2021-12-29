@@ -1,4 +1,4 @@
-from db import UsersDao, PlateDao, AssayDao, SampleDao, LocationDao, ObsDao, WCDao, CategoryDao
+from db import UsersDao, PlateDao, AssayDao, SampleDao, LocationDao, ObsDao, WCDao, CategoryDao, TeamDao
 from data_upload_util import parse_rt_quic_csv, UploadObsCSV, UploadWellConditionCSV
 from user_utils import make_temp_password, send_password_recovery_email
 import os
@@ -11,6 +11,13 @@ class ManageCategory:
 
     def get_states(self):
         return self.categoryDao.get_states()
+
+class ManageTeam:
+    def __init__(self):
+        self.teamDao = TeamDao()
+
+    def get_teams(self):
+        return self.teamDao.get_teams()
 
 class ManageUser:
     def __init__(self):
