@@ -12,6 +12,9 @@ class ManageCategory:
     def get_states(self):
         return self.categoryDao.get_states()
 
+    def get_species(self):
+        return self.categoryDao.get_species()
+
 class ManageTeam:
     def __init__(self):
         self.teamDao = TeamDao()

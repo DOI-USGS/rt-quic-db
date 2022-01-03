@@ -23,8 +23,8 @@
 	    <input type="text" class="form-control" id="sample_name" name="sample_name" placeholder="" required>
 	  </div>
 	  <div class="form-group">
-	    <label for="species">Species (needs updating, just put 1 for now)</label>
-	    <input type="text" class="form-control" id="species" name="species" placeholder="">
+	  	<label for="species">Species</label>
+	    <select class="selectpicker form-control" id="species" name="species" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
 	  </div>
 	  <div class="form-group">
 	  	<label for="sex">Sex</label>
@@ -66,6 +66,7 @@
 	<script>		
 		// Declare selector
 		var sample_selector = document.getElementById('sample');
+		var species_selector = document.getElementById('species');
 		
 		// Delete button
 		var delete_button = document.getElementById('deleteSample');
@@ -78,7 +79,7 @@
 		    post('/manageSample', {sample_ID: sample_selector.value});
 		});
 	
-		// Populate selector with available records
+		// Populate sample with available records
 		var samples = {{ samples | tojson | safe}};
 		
 		var sample_ID = '{{sample_ID}}';
@@ -91,6 +92,14 @@
 		    sample_selector.options[sample_selector.options.length] = option;
 		}
 		
+		// Populate species selector with available records
+		var species = {{ species | tojson | safe}};
+		for(index in species) {
+		    name = species[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    species_selector.options[species_selector.options.length] = option;
+		}
 	
 		// Adapt form for editing a selected record
 		if (sample_ID !== '') {
@@ -147,11 +156,10 @@
 			name_text.value = "";
 		}		
 		
-		var species_text = document.getElementById("species");
 		if (typeof sample_data['species'] !== 'undefined') {
-			species_text.value = sample_data['species'];
+			$("#species").selectpicker('val', sample_data['species']);
 		} else {
-			species_text.value = "";
+			$("#species").selectpicker('val', "");
 		}
 		
 		var sex_text = document.getElementById("sex");

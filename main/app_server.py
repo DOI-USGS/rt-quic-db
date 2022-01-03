@@ -519,14 +519,16 @@ def load_manage_sample():
 
         sampleModel = ManageSample(session)
         samples = sampleModel.get_samples()
+        catModel = ManageCategory()
+        species = catModel.get_species()
         
         sample_ID = dict(request.form).get('sample_ID')
     
         if sample_ID != None:
             sample_data = sampleModel.get_data(int(sample_ID))
-            return render_template("manage_samples.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], samples=samples, sample_ID = sample_ID, sample_data=sample_data)
+            return render_template("manage_samples.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], samples=samples, sample_ID = sample_ID, sample_data=sample_data, species=species)
         else:
-            return render_template("manage_samples.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], samples=samples, sample_data = '')
+            return render_template("manage_samples.html", name=session['name'], team_ID = session.get('team_ID', ''), sec_pts=session['security_points'], samples=samples, sample_data = '', species=species)
     else:
         return render_template("login.html")
 
@@ -946,6 +948,6 @@ def create_issue(title, body, label):
 
 if __name__ == '__main__':
     os.environ["FLASK_ENV"] = 'development'
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 5555))
     #login_manager.init_app(app)
     app.run(host='0.0.0.0', port=port, use_reloader=False, debug=True)

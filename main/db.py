@@ -139,6 +139,7 @@ well_name = VALUES(well_name); \
 DROP TABLE {};")
 
 Q_C_GET_STATES = "SELECT ID, name from C_USSTATES;"
+Q_C_GET_SPECIES = "SELECT ID, name from C_SPECIES;"
 
 Q_GET_TEAMS = "SELECT team_ID, name FROM Team;"
 
@@ -152,6 +153,18 @@ class CategoryDao:
         Returns dictionary of the form dict[ID] = name
         """
         self.cursor.execute(Q_C_GET_STATES, multi=False)
+        rows = self.cursor.fetchall()
+        d = {}
+        for row in rows:
+            d[row[0]] = row[1]
+        self.cnx.commit()
+        return d
+
+    def get_species(self):
+        """
+        Returns dictionary of the form dict[ID] = name
+        """
+        self.cursor.execute(Q_C_GET_SPECIES, multi=False)
         rows = self.cursor.fetchall()
         d = {}
         for row in rows:
