@@ -7,3 +7,4 @@ passlib
 python-dotenv
 sentry-sdk[flask]
 pygithub
+sphinx
