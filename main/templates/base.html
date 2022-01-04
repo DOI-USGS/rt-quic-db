@@ -117,8 +117,8 @@
                     <a class="dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         {% if name %} {{ name }}{% else %} {{Guest}} {% endif %}<span class="caret"></span></a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    		<li class="nav-item"><h6 class="dropdown-header"><b>Team:</b> {{team_name}}</h6></li>
                         <li class="nav-item"><a class = "nav-link" href="/logout">Logout</a></li>
-                        <li class="nav-item"><a class = "nav-link" href="/removeTeamID">Change research team</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">
@@ -131,37 +131,8 @@
     <!-- /.container -->
 </nav>
 
-<div class="modal" id="teamidpopup" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">  	
-	    <div class="modal-content">
-	      <div class="modal-header">
-	        <h3 class="modal-title">Select Research Team</h3>
-	      </div>
-	      <div class="modal-body">
-	      		<form id="teampopup_form" onsubmit="return false;">
-						  <div class="form-group">
-						    <select class="form-control" id="popup_team_ID" name="popup_team_ID" placeholder="" required><option value="empty" disabled hidden> -- select an option -- </option></select>
-						 	</div>
-					</form>
-	      </div>
-	      <div class="modal-footer">
-		        <button class="btn btn-primary" id="popup_team_ID_submit" form="teampopup_form">Submit</button>
-				</div>
-	    </div>
-  </div> 
-</div>
-
 <script>
 var security_points = {{ sec_pts | tojson | safe}};
-
-// Check for team_ID
-var team_ID = '{{team_ID}}';
-if (team_ID == '') {
-	$(function () {
-		$('#teamidpopup').modal({backdrop:'static', keyboard:false});
-		$('#teamidpopup').modal('show');
-  }); 
-}
 
 // Fill in Edit links
 var non_admin_links = document.getElementById('non_admin_links');
