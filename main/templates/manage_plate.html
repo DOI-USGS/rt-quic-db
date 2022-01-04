@@ -12,7 +12,7 @@
 		<div class="form-group">
 			<label for="plate_ID">Plate template</label>
 		  <div class="input-group">
-		  	<select class="selectpicker form-control" id="plate_ID" name="plate_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="empty" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
+		  	<select class="selectpicker form-control" id="plate_ID" name="plate_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
 		  	<div class="input-group-btn">
 		  		<button class="btn btn-warning" type="button" id="createPlate">Create new template</button>
 		  	</div>
@@ -91,7 +91,7 @@
 			document.getElementById("cancelSelection").disabled = false;
 			document.getElementById("deleteButton").disabled = false;
 		} else {
-			$("#plate_ID").selectpicker('val', "empty");
+			$("#plate_ID").selectpicker('val', "");
 			var plate_data = '';
 		}
 		

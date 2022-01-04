@@ -12,7 +12,7 @@
 		<div class="form-group">
 			<label for="user_ID">User</label>
 			<small class="form-text text-muted"><span style='padding-left:20px' class='glyphicon glyphicon-eye-close'></span> = inactive</small>
-		  <select class="selectpicker form-control" id="user_ID" name="user_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="empty" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
+		  <select class="selectpicker form-control" id="user_ID" name="user_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
 		</div>
 	  <div class="form-group">
 	  	<label for="username">username</label>
@@ -148,7 +148,7 @@
 				$("#security_points").selectpicker('refresh');
       });   
 		} else {
-			$("#user_ID").selectpicker('val', "empty");
+			$("#user_ID").selectpicker('val', "");
 			var user_data = '';
 		}
 		

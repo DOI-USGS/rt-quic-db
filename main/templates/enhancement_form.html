@@ -82,28 +82,7 @@
 	</form>
 	
 	</div>
-	
-	<script>
-		// Declare selector
-		var loc_selector = document.getElementById('loc_ID');
 
-	
-		// Populate selector with available records
-		var locations = {{ locations | tojson | safe}};
-	
-		var loc_ID = '{{loc_ID}}';
-		
-		for(index in locations) {
-		    loc_selector.options[loc_selector.options.length] = new Option(locations[index], index);
-		}
-		
-		if (loc_ID !== '') {
-			loc_selector.value = loc_ID;
-		} else {
-			loc_selector.value = "empty";
-		};
-		
-	</script>
 
 
 </body>

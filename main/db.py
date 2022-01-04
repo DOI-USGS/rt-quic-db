@@ -91,7 +91,7 @@ Q_CREATE_LOCATION = "INSERT INTO Location (name, team_ID, address_1, address_2, 
 Q_DELETE_LOCATION = "DELETE FROM Location WHERE loc_ID = %s;"
 
 Q_GET_PLATE = "SELECT plate_type, other_plate_attr, columns, `rows` from Plate WHERE plate_ID=%s;"
-Q_UPDATE_PLATE = "UPDATE Plate SET plate_type=%s, other_plate_attr=%s, columns=%s, rows=%s WHERE plate_ID = %s;"
+Q_UPDATE_PLATE = "UPDATE Plate SET plate_type=%s, other_plate_attr=%s, columns=%s, `rows`=%s WHERE plate_ID = %s;"
 Q_CREATE_PLATE = "INSERT INTO Plate (plate_type, other_plate_attr, columns, `rows`, team_ID) VALUES (%s, %s, %s, %s, %s);"
 Q_DELETE_PLATE = "DELETE FROM Plate WHERE plate_ID = %s;"
 
