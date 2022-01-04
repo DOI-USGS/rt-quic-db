@@ -81,9 +81,9 @@ function fillWellEditForm(data) {
 		var sample_selector = document.getElementById('sample_ID');
 		var sample_ID = data.sample_ID;
 		if (sample_ID[0] == true) {
-			sample_selector.value = sample_ID[1];
+			$("#sample").selectpicker('val', sample_ID[1]);
 		} else {
-			sample_selector.value = "";
+			$("#sample").selectpicker('val', "multiple");
 		};
 		
 		// Contents

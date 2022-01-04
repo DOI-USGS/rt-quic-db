@@ -80,7 +80,10 @@
 						  </div>
 				      <div class="form-group">
 						  	<label for="sample_ID">Sample</label>
-						    <select class="form-control" id="sample_ID" name="sample_ID" placeholder="" required><option value="" hidden></option></select>
+						    <select class="selectpicker form-control" id="sample" name="sample" data-show-icon="true" data-live-search="true" required>
+							    <option value="multiple" title="Multiple values selected" placeholder="Multiple values selected" hidden disabled>Multiple values selected</option>
+							    <option value="" title="Unspecified" placeholder="Unspecified" hidden disabled>Unspecified</option>
+						    </select>
 						  </div>
 				      <div class="form-group">
 						  	<label for="contents">Contents</label>
@@ -132,7 +135,7 @@
 		// Declare selectors
 		var assay_selector = document.getElementById('assay');
 		var wc_selector = document.getElementById('wc_ID');
-		var sample_selector = document.getElementById('sample_ID');
+		var sample_selector = document.getElementById('sample');
 	
 		// Populate assay selector and select value if assay_ID is provided at load time
 		var assays = {{ assays | tojson | safe}};
@@ -165,8 +168,7 @@
 		for(index in samples) {
 		    sample_selector.options[sample_selector.options.length] = new Option(samples[index], index);
 		}
-		
-		sample_selector.value = "";
+
 		
 		
 		// Disable components based on security points
