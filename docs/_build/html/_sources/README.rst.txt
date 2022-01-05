@@ -36,7 +36,7 @@ Contact Us
 ----------
 If you have issues or ideas, please let us know. You can submit error reports, questions, enhancement requests, and any other feedback via:
 
-- Email: nbollig@wisc.edu
+- Email: Dr. Nathan Bollig (nbollig@wisc.edu)
 - Within Quake using the Submit Feedback form
 
 We would love to hear from you!
