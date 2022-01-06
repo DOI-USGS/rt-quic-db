@@ -13,6 +13,7 @@ Quake: A Database Application for Prion Detection
 
    README.rst
    accessing_quake.rst
+   definitions.rst
    assay_sample.rst
    vis.rst
    well_editor.rst
@@ -20,13 +21,9 @@ Quake: A Database Application for Prion Detection
 .. toctree::
    :maxdepth: 2
    :caption: System Administration
-   
+
+   teamadmin.rst
    loc.rst
    plate.rst
    users_security.rst
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Technical Information
-   
-   technical.rst
+   security_overview.rst

@@ -18,12 +18,11 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Quake'
-copyright = '2020, Nathan Bollig'
+copyright = '2022, Nathan Bollig'
 author = 'Nathan Bollig'
 
 # The full version, including alpha/beta/rc tags
-release = 'v0.2-alpha'
-
+release = 'v0.3-alpha'
 
 # -- General configuration ---------------------------------------------------
 
@@ -31,7 +30,7 @@ release = 'v0.2-alpha'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-        "sphinx.ext.githubpages"
+        "sphinx.ext.githubpages", "sphinx.ext.intersphinx"
 ]
 
 # Add any paths that contain templates here, relative to this directory.
