@@ -1,0 +1,155 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Definitions &#8212; Quake v0.3-alpha documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/traditional.css" />
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Managing Assays" href="assay_sample.html" />
+    <link rel="prev" title="Accessing Quake" href="accessing_quake.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="assay_sample.html" title="Managing Assays"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="accessing_quake.html" title="Accessing Quake"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Quake v0.3-alpha documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Definitions</a></li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="definitions">
+<h1>Definitions<a class="headerlink" href="#definitions" title="Permalink to this headline">¶</a></h1>
+<section id="research-team">
+<h2>Research Team<a class="headerlink" href="#research-team" title="Permalink to this headline">¶</a></h2>
+<p>A <strong>research team</strong> is a group of users who generally want to see and work with each other’s data, but do not want users
+outside of their team to have data access.</p>
+<p>We do not intend now for it to be possible to subdivide a research team into different subgroups that cannot see each
+other’s data – if that were the case, then they should register as different research teams, and be managed separately.
+The exception to this is that some users can be restricted to only edit or delete data that they create.</p>
+</section>
+<section id="team-admin">
+<h2>Team Admin<a class="headerlink" href="#team-admin" title="Permalink to this headline">¶</a></h2>
+<p>A <strong>Team Admin</strong> is a member of the research team with full access to Quake, who is responsible for configuring locations,
+plate templates, and user security. In particular, the Team Admin must activate new users before they can log in, and
+decide what each user will be able to do in Quake by assigning them <strong>security points</strong>. The Team Admin may assign
+administrative privileges to other users on their team.</p>
+</section>
+<section id="locations">
+<h2>Locations<a class="headerlink" href="#locations" title="Permalink to this headline">¶</a></h2>
+<p><strong>Locations</strong> can be used to designate physical or logical subdivisions within your research team. When a user uploads
+data, they will specify with which location the data is affiliated. While privacy and access
+is controlled at the team level, locations can be useful for auditing and reporting purposes.</p>
+</section>
+<section id="plate-templates">
+<h2>Plate Templates<a class="headerlink" href="#plate-templates" title="Permalink to this headline">¶</a></h2>
+<p>A <strong>plate template</strong> is a record that specifies the type of plate used for a particular assay. For example, your system may
+have a plate template for a 96-well plate with a specified number of rows and columns.</p>
+</section>
+<section id="samples">
+<h2>Samples<a class="headerlink" href="#samples" title="Permalink to this headline">¶</a></h2>
+<p>A <strong>sample</strong> is a record of the material in each well of each specific assay. It contains a record of the name, species, sex, age,
+and tissue matrix used in that particular well.</p>
+<p>There is flexibility for your team in how granular you want to be with sample designation. For example, you may want to
+include a generic “bovine” sample record that gets reused across many assays. Or, you may wish to create different sample
+records for each logically different bovine sample. Please contact your Team Admin if you are unsure how your team is
+using sample records in Quake.</p>
+</section>
+<section id="assays">
+<h2>Assays<a class="headerlink" href="#assays" title="Permalink to this headline">¶</a></h2>
+<p>An <strong>assay</strong> represents one particular run of a plate in the RT-QuIC analyzer. It is associated with a particular location
+and plate template. Each well can be associated with a different sample.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Definitions</a><ul>
+<li><a class="reference internal" href="#research-team">Research Team</a></li>
+<li><a class="reference internal" href="#team-admin">Team Admin</a></li>
+<li><a class="reference internal" href="#locations">Locations</a></li>
+<li><a class="reference internal" href="#plate-templates">Plate Templates</a></li>
+<li><a class="reference internal" href="#samples">Samples</a></li>
+<li><a class="reference internal" href="#assays">Assays</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="accessing_quake.html"
+                        title="previous chapter">Accessing Quake</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="assay_sample.html"
+                        title="next chapter">Managing Assays</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/definitions.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="assay_sample.html" title="Managing Assays"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="accessing_quake.html" title="Accessing Quake"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Quake v0.3-alpha documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Definitions</a></li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2022, Nathan Bollig.
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
+    </div>
+  </body>
+</html>
