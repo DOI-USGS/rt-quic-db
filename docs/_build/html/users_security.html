@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Manage Users &#8212; Quake v0.2-alpha documentation</title>
+    <title>Manage Users &#8212; Quake v0.3-alpha documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/traditional.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -15,7 +15,7 @@
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="System Architecture" href="technical.html" />
+    <link rel="next" title="Appendix" href="security_overview.html" />
     <link rel="prev" title="Manage Plate Templates" href="plate.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
@@ -25,12 +25,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="technical.html" title="System Architecture"
+          <a href="security_overview.html" title="Appendix"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="plate.html" title="Manage Plate Templates"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Quake v0.2-alpha documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Quake v0.3-alpha documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Manage Users</a></li> 
       </ul>
     </div>  
@@ -42,22 +42,55 @@
             
   <section id="manage-users">
 <h1>Manage Users<a class="headerlink" href="#manage-users" title="Permalink to this headline">¶</a></h1>
-<p>adsf</p>
+<p>The Manage Users activities provides access to the user management workflows described below. These actions are only possible
+if you have been granted required security points by your Team Admin. (Security point 810 is needed to activate users, and
+830 and 840 are needed to modify non-admin and admin security points, respectively.)</p>
+<p>Go to Admin &gt; Manage Plate Templates in the navigation bar.</p>
 <section id="viewing-user-information">
 <h2>Viewing User Information<a class="headerlink" href="#viewing-user-information" title="Permalink to this headline">¶</a></h2>
-<p>asdf</p>
+<p>Select the name of the user you wish to inspect. The following information is displayed:</p>
+<ol class="arabic simple">
+<li><p>username</p></li>
+<li><p>Email address</p></li>
+<li><p>Active - The user is only able to log in to the system if this box is checked.</p></li>
+<li><p>Security points - A list of all security points granted to the uesr.</p></li>
+</ol>
 </section>
-<section id="reset-a-user-s-password">
-<h2>Reset a User’s Password<a class="headerlink" href="#reset-a-user-s-password" title="Permalink to this headline">¶</a></h2>
-<p>asdf</p>
+<section id="activating-a-user">
+<h2>Activating a User<a class="headerlink" href="#activating-a-user" title="Permalink to this headline">¶</a></h2>
+<p>All inactive users in your team will appear in the user list with an inactive icon:</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/users_security_inactive_icon.png"><img alt="Create sample" class="align-center" src="_images/users_security_inactive_icon.png" style="width: 459.0px; height: 330.0px;" /></a>
+</div></blockquote>
+<p>Select the desired user, and check the “Active” box.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/users_security_active.png"><img alt="Create sample" class="align-center" src="_images/users_security_active.png" style="width: 455.4px; height: 324.59999999999997px;" /></a>
+</div></blockquote>
+<p>Press “Update user” to save the changes, after configuring security points.</p>
 </section>
+<section id="configuring-security-points">
+<h2>Configuring Security Points<a class="headerlink" href="#configuring-security-points" title="Permalink to this headline">¶</a></h2>
+<p>Security points permit the user to access activities and perform actions.
+Select the desired user, then open the “Security Points” dropdown menu. Check security points to grant them to the user.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/users_security_secpoints.png"><img alt="Create sample" class="align-center" src="_images/users_security_secpoints.png" style="width: 454.2px; height: 547.8px;" /></a>
+</div></blockquote>
+<p>Press “Update user” to save the changes.</p>
 </section>
-<section id="security">
-<h1>Security<a class="headerlink" href="#security" title="Permalink to this headline">¶</a></h1>
-<p>asdf</p>
-<section id="security-points">
-<h2>Security Points<a class="headerlink" href="#security-points" title="Permalink to this headline">¶</a></h2>
-<p>asdf</p>
+<section id="granting-admin-privileges">
+<h2>Granting Admin Privileges<a class="headerlink" href="#granting-admin-privileges" title="Permalink to this headline">¶</a></h2>
+<p>A user can be granted admin privileges by being given admin security points by a user with the appropriate privileges to do so.</p>
+<p>A user with 800 and 810 will be able to activate new and inactive users. They will not be able to inactivate
+currently active users, which is regulated by security point 820.</p>
+<p>The ability to modify security points of a user is granted by the following two security points:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>830 - permits modification of non-admin security points (all points below 500)</p></li>
+<li><p>840 - permits modification of admin security points (all points at and above 500)</p></li>
+</ul>
+</div></blockquote>
+<p>Note that if a Team Admin grants 840 to another user, that user will have equivalent security to modify admin security points,
+including the ability to remove administrative privileges from the first user.</p>
 </section>
 </section>
 
@@ -72,11 +105,9 @@
   <ul>
 <li><a class="reference internal" href="#">Manage Users</a><ul>
 <li><a class="reference internal" href="#viewing-user-information">Viewing User Information</a></li>
-<li><a class="reference internal" href="#reset-a-user-s-password">Reset a User’s Password</a></li>
-</ul>
-</li>
-<li><a class="reference internal" href="#security">Security</a><ul>
-<li><a class="reference internal" href="#security-points">Security Points</a></li>
+<li><a class="reference internal" href="#activating-a-user">Activating a User</a></li>
+<li><a class="reference internal" href="#configuring-security-points">Configuring Security Points</a></li>
+<li><a class="reference internal" href="#granting-admin-privileges">Granting Admin Privileges</a></li>
 </ul>
 </li>
 </ul>
@@ -85,8 +116,8 @@
   <p class="topless"><a href="plate.html"
                         title="previous chapter">Manage Plate Templates</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="technical.html"
-                        title="next chapter">System Architecture</a></p>
+  <p class="topless"><a href="security_overview.html"
+                        title="next chapter">Appendix</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -115,17 +146,17 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="technical.html" title="System Architecture"
+          <a href="security_overview.html" title="Appendix"
              >next</a> |</li>
         <li class="right" >
           <a href="plate.html" title="Manage Plate Templates"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Quake v0.2-alpha documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Quake v0.3-alpha documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Manage Users</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Nathan Bollig.
+        &#169; Copyright 2022, Nathan Bollig.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
     </div>
   </body>

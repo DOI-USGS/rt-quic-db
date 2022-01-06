@@ -951,6 +951,6 @@ def create_issue(title, body, label):
 
 if __name__ == '__main__':
     os.environ["FLASK_ENV"] = 'development'
-    port = int(os.environ.get('PORT', 5555))
+    port = int(os.environ.get('PORT', 55555))
     #login_manager.init_app(app)
     app.run(host='0.0.0.0', port=port, use_reloader=False, debug=True)

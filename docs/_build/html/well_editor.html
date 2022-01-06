@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Using the Well Editor &#8212; Quake v0.2-alpha documentation</title>
+    <title>Using the Well Editor &#8212; Quake v0.3-alpha documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/traditional.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -15,8 +15,8 @@
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Manage Locations" href="loc.html" />
-    <link rel="prev" title="Visualizing an Assay" href="vis.html" /> 
+    <link rel="next" title="Information for Team Administrators" href="teamadmin.html" />
+    <link rel="prev" title="Visualize an Assay" href="vis.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -25,12 +25,12 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="loc.html" title="Manage Locations"
+          <a href="teamadmin.html" title="Information for Team Administrators"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="vis.html" title="Visualizing an Assay"
+          <a href="vis.html" title="Visualize an Assay"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Quake v0.2-alpha documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Quake v0.3-alpha documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Using the Well Editor</a></li> 
       </ul>
     </div>  
@@ -42,7 +42,23 @@
             
   <section id="using-the-well-editor">
 <h1>Using the Well Editor<a class="headerlink" href="#using-the-well-editor" title="Permalink to this headline">¶</a></h1>
-<p>adsf</p>
+<p>The Well Edit feature is used to modify well-level metadata. In particular, it can be used to assign sample records
+to individual wells.</p>
+<p>Go to Analysis &gt; View Assay in the navigation bar. Select the name of the assay you wish to work with. Under “Well name”,
+leave the selection to “– All –” and press “Get chart”. This will display thumbnail fluorescence curves for all wells
+in the assay.</p>
+<p>Left click on one or more wells to select them, then right-click and select “Well Edit”:</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/well_editor_selected.png"><img alt="Wells selected" class="align-center" src="_images/well_editor_selected.png" style="width: 724.1999999999999px; height: 395.4px;" /></a>
+</div></blockquote>
+<p>The Well Edit window displays metadata for the selected wells. If a data field is not specified for any of the selected
+wells, “Unspecified” will appear in the field. If multiple wells are selected and they have different values for a
+particular field, “Multiple values selected” will appear in the field.</p>
+<p>Setting or changing a value of a field in Well Edit will update that field’s value for all selected wells.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/well_editor_well_edit.png"><img alt="Wells selected" class="align-center" src="_images/well_editor_well_edit.png" style="width: 356.4px; height: 561.0px;" /></a>
+</div></blockquote>
+<p>Once a field has been specified for a particular well, the value of that field can be changed but not deleted using Well Edit.</p>
 </section>
 
 
@@ -54,10 +70,10 @@
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
   <p class="topless"><a href="vis.html"
-                        title="previous chapter">Visualizing an Assay</a></p>
+                        title="previous chapter">Visualize an Assay</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="loc.html"
-                        title="next chapter">Manage Locations</a></p>
+  <p class="topless"><a href="teamadmin.html"
+                        title="next chapter">Information for Team Administrators</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -86,17 +102,17 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="loc.html" title="Manage Locations"
+          <a href="teamadmin.html" title="Information for Team Administrators"
              >next</a> |</li>
         <li class="right" >
-          <a href="vis.html" title="Visualizing an Assay"
+          <a href="vis.html" title="Visualize an Assay"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Quake v0.2-alpha documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Quake v0.3-alpha documentation</a> &#187;</li>
         <li class="nav-item nav-item-this"><a href="">Using the Well Editor</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Nathan Bollig.
+        &#169; Copyright 2022, Nathan Bollig.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
     </div>
   </body>

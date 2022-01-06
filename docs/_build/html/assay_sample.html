@@ -6,7 +6,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
 
-    <title>Creating Assays and Samples &#8212; Quake v0.2-alpha documentation</title>
+    <title>Managing Assays &#8212; Quake v0.3-alpha documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/traditional.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
@@ -15,8 +15,8 @@
     <script src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Visualizing an Assay" href="vis.html" />
-    <link rel="prev" title="Accessing Quake" href="accessing_quake.html" /> 
+    <link rel="next" title="Visualize an Assay" href="vis.html" />
+    <link rel="prev" title="Definitions" href="definitions.html" /> 
   </head><body>
     <div class="related" role="navigation" aria-label="related navigation">
       <h3>Navigation</h3>
@@ -25,13 +25,13 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="vis.html" title="Visualizing an Assay"
+          <a href="vis.html" title="Visualize an Assay"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="accessing_quake.html" title="Accessing Quake"
+          <a href="definitions.html" title="Definitions"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Quake v0.2-alpha documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Creating Assays and Samples</a></li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Quake v0.3-alpha documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Managing Assays</a></li> 
       </ul>
     </div>  
 
@@ -40,20 +40,57 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <section id="creating-assays-and-samples">
-<h1>Creating Assays and Samples<a class="headerlink" href="#creating-assays-and-samples" title="Permalink to this headline">¶</a></h1>
-<section id="upload-assay">
-<h2>Upload Assay<a class="headerlink" href="#upload-assay" title="Permalink to this headline">¶</a></h2>
-<p>asdf</p>
+  <section id="managing-assays">
+<h1>Managing Assays<a class="headerlink" href="#managing-assays" title="Permalink to this headline">¶</a></h1>
+<section id="upload-an-assay">
+<h2>Upload an Assay<a class="headerlink" href="#upload-an-assay" title="Permalink to this headline">¶</a></h2>
+<p>Go to Edit &gt; Upload Assay in the navigation bar. Select a plate template and location, enter an assay name, and
+click “Browse” to select a .csv file to upload. The other fields on this page are optional.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/assay_sample_upload_assay.png"><img alt="Upload Assay" class="align-center" src="_images/assay_sample_upload_assay.png" style="width: 486.59999999999997px; height: 531.0px;" /></a>
+</div></blockquote>
+<p>Click “Create assay”. It may take up to a minute for the upload to complete. Do not press back on your browser while
+this action is completing.</p>
+<p>After a successful upload, the message “File uploaded successfully” should appear in red at the bottom of the page.</p>
 </section>
-<section id="edit-assay">
-<h2>Edit Assay<a class="headerlink" href="#edit-assay" title="Permalink to this headline">¶</a></h2>
-<p>asdf</p>
+<section id="editing-assay-metadata">
+<h2>Editing Assay Metadata<a class="headerlink" href="#editing-assay-metadata" title="Permalink to this headline">¶</a></h2>
+<p>This activity is used to edit assay-level metadata.</p>
+<p>Go to Edit &gt; Edit Assay in the navigation bar. Select the name of the assay you wish to edit. The fields will populate with
+their existing values.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/assay_sample_edit_assay.png"><img alt="Edit Assay" class="align-center" src="_images/assay_sample_edit_assay.png" style="width: 492.0px; height: 516.6px;" /></a>
+</div></blockquote>
+<p>Make any desired changes and then press “Update assay” to save the changes.</p>
+<p>If at any time you wish to cancel changes or select a different assay, press the “Cancel selection” link at the bottom right
+of the window.</p>
 </section>
-<section id="manage-samples">
-<h2>Manage Samples<a class="headerlink" href="#manage-samples" title="Permalink to this headline">¶</a></h2>
-<p>adsf</p>
+<section id="deleting-an-assay">
+<h2>Deleting an Assay<a class="headerlink" href="#deleting-an-assay" title="Permalink to this headline">¶</a></h2>
+<p>Go to Edit &gt; Edit Assay in the navigation bar. Select the name of the assay you wish to delete, and then press the
+“Delete assay” button. (This is only possible if you have been granted security by your Team Admin to delete assays.)</p>
 </section>
+</section>
+<section id="managing-samples">
+<h1>Managing Samples<a class="headerlink" href="#managing-samples" title="Permalink to this headline">¶</a></h1>
+<p>This activity is used to create, edit, or delete sample records. Sample records need to be created using this activity
+before they can be assigned to wells in an assay.</p>
+<p>Go to Edit &gt; Manage Samples in the navigation bar.</p>
+<p>To create a new sample, press “Create new sample”. The selection will display “Creating new record…”, indicating
+that you are creating a new sample record. Enter the sample name, species, and other desired fields.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/assay_sample_create_sample.png"><img alt="Create sample" class="align-center" src="_images/assay_sample_create_sample.png" style="width: 481.2px; height: 453.0px;" /></a>
+</div></blockquote>
+<p>To edit a sample, select the name of the assay you wish to edit. The fields will populate with
+their existing values.</p>
+<blockquote>
+<div><a class="reference internal image-reference" href="_images/assay_sample_edit_sample.png"><img alt="Edit sample" class="align-center" src="_images/assay_sample_edit_sample.png" style="width: 456.0px; height: 454.8px;" /></a>
+</div></blockquote>
+<p>Make any desired changes and then press “Update sample” to save the changes.</p>
+<p>To delete a sample, select the name of the assay you wish to delete, then press “Delete sample”. (This is only possible
+if you have been granted security by your Team Admin to delete assays.)</p>
+<p>If at any time you wish to cancel changes or select a different sample, press the “Cancel selection” link at the bottom right
+of the window.</p>
 </section>
 
 
@@ -65,20 +102,21 @@
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Creating Assays and Samples</a><ul>
-<li><a class="reference internal" href="#upload-assay">Upload Assay</a></li>
-<li><a class="reference internal" href="#edit-assay">Edit Assay</a></li>
-<li><a class="reference internal" href="#manage-samples">Manage Samples</a></li>
+<li><a class="reference internal" href="#">Managing Assays</a><ul>
+<li><a class="reference internal" href="#upload-an-assay">Upload an Assay</a></li>
+<li><a class="reference internal" href="#editing-assay-metadata">Editing Assay Metadata</a></li>
+<li><a class="reference internal" href="#deleting-an-assay">Deleting an Assay</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#managing-samples">Managing Samples</a></li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="accessing_quake.html"
-                        title="previous chapter">Accessing Quake</a></p>
+  <p class="topless"><a href="definitions.html"
+                        title="previous chapter">Definitions</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="vis.html"
-                        title="next chapter">Visualizing an Assay</a></p>
+                        title="next chapter">Visualize an Assay</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
@@ -107,17 +145,17 @@
           <a href="genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="vis.html" title="Visualizing an Assay"
+          <a href="vis.html" title="Visualize an Assay"
              >next</a> |</li>
         <li class="right" >
-          <a href="accessing_quake.html" title="Accessing Quake"
+          <a href="definitions.html" title="Definitions"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">Quake v0.2-alpha documentation</a> &#187;</li>
-        <li class="nav-item nav-item-this"><a href="">Creating Assays and Samples</a></li> 
+        <li class="nav-item nav-item-0"><a href="index.html">Quake v0.3-alpha documentation</a> &#187;</li>
+        <li class="nav-item nav-item-this"><a href="">Managing Assays</a></li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Nathan Bollig.
+        &#169; Copyright 2022, Nathan Bollig.
       Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 4.3.2.
     </div>
   </body>

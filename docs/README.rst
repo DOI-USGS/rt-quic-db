@@ -1,7 +1,7 @@
 Introduction
 ============
-Purpose
--------
+About
+-----
 Quake supports scientists and laboratory personnel involved in prion surveillance and research.
 
 Laboratories around the world utilize real-time quaking-induced conversion (RT-QuIC) as a highly sensitive laboratory assay for the detection of prions. Quake is a web-based application for storing, visualizing, and analyzing RT-QuIC data.
@@ -18,10 +18,13 @@ Features
 - Upload assay data directly from the .csv output of the RT-QuIC plate reader
 - Visualize fluorescence curves
 - Select and modify well-level metadata
+- Restrict access to data and workflows for specific types of users
 
 Getting Started
 ---------------
-Go to the application login page and click "Create new account" to get started.
+If your research team wants to be added to Quake, start :doc:`here<teamadmin>`.
+
+Once your team has been set up, any new user can go to the application login page and click "Create new account" to get started.
 
 Contribute
 ----------
