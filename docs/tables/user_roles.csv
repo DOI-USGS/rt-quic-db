@@ -1,0 +1,7 @@
+﻿User Role,Security Points
+View Only,100
+Data Entry,"100, 110, 115, 120, 140, 160, 200, 210, 220, 240"
+Scientist,"100, 110, 115, 130, 150, 170, 200, 210, 230, 250"
+Activation Admin,"800, 810"
+User Admin,"800, 810, 820, 830"
+Team Admin,500-840

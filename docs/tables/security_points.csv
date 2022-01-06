@@ -1,0 +1,30 @@
+﻿Security Point,Description
+100,Can access View Assay activity
+110,Upload assays
+115,Can access Edit Assay activity
+120,Edit only assays created by self
+130,Edit all assays
+140,Delete only assays created by self
+150,Delete all assays
+160,Well edit only assays created by self
+170,Well edit all assays
+200,Can access Manage Samples activity
+210,Create samples
+220,Edit only samples created by self
+230,Edit all samples
+240,Delete only samples created by self
+250,Delete all samples
+500,Can access Manage Plate Templates activity
+510,Create plate templates
+520,Edit plate templates
+530,Delete plate templates
+600,Can access Manage Locations activity
+610,Create new locations for your team
+620,Update location in your team
+630,Delete location in your team
+800,Can access Manage Users activity
+810,Can activate new and inactive users
+820,Can inactivate users
+830,Can modify non-admin security points of any user
+840,Can modify admin security points of any user
+850,Can delete a user
