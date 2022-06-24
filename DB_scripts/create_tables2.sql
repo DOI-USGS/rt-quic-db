@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `rt_quic_db`.`Sample` (
   `sex` VARCHAR(45) NULL,
   `age` VARCHAR(45) NULL,
   `tissue_matrix` VARCHAR(45) NULL,
+  'preparation_method' VARCHAR(45) NULL,
   `other_sample_attr` VARCHAR(45) NULL,
   PRIMARY KEY (`sample_ID`))
 ENGINE = InnoDB;

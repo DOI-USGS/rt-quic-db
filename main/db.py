@@ -59,9 +59,9 @@ Q_DELETE_ASSAY = "DELETE FROM Assay WHERE assay_ID = %s;"
 Q_GET_ASSAY_CREATED_BY_USER = "SELECT created_by FROM Assay WHERE assay_ID=%s;"
 
 
-Q_GET_SAMPLE = "SELECT species, sex, age, tissue_matrix, other_sample_attr, name FROM Sample WHERE sample_ID = %s;"
-Q_UPDATE_SAMPLE = "UPDATE Sample SET species=%s, sex=%s, age=%s, tissue_matrix=%s, other_sample_attr=%s, name=%s WHERE sample_ID = %s"
-Q_CREATE_SAMPLE = "INSERT INTO Sample (species, sex, age, tissue_matrix, other_sample_attr, name, team_ID, created_by) VALUES (%s,%s,%s,%s,%s,%s,%s,%s);"
+Q_GET_SAMPLE = "SELECT species, sex, age, tissue_matrix, preparation_method, other_sample_attr, name FROM Sample WHERE sample_ID = %s;"
+Q_UPDATE_SAMPLE = "UPDATE Sample SET species=%s, sex=%s, age=%s, tissue_matrix=%s, preparation_method=%s, other_sample_attr=%s, name=%s WHERE sample_ID = %s"
+Q_CREATE_SAMPLE = "INSERT INTO Sample (species, sex, age, tissue_matrix, preparation_method, other_sample_attr, name, team_ID, created_by) VALUES (%s,%s,%s,%s,%s,%s,%s,%s, %s);"
 Q_DELETE_SAMPLE = "DELETE FROM Sample WHERE sample_ID = %s;"
 Q_GET_SAMPLE_CREATED_BY_USER = "SELECT created_by FROM Sample WHERE sample_ID=%s;"
 
@@ -629,27 +629,30 @@ class SampleDao:
         data['sex'] = xstr(row[1])
         data['age'] = xstr(row[2])
         data['tissue_matrix'] = xstr(row[3])
-        data['other_sample_attr'] = xstr(row[4])
-        data['name'] = xstr(row[5])
+        data['preparation_method'] = xstr(row[4])
+        data['other_sample_attr'] = xstr(row[5])
+        data['name'] = xstr(row[6])
         
         self.cnx.commit()
         return data
-    
+
+
     def create_update_sample(self, data):       
         sample_ID = nstr(data['sample'])
         species = nstr(data['species'])
         sex = nstr(data['sex'])
         age = nstr(data['age'])
         tissue_matrix = nstr(data['tissue_matrix'])
+        preparation_method = nstr(data['preparation_method'])
         other_sample_attr = nstr(data['other_sample_attr'])
         name = nstr(data['sample_name'])
         team_ID = self.session['team_ID']
         user_ID = self.session['user_ID']
 
         if sample_ID != '-1':
-            self.cursor.execute(Q_UPDATE_SAMPLE, (species, sex, age, tissue_matrix, other_sample_attr, name, sample_ID))
+            self.cursor.execute(Q_UPDATE_SAMPLE, (species, sex, age, tissue_matrix, preparation_method, other_sample_attr, name, sample_ID))
         else:
-            self.cursor.execute(Q_CREATE_SAMPLE, (species, sex, age, tissue_matrix, other_sample_attr, name, team_ID, user_ID))
+            self.cursor.execute(Q_CREATE_SAMPLE, (species, sex, age, tissue_matrix, preparation_method, other_sample_attr, name, team_ID, user_ID))
         
         self.cnx.commit()
     
