@@ -39,6 +39,10 @@
 	    <input type="text" class="form-control" id="tissue_matrix" name="tissue_matrix" placeholder="">
 	  </div>
 	  <div class="form-group">
+	  	<label for="preparation_method">Preparation method</label>
+	    <input type="text" class="form-control" id="preparation_method" name="preparation_method" placeholder="">
+	  </div>
+	  <div class="form-group">
 	  	<label for="other_sample_attr">Other</label>
 	    <input type="text" class="form-control" id="other_sample_attr" name="other_sample_attr" placeholder="">
 	  </div>
@@ -182,6 +186,13 @@
 		} else {
 			tissue_matrix_text.value = "";
 		}
+
+		var preparation_method_text = document.getElementById("preparation_method");
+		if (typeof sample_data['preparation_method'] !== 'undefined') {
+			preparation_method_text.value = sample_data['preparation_method'];
+		} else {
+			preparation_method_text.value = "";
+		}
 		
 		var other_text = document.getElementById("other_sample_attr");
 		if (typeof sample_data['other_sample_attr'] !== 'undefined') {
@@ -202,6 +213,7 @@
 			document.getElementById("sex").readOnly = true;
 			document.getElementById("age").readOnly = true;
 			document.getElementById("tissue_matrix").readOnly = true;
+			document.getElementById("preparation_method").readOnly = true;
 			document.getElementById("other_sample_attr").readOnly = true;
 		}
 		

@@ -28,6 +28,7 @@ CREATE TABLE `sample` (
   `sex` varchar(45) DEFAULT NULL,
   `age` varchar(45) DEFAULT NULL,
   `tissue_matrix` varchar(45) DEFAULT NULL,
+  `preparation_method` varchar(45) DEFAULT NULL,
   `other_sample_attr` varchar(45) DEFAULT NULL,
   `name` varchar(45) DEFAULT NULL,
   `team_ID` int DEFAULT NULL,
