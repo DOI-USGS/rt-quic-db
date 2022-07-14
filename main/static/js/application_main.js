@@ -68,6 +68,16 @@ function fillWellEditForm(data) {
 			contents_text.placeholder = "Multiple values selected";
 			contents_text.value = "";
 		};
+
+			// Sample concentration
+		var contents_text = document.getElementById('sample_concentration');
+		if (data.contents[0] == true) {
+			contents_text.value = data.contents[1];
+			contents_text.placeholder = "Unspecified";
+		} else {
+			contents_text.placeholder = "Multiple values selected";
+			contents_text.value = "";
+		};
 		
 		// Salt
 		var salt_type = document.getElementById('salt_type');
