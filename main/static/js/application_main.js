@@ -69,15 +69,17 @@ function fillWellEditForm(data) {
 			contents_text.value = "";
 		};
 
-			// Sample concentration
-		var contents_text = document.getElementById('sample_concentration');
-		if (data.contents[0] == true) {
-			contents_text.value = data.contents[1];
-			contents_text.placeholder = "Unspecified";
+		// Sample concentration
+		var sample_conc = document.getElementById('sample_conc');
+		if (data.sample_conc[0] == true) {
+			sample_conc.value = data.sample_conc[1];
+			sample_conc.placeholder = "Unspecified";
 		} else {
-			contents_text.placeholder = "Multiple values selected";
-			contents_text.value = "";
+			sample_conc.placeholder = "Multiple values selected";
+			sample_conc.value = "";
 		};
+		alert('done!');
+		
 		
 		// Salt
 		var salt_type = document.getElementById('salt_type');
