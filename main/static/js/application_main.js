@@ -78,8 +78,6 @@ function fillWellEditForm(data) {
 			sample_conc.placeholder = "Multiple values selected";
 			sample_conc.value = "";
 		};
-		alert('done!');
-		
 		
 		// Salt
 		var salt_type = document.getElementById('salt_type');
