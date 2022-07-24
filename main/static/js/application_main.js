@@ -70,13 +70,13 @@ function fillWellEditForm(data) {
 		};
 
 			// Sample concentration
-		var contents_text = document.getElementById('sample_concentration');
-		if (data.contents[0] == true) {
-			contents_text.value = data.contents[1];
-			contents_text.placeholder = "Unspecified";
+		var sample_text = document.getElementById('sample_conc');
+		if (data.sample_conc[0] == true) {
+			sample_text.value = data.sample_conc[1];
+			sample_text.placeholder = "Unspecified";
 		} else {
-			contents_text.placeholder = "Multiple values selected";
-			contents_text.value = "";
+			sample_text.placeholder = "Multiple values selected";
+			sample_text.value = "";
 		};
 		
 		// Salt

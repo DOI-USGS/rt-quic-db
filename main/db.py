@@ -126,7 +126,7 @@ DROP INDEX `sample_ID_idx` ON {};\
 DROP INDEX `assay_ID_idx` ON {};\
 LOAD DATA LOCAL INFILE %s INTO TABLE {} FIELDS TERMINATED BY ',' \
 ENCLOSED BY '\"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (wc_ID, salt_type, \
-salt_conc, substrate_type, substrate_conc, surfact_type, surfact_conc, \
+salt_conc, substrate_type, substrate_conc, sample_conc, surfact_type, surfact_conc, \
 other_wc_attr, sample_ID, assay_ID, contents, well_name);\
 INSERT INTO Well_Condition \
 SELECT * FROM {} \
