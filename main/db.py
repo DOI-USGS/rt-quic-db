@@ -132,7 +132,7 @@ INSERT INTO Well_Condition \
 SELECT * FROM {} \
 ON DUPLICATE KEY UPDATE wc_ID = VALUES(wc_ID), salt_type = VALUES(salt_type), \
 salt_conc = VALUES(salt_conc), substrate_type = VALUES(substrate_type), \
-substrate_conc = VALUES(substrate_conc),sample_conc = VALUES(sample_conc), surfact_type = VALUES(surfact_type), \
+substrate_conc = VALUES(substrate_conc), sample_conc = VALUES(sample_conc), surfact_type = VALUES(surfact_type), \
 surfact_conc = VALUES(surfact_conc), other_wc_attr = VALUES(other_wc_attr), \
 sample_ID = VALUES(sample_ID), assay_ID = VALUES(assay_ID), contents = VALUES(contents), \
 well_name = VALUES(well_name); \
