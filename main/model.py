@@ -84,6 +84,7 @@ class ManageAssay:
         self.assayDao = AssayDao(session)
         self.session = session
 
+
     def create_assay(self, f, data):
         # Create assay
         self.assayDao.create_assay(data)
@@ -118,6 +119,7 @@ class ManageAssay:
                 obs_data['well_name'] = well_name
                 obs_data['index_in_well'] = i
 
+
                 # Add observation to UploadObsCSV object
                 uploadObsCSV.add_observation(data, well_data, obs_data)
 
@@ -129,6 +131,7 @@ class ManageAssay:
 
     def get_assays(self):
         return self.assayDao.get_assays()
+
 
     def get_data(self, assay_ID):
         return self.assayDao.get_data(assay_ID)
@@ -227,7 +230,16 @@ class ManageWC:
                 row_wells.append(alldata[r + c])
             outdata.append(row_wells)
 
-        return well_rows, well_cols, outdata, wc_ID_list
+        # Compute max fluorescence val
+        max_fluorescence_val = 0.0
+        for val in alldata.values():
+            for pair in val:
+                fluor = pair[1]
+                if fluor > max_fluorescence_val:
+                    max_fluorescence_val = fluor
+        max_fluorescence_val = float(max_fluorescence_val)
+
+        return well_rows, well_cols, outdata, wc_ID_list, max_fluorescence_val
 
     """
     Get metadata for a given list of wells by first seeing if the well condition 
@@ -404,6 +416,7 @@ class ManageViz:
 
     def get_data(self):
         return self.obsDao.get_data()
+
 
 
 if __name__ == "__main__":

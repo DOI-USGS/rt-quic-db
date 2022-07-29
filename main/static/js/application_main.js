@@ -162,7 +162,7 @@ $(function() {
         console.log(assay_id);
         console.log(wc_id);
         if(wc_id == -1 || wc_id ==  null){
-            drawChartGrid(data.Xs, data.Ys, data.result, data.wc_ID_list);
+            drawChartGrid(data.Xs, data.Ys, data.result, data.wc_ID_list, data.max_val);
         }else{
             assay_name =  $('select#assay option:selected').text();
             wc_name =  $('select#wc_ID option:selected').text();
@@ -174,7 +174,7 @@ $(function() {
     });
   });
 
-function drawChartGrid(Xs, Ys, grid_data, wc_ID_list){
+function drawChartGrid(Xs, Ys, grid_data, wc_ID_list, max_val){
 //   for(i in range(Xs)){
 //        for (j in range(Ys)){
 //            // create a div with with id = wc_row_col and data-wc_ID = wc_ID, style to it
@@ -208,12 +208,13 @@ function drawChartGrid(Xs, Ys, grid_data, wc_ID_list){
 
     for (var i = 0, len = grid_data.length; i < len; ++i) {
         for (var j = 0, rowLen = grid_data[i].length; j < rowLen; ++j ) {
-            drawChart('wc_'+i+'_'+j, null, null, grid_data[i][j], grid = true);
+            drawChart('wc_'+i+'_'+j, null, null, grid_data[i][j], max_val, grid = true);
         }
     }
 }
 
-function drawChart(id, assay_name, wc_name, figData, grid = false){
+function drawChart(id, assay_name, wc_name, figData, max_val, grid = false){
+
     var data = new google.visualization.DataTable();
     data.addColumn('number', 'Time');
     data.addColumn('number', 'Fluorescence');
@@ -229,9 +230,11 @@ function drawChart(id, assay_name, wc_name, figData, grid = false){
           title: 'Time'
         },
         vAxis: {
-          title: 'Fluorescence'
+          title: 'Fluorescence',
+
         },
-        colors: ['#a52714']
+        colors: ['#a52714'],
+
       };
 
     if(grid){
@@ -240,7 +243,11 @@ function drawChart(id, assay_name, wc_name, figData, grid = false){
           title: ''
         },
         vAxis: {
-          title: ''
+          title: '',
+			 viewWindow: {
+        min: 0,
+        max: max_val,
+      }
         },
         colors: ['#a52714'],
         legend: 'none'
