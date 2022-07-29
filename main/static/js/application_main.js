@@ -213,7 +213,7 @@ function drawChartGrid(Xs, Ys, grid_data, wc_ID_list, max_val){
     }
 }
 
-function drawChart(id, assay_name, wc_name, figData, maxval, grid = false){
+function drawChart(id, assay_name, wc_name, figData, max_val, grid = false){
 
     var data = new google.visualization.DataTable();
     data.addColumn('number', 'Time');
@@ -246,7 +246,7 @@ function drawChart(id, assay_name, wc_name, figData, maxval, grid = false){
           title: '',
 			 viewWindow: {
         min: 0,
-        max: maxval,
+        max: max_val,
       }
         },
         colors: ['#a52714'],
