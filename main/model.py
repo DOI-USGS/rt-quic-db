@@ -242,7 +242,16 @@ class ManageWC:
                 row_wells.append(alldata[r + c])
             outdata.append(row_wells)
 
-        return well_rows, well_cols, outdata, wc_ID_list
+        # Compute max fluorescence val
+        max_fluorescence_val = 0.0
+        for val in alldata.values():
+            for pair in val:
+                fluor = pair[1]
+                if fluor > max_fluorescence_val:
+                    max_fluorescence_val = fluor
+        max_fluorescence_val = float(max_fluorescence_val)
+
+        return well_rows, well_cols, outdata, wc_ID_list, max_fluorescence_val
 
     """
     Get metadata for a given list of wells by first seeing if the well condition 
@@ -419,6 +428,7 @@ class ManageViz:
 
     def get_data(self):
         return self.obsDao.get_data()
+
 
 
 if __name__ == "__main__":
