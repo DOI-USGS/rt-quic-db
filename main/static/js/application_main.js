@@ -208,12 +208,13 @@ function drawChartGrid(Xs, Ys, grid_data, wc_ID_list){
 
     for (var i = 0, len = grid_data.length; i < len; ++i) {
         for (var j = 0, rowLen = grid_data[i].length; j < rowLen; ++j ) {
-            drawChart('wc_'+i+'_'+j, null, null, grid_data[i][j], grid = true);
+            drawChart('wc_'+i+'_'+j, null, null, grid_data[i][j],200000, grid = true);
         }
     }
 }
 
-function drawChart(id, assay_name, wc_name, figData, grid = false){
+function drawChart(id, assay_name, wc_name, figData, maxval, grid = false){
+
     var data = new google.visualization.DataTable();
     data.addColumn('number', 'Time');
     data.addColumn('number', 'Fluorescence');
@@ -229,9 +230,11 @@ function drawChart(id, assay_name, wc_name, figData, grid = false){
           title: 'Time'
         },
         vAxis: {
-          title: 'Fluorescence'
+          title: 'Fluorescence',
+
         },
-        colors: ['#a52714']
+        colors: ['#a52714'],
+
       };
 
     if(grid){
@@ -240,7 +243,11 @@ function drawChart(id, assay_name, wc_name, figData, grid = false){
           title: ''
         },
         vAxis: {
-          title: ''
+          title: '',
+			 viewWindow: {
+        min: 0,
+        max: maxval,
+      }
         },
         colors: ['#a52714'],
         legend: 'none'

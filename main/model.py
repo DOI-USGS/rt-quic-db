@@ -84,7 +84,11 @@ class ManageAssay:
         self.assayDao = AssayDao(session)
         self.session = session
 
+
     def create_assay(self, f, data):
+        # Create variable to hold maximum fluorescence value
+        global maxval;
+        maxval = 0;
         # Create assay
         self.assayDao.create_assay(data)
 
@@ -105,6 +109,15 @@ class ManageAssay:
             well_data['well_name'] = well_name
             self.assayDao.create_wc(data, well_data)
 
+            # check for maximum fluorescence value
+            for num in fluorescence_series:
+                if int(num) > maxval:
+                    maxval = int(num)
+
+
+
+
+
             # create UploadObsCSV object
             uploadObsCSV = UploadObsCSV()
 
@@ -118,6 +131,7 @@ class ManageAssay:
                 obs_data['well_name'] = well_name
                 obs_data['index_in_well'] = i
 
+
                 # Add observation to UploadObsCSV object
                 uploadObsCSV.add_observation(data, well_data, obs_data)
 
@@ -129,6 +143,7 @@ class ManageAssay:
 
     def get_assays(self):
         return self.assayDao.get_assays()
+
 
     def get_data(self, assay_ID):
         return self.assayDao.get_data(assay_ID)
