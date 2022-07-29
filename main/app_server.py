@@ -348,8 +348,10 @@ def submit_well_edits():
             del data[key]
     
     # Save data to wells
-    data['sample_ID'] = data['sample']
-    del data['sample']
+    if data.get('sample', None) is not None:
+        data['sample_ID'] = data['sample']
+        del data['sample']
+
     wcModel.save_well_data(data)
     
     return jsonify({"status": "success"})

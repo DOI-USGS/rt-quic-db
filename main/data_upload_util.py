@@ -107,7 +107,7 @@ class UploadWellConditionCSV:
     
     def __init__(self):
         self.rows = []
-        header = ['wc_ID', 'salt_type', 'salt_conc', 'substrate_type', 'substrate_conc', 
+        header = ['wc_ID', 'salt_type', 'salt_conc', 'substrate_type', 'substrate_conc', 'sample_conc',
                   'surfact_type', 'surfact_conc', 'other_wc_attr', 'sample_ID', 'assay_ID', 'contents', 'well_name']
         self.rows.append(header)
     
@@ -117,6 +117,7 @@ class UploadWellConditionCSV:
         salt_conc = data['salt_conc']
         substrate_type = data['substrate_type']
         substrate_conc = data['substrate_conc']
+        sample_conc = data['sample_conc']
         surfact_type = data['surfact_type']
         surfact_conc = data['surfact_conc']
         other_wc_attr = data['other_wc_attr']
@@ -125,7 +126,7 @@ class UploadWellConditionCSV:
         contents = data['contents']
         well_name = data['well_name']
         
-        new_row = [wc_ID, salt_type, salt_conc, substrate_type, substrate_conc, 
+        new_row = [wc_ID, salt_type, salt_conc, substrate_type, substrate_conc, sample_conc,
                   surfact_type, surfact_conc, other_wc_attr, sample_ID, assay_ID, contents, well_name]
         self.rows.append(new_row)
     

@@ -28,6 +28,7 @@ CREATE TABLE `well_condition` (
   `salt_conc` varchar(45) DEFAULT NULL,
   `substrate_type` varchar(45) DEFAULT NULL,
   `substrate_conc` varchar(45) DEFAULT NULL,
+  `sample_conc` varchar(45) DEFAULT NULL,
   `surfact_type` varchar(45) DEFAULT NULL,
   `surfact_conc` varchar(45) DEFAULT NULL,
   `other_wc_attr` varchar(45) DEFAULT NULL,

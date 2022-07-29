@@ -104,7 +104,7 @@ Q_GET_VIZ_FROM_ASSAYID = "select wc.well_name, o.time_s , o.fluorescence, wc.wc_
         from Assay as a, Well_Condition as wc, Observation as o \
         where a.assay_ID = %s and a.assay_ID=wc.assay_ID and o.wc_ID=wc.wc_ID;"
 #Q_GET_VIZ_FROM_ASSAYNAME = "select well_name, fluorescence, time_s from Assay as a, Well_Condition as wc, Observation as o where a.name = %s and a.assay_ID=wc.assay_ID and o.wc_ID=wc.wc_ID;"
-Q_GET_WC_DATA = ("SELECT salt_type, salt_conc, substrate_type, substrate_conc, surfact_type, surfact_conc, "
+Q_GET_WC_DATA = ("SELECT salt_type, salt_conc, substrate_type, substrate_conc, sample_conc, surfact_type, surfact_conc, "
                  "other_wc_attr, sample_ID, assay_ID, contents, well_name, wc_ID FROM Well_Condition WHERE wc_ID IN (%s);")
 
 
@@ -126,13 +126,13 @@ DROP INDEX `sample_ID_idx` ON {};\
 DROP INDEX `assay_ID_idx` ON {};\
 LOAD DATA LOCAL INFILE %s INTO TABLE {} FIELDS TERMINATED BY ',' \
 ENCLOSED BY '\"' LINES TERMINATED BY '\r\n' IGNORE 1 LINES (wc_ID, salt_type, \
-salt_conc, substrate_type, substrate_conc, surfact_type, surfact_conc, \
+salt_conc, substrate_type, substrate_conc, sample_conc, surfact_type, surfact_conc, \
 other_wc_attr, sample_ID, assay_ID, contents, well_name);\
 INSERT INTO Well_Condition \
 SELECT * FROM {} \
 ON DUPLICATE KEY UPDATE wc_ID = VALUES(wc_ID), salt_type = VALUES(salt_type), \
 salt_conc = VALUES(salt_conc), substrate_type = VALUES(substrate_type), \
-substrate_conc = VALUES(substrate_conc), surfact_type = VALUES(surfact_type), \
+substrate_conc = VALUES(substrate_conc), sample_conc = VALUES(sample_conc), surfact_type = VALUES(surfact_type), \
 surfact_conc = VALUES(surfact_conc), other_wc_attr = VALUES(other_wc_attr), \
 sample_ID = VALUES(sample_ID), assay_ID = VALUES(assay_ID), contents = VALUES(contents), \
 well_name = VALUES(well_name); \
@@ -818,14 +818,15 @@ class WCDao:
             data['salt_conc'] = xstr(row[1])
             data['substrate_type'] = xstr(row[2])
             data['substrate_conc'] = xstr(row[3])
-            data['surfact_type'] = xstr(row[4])
-            data['surfact_conc'] = xstr(row[5])
-            data['other_wc_attr'] = xstr(row[6])
-            data['sample_ID'] = xstr(row[7])
-            data['assay_ID'] = xstr(row[8])
-            data['contents'] = xstr(row[9])
-            data['well_name'] = xstr(row[10])
-            data['wc_ID'] = xstr(row[11])
+            data['sample_conc'] = xstr(row[4])
+            data['surfact_type'] = xstr(row[5])
+            data['surfact_conc'] = xstr(row[6])
+            data['other_wc_attr'] = xstr(row[7])
+            data['sample_ID'] = xstr(row[8])
+            data['assay_ID'] = xstr(row[9])
+            data['contents'] = xstr(row[10])
+            data['well_name'] = xstr(row[11])
+            data['wc_ID'] = xstr(row[12])
         
             list_of_series.append(pd.Series(data).astype(str))
         
