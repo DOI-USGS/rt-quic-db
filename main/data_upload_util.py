@@ -18,26 +18,28 @@ Returns:
     rows
     time_s_vals
 """
+
+
 def parse_rt_quic_csv(file, decode="UTF8"):
     reading_fluor_data = False
     wells_by_time_format = True
     rows = {}
-    
+
     stream = io.StringIO(file.stream.read().decode(decode), newline=None)
     csv_reader = csv.reader(stream)
-    
+
     for row in csv_reader:
         if len(row) == 0:
             continue
-        
+
         well_name = None
         content = None
         fluorescence_series = None
-        
+
         # Set up before reading fluorescence data
         if (reading_fluor_data == False) and row[0].startswith('Well'):
-            names = row[2:] # cache names if in time x wells format
-        
+            names = row[2:]  # cache names if in time x wells format
+
         if (reading_fluor_data == False) and row[1].startswith('Time'):
             reading_fluor_data = True
             # Applies to format with wells x time
@@ -50,8 +52,8 @@ def parse_rt_quic_csv(file, decode="UTF8"):
                 time_s_vals = []
                 contents = row[2:]
                 table = []
-            continue # skip to next row
-            
+            continue  # skip to next row
+
         # When reading fluorescence data
         if (reading_fluor_data == True):
             if wells_by_time_format == True:
@@ -62,55 +64,85 @@ def parse_rt_quic_csv(file, decode="UTF8"):
             else:
                 time_s_vals.append(row[1])
                 table.append(row[2:])
-    
+
     # Post-formatting for time x wells format
     if wells_by_time_format == False:
         table = np.array(table)
-        for j in range(table.shape[1]):
-            rows[names[j]] = [contents[j], list(table[:,j])]      
 
-    return rows, time_s_vals
+        for j in range(table.shape[1]):
+            rows[names[j]] = [contents[j], list(table[:, j])]
+
+    # Get implied dimensions from the formatting of well name
+    row = 0
+    columns = 0
+    currentAlpha = 0
+    # If keys starts with a letter followed by a number assume it is formatted properly.
+    # Keep a counter for the number of times the letter changes (rows)
+    # keep a counter for the number of times the letter does not change (columns)
+    for key in rows.keys():
+        if key[0].isalpha():
+            if key[0] != currentAlpha:
+                columns = 0
+                row += 1
+            columns += 1
+            currentAlpha = key[0]
+
+    # if the csv does not match the format, dimensions are just the number of keys. (1 dimensional)
+    if row == 0 and columns == 0:
+       implied_dims = (rows.keys().__len__())
+
+    #if the csv is formatted as expected, set implied_dims
+    else:
+        implied_dims = (row, columns)
+
+    print(implied_dims)
+    return rows, time_s_vals, implied_dims
 
 
 """
 Class for creating .csv that will be directly used to upload data into the Observation table.
 """
+
+
 class UploadObsCSV:
-    
+
     def __init__(self):
         self.rows = []
         header = ['fluorescence', 'time_s', 'x_coord', 'y_coord', 'wc_ID', 'index_in_well']
         self.rows.append(header)
-    
+
     def add_observation(self, data, well_data, obs_data):
         fluorescence = obs_data['fluorescence']
-        time_s = obs_data['time_s'] 
-        x_coord = obs_data['x_coord'] 
+        time_s = obs_data['time_s']
+        x_coord = obs_data['x_coord']
         y_coord = obs_data['y_coord']
         wc_ID = well_data['wc_ID']
         index_in_well = obs_data['index_in_well']
-        
+
         new_row = [fluorescence, time_s, x_coord, y_coord, wc_ID, index_in_well]
         self.rows.append(new_row)
-    
-    def write_csv(self, path = 'temp_observation_load.csv'):
+
+    def write_csv(self, path='temp_observation_load.csv'):
         with open(path, 'w', newline='') as file:
             wr = csv.writer(file, quoting=csv.QUOTE_ALL)
             for row in self.rows:
                 wr.writerow(row)
         return file
 
+
 """
 Class for creating .csv that will be directly used to upload data into the Well_Condition table.
 """
+
+
 class UploadWellConditionCSV:
-    
+
     def __init__(self):
         self.rows = []
         header = ['wc_ID', 'salt_type', 'salt_conc', 'substrate_type', 'substrate_conc', 'sample_conc',
                   'surfact_type', 'surfact_conc', 'other_wc_attr', 'sample_ID', 'assay_ID', 'contents', 'well_name']
         self.rows.append(header)
-    
+
     def add_record(self, data):
         wc_ID = data['wc_ID']
         salt_type = data['salt_type']
@@ -125,22 +157,14 @@ class UploadWellConditionCSV:
         assay_ID = data['assay_ID']
         contents = data['contents']
         well_name = data['well_name']
-        
+
         new_row = [wc_ID, salt_type, salt_conc, substrate_type, substrate_conc, sample_conc,
-                  surfact_type, surfact_conc, other_wc_attr, sample_ID, assay_ID, contents, well_name]
+                   surfact_type, surfact_conc, other_wc_attr, sample_ID, assay_ID, contents, well_name]
         self.rows.append(new_row)
-    
-    def write_csv(self, path = 'temp_wc_load.csv'):
+
+    def write_csv(self, path='temp_wc_load.csv'):
         with open(path, 'w', newline='') as file:
             wr = csv.writer(file, quoting=csv.QUOTE_ALL)
             for row in self.rows:
                 wr.writerow(row)
         return file
-    
-    
-    
-    
-    
-    
-    
-    
