@@ -158,13 +158,12 @@ class ManageAssay:
         # Get dimensions from plate template
         plateModel = ManagePlate(self.session)
         plate_dims = plateModel.get_plate_dims(plate_ID)
+        print(plate_dims)
 
 
         # Check that dimensions are the same
         output = False
         if len(dims) == 2 and dims == plate_dims:
-            output = True
-        elif len(dims) == 2 and dims[0] == plate_dims[1] and dims[1] == plate_dims[0]:
             output = True
         elif len(dims) == 1 and dims[0] == plate_dims[0] * plate_dims[1]:
             output = True

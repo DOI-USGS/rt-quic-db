@@ -239,6 +239,7 @@ function drawChart(id, assay_name, wc_name, figData, max_val, grid = false){
 
         },
         colors: ['#a52714'],
+		legend: "none",
 
       };
 

@@ -6,6 +6,8 @@ Created on Thu Jun 25 13:58:56 2020
 """
 import csv
 import io
+import warnings
+
 import numpy as np
 
 """
@@ -73,30 +75,67 @@ def parse_rt_quic_csv(file, decode="UTF8"):
             rows[names[j]] = [contents[j], list(table[:, j])]
 
     # Get implied dimensions from the formatting of well name
-    row = 0
-    columns = 0
-    currentAlpha = 0
-    # If keys starts with a letter followed by a number assume it is formatted properly.
-    # Keep a counter for the number of times the letter changes (rows)
-    # keep a counter for the number of times the letter does not change (columns)
-    for key in rows.keys():
-        if key[0].isalpha():
-            if key[0] != currentAlpha:
-                columns = 0
-                row += 1
-            columns += 1
-            currentAlpha = key[0]
-
-    # if the csv does not match the format, dimensions are just the number of keys. (1 dimensional)
-    if row == 0 and columns == 0:
-       implied_dims = (rows.keys().__len__())
-
-    #if the csv is formatted as expected, set implied_dims
-    else:
-        implied_dims = (row, columns)
+    print(rows.keys())
+    implied_dims = compute_implied_dimensions(rows.keys())
 
     print(implied_dims)
     return rows, time_s_vals, implied_dims
+
+
+def compute_implied_dimensions(well_names_list):
+    """
+    Input:
+      well_names_list - a list of well names
+
+    Returns:
+      implied dimensions as a tuple [according to specifications below]
+
+    Option 1: If row names follow the typical convention of 'A01', 'A02', ..., 'B01', ...,
+    then we can infer a dimensions across the plate's row axis (number of alphabetic
+    characters prefixed to each well name) and across the plates column axis (number of
+    numeric values following the alphabetic character). The tuple length will then
+    be 2 as (num of rows on plate, num of cols on plate).
+
+    Option 2: The row names may not follow the typical convention. In that case, we cannot
+    infer the 2-dimensional layout of plate. The tuple is of length 1 and
+    represents the flattened dimension, like (num of rows on plate * num of cols on plate,).
+
+    Returns a warning if well names follow Option 1 but some data is missing from the implied grid.
+    """
+    implied_grid = True  # boolean indicating if the well name list implies a grid by using alpha-numeric format
+    last_row = ''
+    last_col = 0
+
+    row_labels = set()  # a set of alphabetic row labels
+    col_labels = set()  # a set of numeric column labels
+
+    # Check alphanumeric pattern (alpha + number) of well names to determine if plate grid is implied
+    for well_name in well_names_list:
+        alpha, num = well_name[:1], well_name[1:]
+        if not alpha.isalpha() or not num.isnumeric():
+            implied_grid = False
+            break
+        # Keep track of highest row label and highest column label
+        if alpha.upper() > last_row:
+            last_row = alpha
+        if int(num) > last_col:
+            last_col = int(num)
+
+        # Put labels into a set
+        row_labels.add(alpha.upper())
+        col_labels.add(int(num))
+
+    # Throw warning if there is an implied grid but some data is missing
+
+    if implied_grid:
+        if len(row_labels) * len(col_labels) != len(well_names_list):
+            warnings.warn(
+                "While parsing a .CSV file, a plate grid is implied by alphanumeric well names, but not all rows or columns are found.")
+    # Compute implied dimensions
+    if implied_grid:
+        return (len(row_labels), len(col_labels))
+    else:
+        return (len(well_names_list),)
 
 
 """
