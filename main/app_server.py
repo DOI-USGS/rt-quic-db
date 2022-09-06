@@ -416,9 +416,12 @@ def upload_plate():
             # process file
             assayModel = ManageAssay(session)
 
-            assayModel.create_assay(f=f, data=form_data)
+            try:
+                assayModel.create_assay(f=f, data=form_data)
+                flash('File uploaded successfully')
+            except ValueError as err:
+                flash(str(err))
 
-            flash('File uploaded successfully')
         else:
             flash('You are not authorized to upload assays.')
 

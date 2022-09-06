@@ -1,5 +1,3 @@
-from sphinx.cmd.quickstart import ValidationError
-
 from db import UsersDao, PlateDao, AssayDao, SampleDao, LocationDao, ObsDao, WCDao, CategoryDao, TeamDao
 from data_upload_util import parse_rt_quic_csv, UploadObsCSV, UploadWellConditionCSV
 from user_utils import make_temp_password, send_password_recovery_email
@@ -88,17 +86,16 @@ class ManageAssay:
         self.session = session
 
     def create_assay(self, f, data):
-        rows, time_s_vals, implied_dim = parse_rt_quic_csv(file=f)
-
-        if not self.validate_plate_dimensions(data, implied_dim):
-            raise ValidationError('Plate dimensions do not match the specified template')
-
-        # Create assay
-        self.assayDao.create_assay(data)
-
         # Parse file into a dictionary of the following format:
         #       rows[well_name] = [content, fluorescence_series]
         # where content is string and fluorescence_series is an array parallel to time_s_vals
+        rows, time_s_vals, implied_dim = parse_rt_quic_csv(file=f)
+
+        if not self.validate_plate_dimensions(data, implied_dim):
+            raise ValueError('Plate dimensions do not match the specified template')
+
+        # Create assay
+        self.assayDao.create_assay(data)
 
         # Add well data to the database
         for well_name in rows.keys():
@@ -158,8 +155,6 @@ class ManageAssay:
         # Get dimensions from plate template
         plateModel = ManagePlate(self.session)
         plate_dims = plateModel.get_plate_dims(plate_ID)
-        print(plate_dims)
-
 
         # Check that dimensions are the same
         output = False
@@ -169,7 +164,6 @@ class ManageAssay:
             output = True
 
         return output
-
 
 class ManagePlate:
     def __init__(self, session):
