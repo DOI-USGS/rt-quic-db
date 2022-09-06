@@ -10,24 +10,24 @@
   </div>
   <form method="post" action="/editUserAdmin">
 		<div class="form-group">
-			<label for="user_ID">User</label>
+			<label for="user_ID">User</label> <span title="insert help text here">&#9432</span>
 			<small class="form-text text-muted"><span style='padding-left:20px' class='glyphicon glyphicon-eye-close'></span> = inactive</small>
 		  <select class="selectpicker form-control" id="user_ID" name="user_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
 		</div>
 	  <div class="form-group">
-	  	<label for="username">username</label>
+	  	<label for="username">username</label> <span title="insert help text here">&#9432</span>
 	    <input type="text" class="form-control" id="username" name="username" placeholder="" readonly>
 	  </div>
 	  <div class="form-group">
-	  	<label for="email">Email</label>
+	  	<label for="email">Email</label> <span title="insert help text here">&#9432</span>
 	    <input type="text" class="form-control" id="email" name="email" placeholder="" readonly>
 	  </div>
 	  <div class="form-group form-check">
 		  <input class="form-check-input" type="checkbox" id="activated" name="activated" disabled>
-		  <label class="form-check-label" for="activated">Active</label>
+		  <label class="form-check-label" for="activated">Active</label> <span title="If checked, allows the user to log in">&#9432</span>
 		</div>
 		<div class="form-group">
-			<label for="security_points">Security Points</label>
+			<label for="security_points">Security Points</label> <span title="insert help text here">&#9432</span>
 			<select class="selectpicker form-control" id="security_points" name="security_points" data-live-search="true" required disabled multiple>
 			  <optgroup label="Assays">
 			    <option value='100' title='100'>100: Can access View Assay activity</option>
@@ -40,7 +40,7 @@
 					<option value='160' title='160'>160: Well edit only assays created by self</option>
 					<option value='170' title='170'>170: Well edit all assays</option>
 			  </optgroup>
-			  <optgroup label="Samples">
+			  <optgroup label="Samples"> <span title="insert help text here">&#9432</span>
 			  	<option value='200' title='200'>200: Can access Manage Samples activity</option>
 					<option value='210' title='210'>210: Create samples</option>
 					<option value='220' title='220'>220: Edit only samples created by self</option>
@@ -48,24 +48,24 @@
 					<option value='240' title='240'>240: Delete only samples created by self</option>
 					<option value='250' title='250'>250: Delete all samples</option>
 			  </optgroup>
-			  <optgroup label="Admin: Plate Templates">
+			  <optgroup label="Admin: Plate Templates"> <span title="insert help text here">&#9432</span>
 			    <option value='500' title='500'>500: Can access Manage Plate Templates activity</option>
 					<option value='510' title='510'>510: Create plate templates</option>
 					<option value='520' title='520'>520: Edit plate templates</option>
 					<option value='530' title='530'>530: Delete plate templates</option>
 			  </optgroup>
-			  <optgroup label="Admin: Locations">
+			  <optgroup label="Admin: Locations"> <span title="insert help text here">&#9432</span>
 			    <option value='600' title='600'>600: Can access Manage Locations activity</option>
 					<option value='610' title='610'>610: Create new locations for your team</option>
 					<option value='620' title='620'>620: Update location in your team</option>
 					<option value='630' title='630'>630: Delete location in your team</option>
 			  </optgroup>
-			  <optgroup label="Admin: Teams">
+			  <optgroup label="Admin: Teams"> <span title="insert help text here">&#9432</span>
 			    <option hidden value='700' title='700'>700: Can access Manage Team activity</option>
 					<option hidden value='720' title='720'>720: Update research team settings</option>
 					<option hidden value='730' title='730'>730: Can delete a research team</option>
 			  </optgroup>
-			  <optgroup label="Admin: Users">
+			  <optgroup label="Admin: Users"> <span title="insert help text here">&#9432</span>
 			    <option value='800' title='800'>800: Can access Manage Users activity</option>
 					<option value='810' title='810'>810: Can activate new and inactive users</option>
 					<option value='820' title='820'>820: Can inactivate users</option>
@@ -73,7 +73,7 @@
 					<option value='840' title='840'>840: Can modify admin security points of any user</option>
 					<option value='850' title='850'>850: Can delete a user</option>
 			  </optgroup>
-			  <optgroup label="Data Reporting">
+			  <optgroup label="Data Reporting"> <span title="insert help text here">&#9432</span>
 			    <option value='900' title='900'>900: May access data designated by any research team for analytics</option>
 			  </optgroup>
 			</select>

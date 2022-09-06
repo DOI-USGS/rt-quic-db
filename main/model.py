@@ -80,19 +80,22 @@ class ManageUser:
 
 
 class ManageAssay:
+
     def __init__(self, session):
         self.assayDao = AssayDao(session)
         self.session = session
 
-
     def create_assay(self, f, data):
-        # Create assay
-        self.assayDao.create_assay(data)
-
         # Parse file into a dictionary of the following format:
         #       rows[well_name] = [content, fluorescence_series]
         # where content is string and fluorescence_series is an array parallel to time_s_vals
-        rows, time_s_vals = parse_rt_quic_csv(file=f)
+        rows, time_s_vals, implied_dim = parse_rt_quic_csv(file=f)
+
+        if not self.validate_plate_dimensions(data, implied_dim):
+            raise ValueError('Plate dimensions do not match the specified template')
+
+        # Create assay
+        self.assayDao.create_assay(data)
 
         # Add well data to the database
         for well_name in rows.keys():
@@ -119,7 +122,6 @@ class ManageAssay:
                 obs_data['well_name'] = well_name
                 obs_data['index_in_well'] = i
 
-
                 # Add observation to UploadObsCSV object
                 uploadObsCSV.add_observation(data, well_data, obs_data)
 
@@ -131,7 +133,6 @@ class ManageAssay:
 
     def get_assays(self):
         return self.assayDao.get_assays()
-
 
     def get_data(self, assay_ID):
         return self.assayDao.get_data(assay_ID)
@@ -145,11 +146,36 @@ class ManageAssay:
     def get_created_by_user(self, assay_ID):
         return self.assayDao.get_created_by_user(assay_ID)
 
+    def validate_plate_dimensions(self, data, dims):
+        # Get plate ID
+        plate_ID = data.get('plate')
+        if plate_ID is None:
+            return False
+
+        # Get dimensions from plate template
+        plateModel = ManagePlate(self.session)
+        plate_dims = plateModel.get_plate_dims(plate_ID)
+
+        # Check that dimensions are the same
+        output = False
+        if len(dims) == 2 and dims == plate_dims:
+            output = True
+        elif len(dims) == 1 and dims[0] == plate_dims[0] * plate_dims[1]:
+            output = True
+
+        return output
 
 class ManagePlate:
     def __init__(self, session):
         self.plateDao = PlateDao(session)
         self.session = session
+
+    # get plate dimensions from plate template in database
+    def get_plate_dims(self, plate_ID):
+        columns = int(self.plateDao.get_data(plate_ID).get('columns'))
+        rows = int(self.plateDao.get_data(plate_ID).get('rows'))
+        dims = (rows, columns)
+        return dims
 
     def get_plates(self):
         return self.plateDao.get_plates()
@@ -330,13 +356,13 @@ class ManageWC:
 
                 if len(field_vals_set) == 1:
                     well_summary[field] = (
-                    True, field_vals[0], 'both')  # All field values agree but there is disagreement of lookup location
+                        True, field_vals[0],
+                        'both')  # All field values agree but there is disagreement of lookup location
                 else:
                     well_summary[field] = (
-                    False, '', '')  # There is disagreement of field values among selected wc records
+                        False, '', '')  # There is disagreement of field values among selected wc records
 
-        print(well_data)
-        print(well_summary)
+
         return well_summary, well_data
 
     """
@@ -416,7 +442,6 @@ class ManageViz:
 
     def get_data(self):
         return self.obsDao.get_data()
-
 
 
 if __name__ == "__main__":

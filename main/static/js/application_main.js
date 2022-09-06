@@ -184,18 +184,23 @@ function drawChartGrid(Xs, Ys, grid_data, wc_ID_list, max_val){
 
    var html = '<table width="100%" class="data-table" id="chart_grid"><thead><tr>';
 
-   //adding row header
-   for (var m in Ys){
-    html += '<th>'+Ys[m]+'</th>'
+   	//lines column headers up to correspond with row headers
+	html+= '<th>' + ' ' + '</th>';
+
+	//adding column header
+	for (var m in Ys){
+	   html += '<th> '+Ys[m]+'</th>'
    }
    html += '</tr></thead><tbody>';
    
    var flat_index = 0;
 
-   for (var i = 0, len = grid_data.length; i < len; ++i) {
 
-    html += '<tr>';
-//    html += '<td>'+Xs[i]+'</td>';
+   for (var i = 0, len = grid_data.length; i < len; ++i) {
+	   html += '<tr>';
+	//add table header
+	   html += '<th>'+Xs[i]+'</th>';
+
       for (var j = 0, rowLen = grid_data[i].length; j < rowLen; ++j, ++flat_index) {
         html += '<td class="selectable" data-wc_ID = "' + wc_ID_list[flat_index] + '"><div id = "wc_'+i+'_'+j+'" title = "' + wc_ID_list[flat_index] + '">' + '</div></td>';
       }
@@ -234,6 +239,7 @@ function drawChart(id, assay_name, wc_name, figData, max_val, grid = false){
 
         },
         colors: ['#a52714'],
+		legend: "none",
 
       };
 
