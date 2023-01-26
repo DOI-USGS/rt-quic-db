@@ -24,12 +24,8 @@ sentry_sdk.init(
     traces_sample_rate=1.0
 )
 app = Flask(__name__)
-
-# Set the secret key to some random bytes. Keep this really secret!
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
-
 app.config['CORS_HEADERS'] = 'Content-Type'
-app.secret_key = "super secret key"
+app.secret_key = os.getenv('FLASK_KEY')
 ALLOWED_EXTENSIONS = {'.txt', '.csv'}
 
 

@@ -9,13 +9,16 @@ import string
 
 from passlib.hash import sha512_crypt
 from user_utils import START_ADMIN_SEC_PTS
+from pathlib import Path
+from dotenv import load_dotenv
 
+load_dotenv(os.path.join(Path(os.getcwd()).parent, 'vars.env'))
 
 config = {
-    'user': 'quicdbadmin',
-    'password': 'quicdbadmin',
-    'host': 'localhost',
-    'database': 'nbollig$rt_quic_db',
+    'user': os.getenv('DB_USER'),
+    'password': os.getenv('DB_PASSWORD'),
+    'host': os.getenv('DB_HOST'),
+    'database': os.getenv('DB_NAME'),
     'raise_on_warnings': True
 }
 
