@@ -4,5 +4,5 @@ Laboratories around the world utilize real-time quaking-induced conversion (RT-Q
 Additional information:
 * [Disclaimer Statement](https://github.com/nathanbollig/rt-quic-db/blob/master/DISCLAIMER.md)
 * [License](https://github.com/nathanbollig/rt-quic-db/blob/master/LICENSE.md)
-* [Documentation](https://github.com/nathanbollig/rt-quic-db/wiki)
 * [User Guide](nathanbollig.github.io/rt-quic-db/)
+* [Technical Documentation](https://github.com/nathanbollig/rt-quic-db/wiki)
