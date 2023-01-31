@@ -1,0 +1,48 @@
+[
+  {
+    "name": "rt-quic-db",
+    "organization": "U.S. Geological Survey",
+    "description": "A database application for RT-QuIC data with tools for visualization and analysis.",
+    "version": "1.0.0",
+    "status": "Development",
+
+    "permissions": {
+      "usageType": "openSource",
+      "licenses": [
+        {
+          "name": "Unlicense",
+          "URL": "https://github.com/nathanbollig/rt-quic-db/blob/master/LICENSE.md"
+        }
+      ]
+    },
+
+    "homepageURL": "https://github.com/nathanbollig/rt-quic-db",
+    "downloadURL": "https://github.com/nathanbollig/rt-quic-db",
+    "disclaimerURL": "https://github.com/nathanbollig/rt-quic-db/blob/master/DISCLAIMER.md",
+    "repositoryURL": "https://github.com/nathanbollig/rt-quic-db.git",
+    "vcs": "git",
+
+    "laborHours": 0,
+
+    "tags": [
+      "usg-artificial-intelligence"
+    ],
+
+    "languages": [
+      "CSS",
+      "JavaScript",
+	  "HTML",
+	  "Python",
+	  "SCSS"
+    ],
+
+    "contact": {
+      "name": "Nathan Bollig",
+      "email": "nbollig@usgs.gov"
+    },
+
+    "date": {
+      "metadataLastUpdated": "2023-01-31"
+    }
+  }
+]
