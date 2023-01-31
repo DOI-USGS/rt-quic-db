@@ -17,7 +17,7 @@
     },
 
     "homepageURL": "https://github.com/nathanbollig/rt-quic-db",
-    "downloadURL": "https://github.com/nathanbollig/rt-quic-db",
+    "downloadURL": "https://github.com/nathanbollig/rt-quic-db/archive/refs/tags/1.0.0.tar.gz",
     "disclaimerURL": "https://github.com/nathanbollig/rt-quic-db/blob/master/DISCLAIMER.md",
     "repositoryURL": "https://github.com/nathanbollig/rt-quic-db.git",
     "vcs": "git",
