@@ -1,6 +1,8 @@
 # Quake
-A database application for RT-QuIC data with tools for visualization and analysis.
+Laboratories around the world utilize real-time quaking-induced conversion (RT-QuIC) as a highly sensitive laboratory assay for the detection of prions. Quake is a web-based application for storing, visualizing, and analyzing RT-QuIC data. This functionality supports scientists and laboratory personnel involved in prion surveillance and research.
 
-Please see information about this software in associated [end-user documentation](nathanbollig.github.io/rt-quic-db/). Additional technical information is available in the repository wiki.
-
-*This software is preliminary or provisional and is subject to revision. It is being provided to meet the need for timely best science. The software has not received final approval by the U.S. Geological Survey (USGS). No warranty, expressed or implied, is made by the USGS or the U.S. Government as to the functionality of the software and related material nor shall the fact of release constitute any such warranty. The software is provided on the condition that neither the USGS nor the U.S. Government shall be held liable for any damages resulting from the authorized or unauthorized use of the software.*
+Additional information:
+* [Disclaimer Statement](https://github.com/nathanbollig/rt-quic-db/blob/master/DISCLAIMER.md)
+* [License](https://github.com/nathanbollig/rt-quic-db/blob/master/LICENSE.md)
+* [Documentation](https://github.com/nathanbollig/rt-quic-db/wiki)
+* [User Guide](nathanbollig.github.io/rt-quic-db/)
