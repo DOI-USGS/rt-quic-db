@@ -1,0 +1,230 @@
+{% extends 'base.html' %}
+{% block title %}Manage Samples{% endblock %}
+{% block content %}
+
+<body>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Manage Samples</h1>
+  </div>
+  <form method="post" action="/editSample">
+		<div class="form-group">
+			<label for="sample">Sample</label> </label> <span title="insert help text here">&#9432</span>
+		  <div class="input-group">
+		  	<select class="selectpicker form-control" id="sample" name="sample" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
+		  	<div class="input-group-btn">
+		  		<button class="btn btn-warning" type="button" id="createSample">Create new sample</button>
+		  	</div>
+			</div>
+		</div>
+	  <div class="form-group">
+	  	<label for="sample_name">New sample name</label> </label>  <span title="insert help text here">&#9432</span>
+	    <input type="text" class="form-control" id="sample_name" name="sample_name" placeholder="" required>
+	  </div>
+	  <div class="form-group">
+	  	<label for="species">Species</label> </label>  <span title="insert help text here">&#9432</span>
+	    <select class="selectpicker form-control" id="species" name="species" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
+	  </div>
+	  <div class="form-group">
+	  	<label for="sex">Sex</label> </label>  <span title="insert help text here">&#9432</span>
+	    <input type="text" class="form-control" id="sex" name="sex" placeholder="">
+	  </div>
+	  <div class="form-group">
+	  	<label for="age">Age</label> </label>  <span title="insert help text here">&#9432</span>
+	    <input type="text" class="form-control" id="age" name="age" placeholder="">
+	  </div>
+	  <div class="form-group">
+	  	<label for="tissue_matrix">Tissue matrix</label> </label>  <span title="insert help text here">&#9432</span>
+	    <input type="text" class="form-control" id="tissue_matrix" name="tissue_matrix" placeholder="">
+	  </div>
+	  <div class="form-group">
+	  	<label for="preparation_method">Preparation method</label> </label>  <span title="insert help text here">&#9432</span>
+	    <input type="text" class="form-control" id="preparation_method" name="preparation_method" placeholder="">
+	  </div>
+	  <div class="form-group">
+	  	<label for="other_sample_attr">Other</label> <span title="insert help text here">&#9432</span>
+		  <input type="text" class="form-control" id="other_sample_attr" name="other_sample_attr" placeholder="">
+	  </div>
+		<div class="form-group">
+			<button class="btn btn-primary" type="submit" id="submitButton">Update sample</button>
+			<button class="btn btn-danger" type="button" id="deleteSample" disabled>Delete sample</button>
+			<button class="btn btn-link" type ="button" id="cancelSelection" onclick="location.href='/manageSample'" disabled>Cancel selection</button>
+		</div>
+			
+	</form>
+	
+	{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+	{% endwith %}
+	
+	</div>
+	
+
+	<script>		
+		// Declare selector
+		var sample_selector = document.getElementById('sample');
+		var species_selector = document.getElementById('species');
+		
+		// Delete button
+		var delete_button = document.getElementById('deleteSample');
+		delete_button.onclick = function() {
+				post('/deleteSample', {sample_ID: sample_selector.value});
+		};
+		
+		// Reload when selector changes
+		sample_selector.addEventListener('change', function() {
+		    post('/manageSample', {sample_ID: sample_selector.value});
+		});
+	
+		// Populate sample with available records
+		var samples = {{ samples | tojson | safe}};
+		
+		var sample_ID = '{{sample_ID}}';
+		
+		var sample_selector = document.getElementById("sample");
+		for(index in samples) {
+		    name = samples[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    sample_selector.options[sample_selector.options.length] = option;
+		}
+		
+		// Populate species selector with available records
+		var species = {{ species | tojson | safe}};
+		for(index in species) {
+		    name = species[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    species_selector.options[species_selector.options.length] = option;
+		}
+	
+		// Adapt form for editing a selected record
+		if (sample_ID !== '') {
+			$("#sample").selectpicker('val', sample_ID);
+			var sample_data = {{ sample_data | tojson | safe}};
+			document.getElementById("createSample").disabled = true;
+			document.getElementById("cancelSelection").disabled = false;
+			document.getElementById("deleteSample").disabled = false;
+		} else {
+			$("#sample").selectpicker('val', "");
+			var sample_data = '';
+		}
+		
+		// Create new record
+		TEMP_NAME = "Creating new record...";
+		
+		var create_button = document.getElementById("createSample");
+		var delete_button = document.getElementById("deleteSample");
+		var submit_button = document.getElementById("submitButton");
+		var cancel_button = document.getElementById("cancelSelection");
+		
+		create_button.onclick = function() {
+				$(function () {
+	      	$("#sample").prop('disabled', true);
+					$("#sample").selectpicker('refresh');
+	      }); 
+				delete_button.disabled = true;
+				submit_button.textContent = "Submit new sample";
+				cancel_button.textContent = "Cancel create";
+				cancel_button.disabled = false;
+				add_temp_rec();
+				document.getElementById("sample_name").focus();
+		};
+		
+		function add_temp_rec() {
+			var option = new Option(TEMP_NAME, -1);
+			option.setAttribute("title", TEMP_NAME);
+			sample_selector.options[sample_selector.options.length] = option;
+			$("#sample").selectpicker('val', -1);
+		};
+		
+		submit_button.onclick = function() {
+			$(function () {
+	      	$("#sample").prop('disabled', false);
+					$("#sample").selectpicker('refresh');
+	    }); 
+		};
+		
+		// Populate form fields with available data
+		var name_text = document.getElementById("sample_name");
+		if (typeof sample_data['name'] !== 'undefined') {
+			name_text.value = sample_data['name'];
+		} else {
+			name_text.value = "";
+		}		
+		
+		if (typeof sample_data['species'] !== 'undefined') {
+			$("#species").selectpicker('val', sample_data['species']);
+		} else {
+			$("#species").selectpicker('val', "");
+		}
+		
+		var sex_text = document.getElementById("sex");
+		if (typeof sample_data['sex'] !== 'undefined') {
+			sex_text.value = sample_data['sex'];
+		} else {
+			sex_text.value = "";
+		}
+		
+		var age_text = document.getElementById("age");
+		if (typeof sample_data['age'] !== 'undefined') {
+			age_text.value = sample_data['age'];
+		} else {
+			age_text.value = "";
+		}
+		
+		var tissue_matrix_text = document.getElementById("tissue_matrix");
+		if (typeof sample_data['tissue_matrix'] !== 'undefined') {
+			tissue_matrix_text.value = sample_data['tissue_matrix'];
+		} else {
+			tissue_matrix_text.value = "";
+		}
+
+		var preparation_method_text = document.getElementById("preparation_method");
+		if (typeof sample_data['preparation_method'] !== 'undefined') {
+			preparation_method_text.value = sample_data['preparation_method'];
+		} else {
+			preparation_method_text.value = "";
+		}
+		
+		var other_text = document.getElementById("other_sample_attr");
+		if (typeof sample_data['other_sample_attr'] !== 'undefined') {
+			other_text.value = sample_data['other_sample_attr'];
+		} else {
+			other_text.value = "";
+		}
+		
+		// Disable components based on security points
+		if (!security_points.includes(210)) {
+			document.getElementById("createSample").disabled = true;
+		}
+		
+		if (!security_points.includes(210) && !security_points.includes(220) && !security_points.includes(230)) {
+			document.getElementById("submitButton").disabled = true;
+			document.getElementById("sample_name").readOnly = true;
+			document.getElementById("species").readOnly = true;
+			document.getElementById("sex").readOnly = true;
+			document.getElementById("age").readOnly = true;
+			document.getElementById("tissue_matrix").readOnly = true;
+			document.getElementById("preparation_method").readOnly = true;
+			document.getElementById("other_sample_attr").readOnly = true;
+		}
+		
+		if (!security_points.includes(240) && !security_points.includes(250)) {
+			document.getElementById("deleteSample").disabled = true;
+		}
+		
+	</script>
+
+</body>
+
+</html>
+
+{% endblock %}

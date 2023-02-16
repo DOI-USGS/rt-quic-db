@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% block title %}Quake{% endblock %}
+{% block content %}
+
+<body>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Welcome to Quake!</h1>
+  </div>
+  
+  <p> We look forward to recieving your feedback about this pre-release version. 
+  At any time, please use the <a href="\enhancementRequest">Submit Enhancement Request</a> link in the navigation bar to submit a suggestion or report an issue. 
+  Your suggestions will be critical for helping to make this application more functional and usable. In particular, please let us know your thoughts about database 
+  fields, measurement units, form layouts, and desired features. </p>
+  
+  <h2>Release Updates (v0.3-alpha):</h2>
+	 <ul>
+	  <li>Added support for data privacy via research teams</li>
+		<li>Major updates to database schema</li>
+		<li>Support user activation workflow</li>
+		<li>System-wide enforcement of permissive security point scheme</li>
+		<li>Remove assay-level sample assignment (now at well-level only)</li>
+		<li>Create end-user and admin user documentation</li>
+	</ul>
+  <br>
+  
+  <h2>Quick Start Guide</h2>
+  <p class="lead"> Edit Menu<p>
+  
+  <p> The Edit menu contains tools for managing samples, plate templates, and samples.
+  However, an appropriate location and standard plate template have already been created, so you likely will only need to ensure that a sample record is created to use with your assay. </p>
+  
+  <p style="margin-left:40px;margin-right:40px"> <b>Step 1.</b> Go to Edit > Manage Samples, click "Create new sample", type in the details for your sample, and then click the "Submit new sample" button at the bottom. Note that if an appropriate
+  sample record already exists, then you do not need to complete this step. </p>
+  
+  <br>
+  <div class="img-container" style="text-align:center">
+		<img src="/static/images/manage_samples.jpg" style="width:400px;" alt="Manage Samples">
+	</div>
+  <br>
+  
+  <p class="lead"> Upload Assay<p>
+  
+  <p> Now you will create a new assay using a .csv file taken from the analyzer's output. The Upload Assay tool is also housed in the Edit menu.</p>
+  
+  <p style="margin-left:40px;margin-right:40px"> <b>Step 2.</b> Go to Edit > Upload Assay. Ensure that the 96-well plate template and your location is selected. 
+  (The sample is not associated with the assay. Instead, it is assigned to each well in Well Edit after the upload is complete.)
+  Enter an assay name
+  and any other parameters that should apply to all wells in the assay. Press the Browse button at the bottom right to select the .csv file from your local file system. 
+  Press "Create assay" to upload. Note that 
+  this will take around 30-60 seconds to complete. </p>
+  
+  <br>
+  <div class="img-container" style="text-align:center">
+		<img src="/static/images/upload_assay.jpg" style="width:400px" alt="Upload Assay">
+	</div>
+  <br>
+  
+  <p class="lead"> View Assay and Well Edit<p>
+  
+  <p> Finally, you will be able to view the assay and make edits to individual wells.
+  
+  <p style="margin-left:40px;margin-right:40px"> <b>Step 3.</b> Go to Analysis > View Assay, select your assay and all wells, and click Get Chart. You will see a grid of all IF curves.</p>
+  
+  <p style="margin-left:40px;margin-right:40px"> <b>Step 4.</b> Left-click to select one or more wells, then right-click and go to Well Edit to change the properties of those specific wells. For example,
+  this is where samples may be assigned to wells.<p/>
+  
+  <br>
+  <div class="img-container" style="text-align:center">
+		<img src="/static/images/IF_grid.jpg" style="width:400px" alt="Immunofluorescence Grid">
+	</div>
+  <br>
+  
+	<br>
+  <div class="img-container" style="text-align:center">
+		<img src="/static/images/well_edit.jpg" style="width:400px" alt="Well Edit">
+	</div>
+  <br>
+
+</div>
+
+
+</body>
+
+
+{% endblock %}

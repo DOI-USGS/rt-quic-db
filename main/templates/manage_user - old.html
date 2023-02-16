@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% block title %}Manage Users{% endblock %}
+{% block content %}
+
+<body>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Manage Users</h1>
+  </div>
+  <form method="post" action="/editUser">
+		<div class="form-group">
+			<label for="user_ID">User</label>
+		  <div class="input-group">
+		  	<select class="form-control" id="user_ID" name="user_ID" placeholder="" required><option value="empty" disabled hidden> -- select an option -- </option></select>
+		  	<div class="input-group-btn">
+		  		<button class="btn btn-warning" type="button" id="createUser">Create new user</button>
+		  	</div>
+			</div>
+		</div>
+	  <div class="form-group">
+	  	<label for="user_name">New name</label>
+	    <input type="text" class="form-control" id="user_name" name="user_name" placeholder="" required>
+	  </div>
+	  <div class="form-group">
+	    <label for="role">Role</label>
+	    <input type="text" class="form-control" id="role" name="role" placeholder="">
+	  </div>
+	  <div class="form-group">
+	  	<label for="username">username</label>
+	    <input type="text" class="form-control" id="username" name="username" placeholder="" required>
+	  </div>
+	  <div class="form-group">
+	  	<label for="password">Password (not secure)</label>
+	    <input type="text" class="form-control" id="password" name="password" placeholder="">
+	  </div>
+	  <div class="form-group">
+	    <label for="loc_ID">Location</label>
+	    <select class="form-control" id="loc_ID" name="loc_ID" placeholder="" required><option value="empty"></option></select>
+	  </div>
+
+		<div class="form-group">
+			<button class="btn btn-primary" type="submit" id="submitButton">Update user</button>
+			<button class="btn btn-danger" type="button" id="deleteButton" disabled>Delete user</button>
+			<button class="btn btn-link" type ="button" id="cancelSelection" onclick="location.href='/manageUser'" disabled>Cancel selection</button>
+		</div>
+			
+	</form>
+	
+	{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+	{% endwith %}
+	
+	</div>
+	
+
+	<script>		
+		// Declare selector
+		var user_selector = document.getElementById('user_ID');
+		
+		// Delete button
+		var delete_button = document.getElementById('deleteButton');
+		delete_button.onclick = function() {
+				post('/deleteUser', {user_ID: user_selector.value});
+		};
+		
+		// Reload when selector changes
+		user_selector.addEventListener('change', function() {
+		    post('/manageUser', {user_ID: user_selector.value});
+		});
+	
+		// Populate selector with available records
+		var users = {{ users | tojson | safe}};
+		
+		var user_ID = '{{user_ID}}';
+		
+		for(index in users) {
+		    user_selector.options[user_selector.options.length] = new Option(users[index], index);
+		}
+		
+		var locations = {{ locations | tojson | safe}};
+		var location_selector = document.getElementById("loc_ID");
+		for(index in locations) {
+		    location_selector.options[location_selector.options.length] = new Option(locations[index], index);
+		}
+		
+		// Adapt form for editing a selected record
+		if (user_ID !== '') {
+			test = 1;
+			user_selector.value = user_ID;
+			var user_data = {{ user_data | tojson | safe}};
+			document.getElementById("createUser").disabled = true;
+			document.getElementById("cancelSelection").disabled = false;
+			document.getElementById("deleteButton").disabled = false;
+		} else {
+			user_selector.value = "empty";
+			var user_data = '';
+		}
+		
+		// Create new record
+		TEMP_NAME = "Creating new record...";
+		
+		var create_button = document.getElementById("createUser");
+		var delete_button = document.getElementById("deleteButton");
+		var submit_button = document.getElementById("submitButton");
+		var cancel_button = document.getElementById("cancelSelection");
+		
+		create_button.onclick = function() {
+				user_selector.disabled = true;
+				delete_button.disabled = true;
+				submit_button.textContent = "Submit new user";
+				cancel_button.textContent = "Cancel create";
+				cancel_button.disabled = false;
+				add_temp_rec();
+				document.getElementById("user_name").focus();
+		};
+		
+		function add_temp_rec() {
+			user_selector.options[user_selector.options.length] = new Option(TEMP_NAME, -1);
+			user_selector.value = -1;
+		};
+		
+		submit_button.onclick = function() {
+			user_selector.disabled = false;
+		};
+		
+		// Populate form fields with available data
+		var name_text = document.getElementById("user_name");
+		if (typeof user_data['name'] !== 'undefined') {
+			name_text.value = user_data['name'];
+		} else {
+			name_text.value = "";
+		}		
+		
+		var role_text = document.getElementById("role");
+		if (typeof user_data['role'] !== 'undefined') {
+			role_text.value = user_data['role'];
+		} else {
+			role_text.value = "";
+		}
+		
+		var username_text = document.getElementById("username");
+		if (typeof user_data['username'] !== 'undefined') {
+			username_text.value = user_data['username'];
+		} else {
+			username_text.value = "";
+		}
+		
+		var password_text = document.getElementById("password");
+		if (typeof user_data['password'] !== 'undefined') {
+			password_text.value = user_data['password'];
+		} else {
+			password_text.value = "";
+		}
+		
+		if (typeof user_data['loc_ID'] !== 'undefined') {
+			location_selector.value = user_data['loc_ID'];
+		} else {
+			location_selector.value = "empty";
+		}
+		
+	</script>
+
+</body>
+{% endblock %}

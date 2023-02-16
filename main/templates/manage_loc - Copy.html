@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}Manage Locations{% endblock %}
+{% block content %}
+
+<body>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Manage Locations</h1>
+  </div>
+  <form method="post" action="/editLoc">
+		<div class="form-group">
+			<label for="loc_ID">Location</label>
+		  <div class="input-group">
+		  	<select class="selectpicker form-control" id="loc_ID" name="loc_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
+		  	<div class="input-group-btn">
+		  		<button class="btn btn-warning" type="button" id="createLoc">Create new location</button>
+		  	</div>
+			</div>
+		</div>
+	  <div class="form-group">
+	  	<label for="location_name">New name</label>
+	    <input type="text" class="form-control" id="location_name" name="location_name" placeholder="" required>
+	  </div>
+
+		<div class="form-group">
+			<button class="btn btn-primary" type="submit" id="submitButton">Update location</button>
+			<button class="btn btn-danger" type="button" id="deleteButton" disabled>Delete location</button>
+			<button class="btn btn-link" type ="button" id="cancelSelection" onclick="location.href='/manageLocation'" disabled>Cancel selection</button>
+		</div>
+			
+	</form>
+	
+	{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+	{% endwith %}
+	
+	</div>
+	
+
+	<script>			
+		// Declare selector
+		var loc_selector = document.getElementById('loc_ID');
+		
+		// Delete button
+		var delete_button = document.getElementById('deleteButton');
+		delete_button.onclick = function() {
+				post('/deleteLoc', {loc_ID: loc_selector.value});
+		};
+		
+		// Reload when selector changes
+		loc_selector.addEventListener('change', function() {
+		    post('/manageLocation', {loc_ID: loc_selector.value});
+		});
+	
+		// Populate location selector with available records
+		var locations = {{ locations | tojson | safe}};
+		
+		var loc_ID = '{{loc_ID}}';
+		
+		for(index in locations) {
+		    name = locations[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    loc_selector.options[loc_selector.options.length] = option;
+		}
+		
+		
+		// Adapt form for editing a selected record
+		if (loc_ID !== '') {
+			$("#loc_ID").selectpicker('val', loc_ID);
+			var loc_data = {{ loc_data | tojson | safe}};
+			document.getElementById("createLoc").disabled = true;
+			document.getElementById("cancelSelection").disabled = false;
+			document.getElementById("deleteButton").disabled = false;
+		} else {
+			$("#loc_ID").selectpicker('val', "");;
+			var loc_data = '';
+		};
+		
+		// Create new record
+		TEMP_NAME = "Creating new record...";
+		
+		var create_button = document.getElementById("createLoc");
+		var delete_button = document.getElementById("deleteButton");
+		var submit_button = document.getElementById("submitButton");
+		var cancel_button = document.getElementById("cancelSelection");
+		
+		create_button.onclick = function() {
+				$(function () {
+					$("#loc_ID").prop('disabled', true);
+					$("#loc_ID").selectpicker('refresh');
+				});  
+				delete_button.disabled = true;
+				submit_button.textContent = "Submit new location";
+				cancel_button.textContent = "Cancel create";
+				cancel_button.disabled = false;
+				add_temp_rec();
+				document.getElementById("location_name").focus();
+		};
+		
+		function add_temp_rec() {			
+			var option = new Option(TEMP_NAME, -1);
+			option.setAttribute("title", TEMP_NAME);
+			loc_selector.options[loc_selector.options.length] = option;
+			$("#loc_ID").selectpicker('val', -1);
+		};
+		
+		submit_button.onclick = function() {
+			$(function () {
+				$("#loc_ID").prop('disabled', false);
+				$("#loc_ID").selectpicker('refresh');
+			});  
+		};
+		
+		// Populate form fields with available data
+		var name_text = document.getElementById("location_name");
+		if (typeof loc_data['name'] !== 'undefined') {
+			name_text.value = loc_data['name'];
+		} else {
+			name_text.value = "";
+		}		
+		
+	</script>
+
+</body>
+{% endblock %}

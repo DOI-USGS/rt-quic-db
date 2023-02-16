@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+{% block title %}View Assay{% endblock %}
+{% block content %}
+
+<style type="text/css" media="screen">
+
+
+    table#chart_grid td.selectable, table#chart_grid th {
+      font-size: 12px;
+      width: 70px;
+      height: 25px;
+      text-align: center;
+    }
+
+		table#chart_grid td {
+			padding:2px;
+		}
+
+    table#chart_grid td.selectable {
+      background-color:white;
+    }
+
+    table#chart_grid td.highlighted {
+      background-color:lightblue;
+      border: 1px solid lightgray;
+    }
+
+</style>
+
+<body>
+
+<div class="container">
+  <div class="page-header">
+    <h1>View Assay</h1>
+  </div>
+		  <form id="vis top form">
+			  <div class="form-group">
+			  	<label for="assay">Assay</label>
+			  	<select class="selectpicker form-control" id="assay" name="assay_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
+			  </div>
+			  
+			  <div class="form-group">
+			  	<label for="wc_ID">Well name</label>
+			  	<select class="selectpicker form-control" id="wc_ID" name="wc_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
+			  </div>
+		
+				<div class="form-group">
+					<button id="chartBtn" class="btn btn-primary">Get chart</button>
+					<button class="btn btn-link" type ="button" id="cancelSelection" onclick="document.location.href='/vis'">Cancel selection</button>
+				</div>
+			</form>			
+</div>
+
+<!-- container for chart data -->
+<div class="container" id="chart_data">
+</div>
+
+<!-- Well Edit -->
+<div class="dropdown-menu dropdown-menu-sm" id="context-menu">
+  <li><a href="#" data-toggle="modal" data-target="#well_edit" id="well_edit_link">Well Edit</a></li>
+  <li><a href="javascript:clearSelectedCells();">Clear Selection</a></li>
+</div>
+
+
+<div class="modal fade" id="well_edit" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">  	
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h3 class="modal-title" id="exampleModalLabel">Well Edit</h3>
+	      </div>
+	      <div class="modal-body">
+	      		<form id="well_edit_form">
+				      <div class="form-group">
+				      	<h5>When saving this form, unspecified (blank) fields will have no effect.</h5>
+				      </div>
+				      <div class="form-group">
+						  	<label for="wells">Selected well(s)</label>
+						    <input type="text" class="form-control" id="wells" name="wells" placeholder="" disabled>
+						  </div>
+				      <div class="form-group">
+						  	<label for="sample_ID">Sample</label>
+						    <select class="selectpicker form-control" id="sample" name="sample" data-show-icon="true" data-live-search="true" required>
+							    <option value="multiple" title="Multiple values selected" placeholder="Multiple values selected" hidden disabled>Multiple values selected</option>
+							    <option value="" title="Unspecified" placeholder="Unspecified" hidden disabled>Unspecified</option>
+						    </select>
+						  </div>
+				      <div class="form-group">
+						  	<label for="contents">Contents</label>
+						    <input type="text" class="form-control" id="contents" name="contents" placeholder="Unspecified">
+						  </div>
+					 <div class="form-group">
+						  	<label for="assay_name">Sample concentration</label>
+						 <p [/b]>Enter the log10 of the dilution, e.g. -3 if using a 10^-3 dilution of your sample.</p>
+
+						    <input type="text" class="form-control" id="sample_conc" name="sample_conc" placeholder="Unspecified">
+					 		</div>
+				      <div class="form-group">
+						  	<label for="assay_name">Salt type</label>
+						    <input type="text" class="form-control" id="salt_type" name="salt_type" placeholder="Unspecified">
+						  </div>
+						  <div class="form-group">
+						  	<label for="assay_name">Salt concentration</label>
+						    <input type="text" class="form-control" id="salt_conc" name="salt_conc" placeholder="Unspecified">
+						  </div>
+						  <div class="form-group">
+						  	<label for="assay_name">Substrate type</label>
+						    <input type="text" class="form-control" id="substrate_type" name="substrate_type" placeholder="Unspecified">
+						  </div>
+						  <div class="form-group">
+						  	<label for="assay_name">Substrate concentration</label>
+						    <input type="text" class="form-control" id="substrate_conc" name="substrate_conc" placeholder="Unspecified">
+						  </div>
+						  <div class="form-group">
+						  	<label for="assay_name">Surfactant type</label>
+						    <input type="text" class="form-control" id="surfact_type" name="surfact_type" placeholder="Unspecified">
+						  </div>
+						  <div class="form-group">
+						  	<label for="assay_name">Surfactant concentration</label>
+						    <input type="text" class="form-control" id="surfact_conc" name="surfact_conc" placeholder="Unspecified">
+						  </div>
+						  <div class="form-group">
+						  	<label for="assay_name">Other</label>
+						    <input type="text" class="form-control" id="other_wc_attr" name="other_wc_attr" placeholder="Unspecified">
+						  </div>
+					  </form>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+	        <button type="button" class="btn btn-primary" id="well_edit_save">Save changes</button>
+	      </div>
+	    </div>
+  </div> 
+</div>
+
+<!-- Scripts -->
+	<script>
+		// Declare global for wc_IDs
+		var wc_IDs_global;
+	
+		// Declare selectors
+		var assay_selector = document.getElementById('assay');
+		var wc_selector = document.getElementById('wc_ID');
+		var sample_selector = document.getElementById('sample');
+	
+		// Populate assay selector and select value if assay_ID is provided at load time
+		var assays = {{ assays | tojson | safe}};
+		var assay_ID = '{{assay_ID}}'
+		
+		for(index in assays) {
+		    name = assays[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    assay_selector.options[assay_selector.options.length] = option;
+		}
+		
+		if (assay_ID !== '') {
+			$("#assay").selectpicker('val', assay_ID);
+			document.getElementById("cancelSelection").disabled = false;
+		} else {
+			$("#assay").selectpicker('val', "");
+			$("#wc_ID").selectpicker('val', "");
+			$(function () {
+				$("#wc_ID").prop('disabled', true);
+				$("#wc_ID").selectpicker('refresh');
+			}); 
+		}
+		
+		// Populate selector with available records
+		var samples = {{ samples | tojson | safe}};
+		
+		var sample_ID = '{{sample_ID}}';
+		
+		for(index in samples) {
+		    sample_selector.options[sample_selector.options.length] = new Option(samples[index], index);
+		}
+
+		
+		
+		// Disable components based on security points
+		if (!security_points.includes(160) && !security_points.includes(170)) {
+			document.getElementById('well_edit_link').disabled = true;
+			$('#well_edit_link').removeAttr('data-target');
+			$('#well_edit_link').removeAttr('data-toggle');
+	    document.getElementById('well_edit_link').style.pointerEvents = 'none';
+	    document.getElementById('well_edit_link').style.color = 'grey';
+	    document.getElementById('well_edit_link').style.cursor = 'default';
+		}
+		
+	</script>
+
+	<script>
+		google.charts.load('current', {packages: ['corechart']});
+	</script>
+
+
+</body>
+{% endblock %}

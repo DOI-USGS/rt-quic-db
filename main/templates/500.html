@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Errror!{% endblock %}
+{% block content %}
+
+<script
+  src="https://browser.sentry-cdn.com/5.23.0/bundle.min.js"
+  integrity="sha384-5yYHk2XjpqhbWfLwJrxsdolnhl+HfgEnD1UhVzAs6Kd2fx+ZoD0wBFjd65mWgZOG"
+  crossorigin="anonymous"
+></script>
+
+{% if sentry_event_id %}
+	<script>
+	  Sentry.init({ dsn: "https://20df1448028c4bb7895c4420b7f9dd72@o449111.ingest.sentry.io/5431513" });
+	  Sentry.showReportDialog({ eventId: "{{ sentry_event_id }}" });
+	</script>
+{% endif %}
+
+<body>
+  <h1>500</h1>
+  <h2>Internal Server Error</h2>
+  <div class="gears">
+    <div class="gear one">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+    <div class="gear two">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+    <div class="gear three">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
+  </div>
+  
+	<script>
+	$(function() {
+	  setTimeout(function(){
+	    $('body').removeClass('loading');
+	  }, 1000);
+	});
+	</script>
+</body>
+
+
+{% endblock %}

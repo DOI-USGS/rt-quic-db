@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% block title %}Manage Plate Templates{% endblock %}
+{% block content %}
+
+<body>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Manage Plate Templates</h1>
+  </div>
+  <form method="post" action="/editPlate">
+		<div class="form-group">
+			<label for="plate_ID">Plate template</label> <span title="insert help text here">&#9432</span>
+		  <div class="input-group">
+		  	<select class="selectpicker form-control" id="plate_ID" name="plate_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
+		  	<div class="input-group-btn">
+		  		<button class="btn btn-warning" type="button" id="createPlate">Create new template</button>
+		  	</div>
+			</div>
+		</div>
+	  <div class="form-group">
+	  	<label for="plate_type">New name</label> <span title="insert help text here">&#9432</span>
+	    <input type="text" class="form-control" id="plate_type" name="plate_type" placeholder="" required>
+	  </div>
+	  <div class="form-group">
+	  	<label for="columns">Columns</label> </label>  <span title="insert help text here">&#9432</span>
+	    <input type="text" class="form-control" id="columns" name="columns" placeholder="">
+	  </div>
+	  <div class="form-group">
+	  	<label for="rows">Rows</label> </label>  <span title="insert help text here">&#9432</span>
+	    <input type="text" class="form-control" id="rows" name="rows" placeholder="">
+	  </div>
+	  <div class="form-group">
+	  	<label for="other_plate_attr">Other</label> </label>  <span title="insert help text here">&#9432</span>
+	    <input type="text" class="form-control" id="other_plate_attr" name="other_plate_attr" placeholder="">
+	  </div>
+	  
+		<div class="form-group">
+			<button class="btn btn-primary" type="submit" id="submitButton">Update template</button>
+			<button class="btn btn-danger" type="button" id="deleteButton" disabled>Delete template</button>
+			<button class="btn btn-link" type ="button" id="cancelSelection" onclick="location.href='/managePlate'" disabled>Cancel selection</button>
+		</div>
+			
+	</form>
+	
+	{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+	{% endwith %}
+	
+	</div>
+	
+
+	<script>		
+		// Declare selector
+		var plate_selector = document.getElementById('plate_ID');
+		
+		// Delete button
+		var delete_button = document.getElementById('deleteButton');
+		delete_button.onclick = function() {
+				post('/deletePlate', {plate_ID: plate_selector.value});
+		};
+		
+		// Reload when selector changes
+		plate_selector.addEventListener('change', function() {
+		    post('/managePlate', {plate_ID: plate_selector.value});
+		});
+	
+		// Populate selector with available records
+		var plates = {{ plates | tojson | safe}};
+		
+		var plate_ID = '{{plate_ID}}';
+		
+		for(index in plates) {
+				name = plates[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    plate_selector.options[plate_selector.options.length] = option;
+		}
+		
+		// Adapt form for editing a selected record
+		if (plate_ID !== '') {
+			plate_selector.value = plate_ID;
+			var plate_data = {{ plate_data | tojson | safe}};
+			document.getElementById("createPlate").disabled = true;
+			document.getElementById("cancelSelection").disabled = false;
+			document.getElementById("deleteButton").disabled = false;
+		} else {
+			$("#plate_ID").selectpicker('val', "");
+			var plate_data = '';
+		}
+		
+		// Create new record
+		TEMP_NAME = "Creating new record...";
+		
+		var create_button = document.getElementById("createPlate");
+		var delete_button = document.getElementById("deleteButton");
+		var submit_button = document.getElementById("submitButton");
+		var cancel_button = document.getElementById("cancelSelection");
+		
+		create_button.onclick = function() {
+				delete_button.disabled = true;
+				submit_button.textContent = "Submit new template";
+				cancel_button.textContent = "Cancel create";
+				cancel_button.disabled = false;
+				add_temp_rec();
+				$(function () {
+	      	$("#plate_ID").prop('disabled', true);
+					$("#plate_ID").selectpicker('refresh');
+	      });  
+				document.getElementById("plate_type").focus();
+		};
+		
+		function add_temp_rec() {
+			var option = new Option(TEMP_NAME, -1);
+			option.setAttribute("title", TEMP_NAME);
+			plate_selector.options[plate_selector.options.length] = option;
+			$("#plate_ID").selectpicker('val', -1);
+		};
+		
+		submit_button.onclick = function() {
+				$(function () {
+	      	$("#plate_ID").prop('disabled', false);
+					$("#plate_ID").selectpicker('refresh');
+	      });  
+		};
+		
+		// Populate form fields with available data
+		var plate_type_text = document.getElementById("plate_type");
+		if (typeof plate_data['plate_type'] !== 'undefined') {
+			plate_type_text.value = plate_data['plate_type'];
+		} else {
+			plate_type_text.value = "";
+		}		
+		
+		var columns_text = document.getElementById("columns");
+		if (typeof plate_data['columns'] !== 'undefined') {
+			columns_text.value = plate_data['columns'];
+		} else {
+			columns_text.value = "";
+		}		
+		
+		var rows_text = document.getElementById("rows");
+		if (typeof plate_data['rows'] !== 'undefined') {
+			rows_text.value = plate_data['rows'];
+		} else {
+			rows_text.value = "";
+		}		
+		
+		var other_text = document.getElementById("other_plate_attr");
+		if (typeof plate_data['other_plate_attr'] !== 'undefined') {
+			other_text.value = plate_data['other_plate_attr'];
+		} else {
+			other_text.value = "";
+		}		
+		
+		// Disable components based on security points
+		if (!security_points.includes(510)) {
+			document.getElementById("createPlate").disabled = true;
+		}
+		
+		if (!security_points.includes(520) && !security_points.includes(510)) {
+			document.getElementById("submitButton").disabled = true;
+			document.getElementById("plate_type").readOnly = true;
+			document.getElementById("columns").readOnly = true;
+			document.getElementById("rows").readOnly = true;
+			document.getElementById("other_plate_attr").readOnly = true;
+		}
+		
+		if (!security_points.includes(530)) {
+			document.getElementById("deleteButton").disabled = true;
+		}
+		
+	</script>
+
+</body>
+
+{% endblock %}

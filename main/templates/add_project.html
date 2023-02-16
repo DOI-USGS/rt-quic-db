@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Upload Assay{% endblock %}
+{% block content %}
+
+<body>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Upload Assay</h1>
+    <h5>* Required Fields</h5>
+  </div>
+  <form method="post" action="/loadPlate" enctype="multipart/form-data">
+  	<div class="col-md-6 col-sm-6">
+		  <div class="form-group">
+		    <label for="plate">Plate template*</label> </label>  <span title="insert help text here">&#9432</span>
+		    <select class="selectpicker form-control" id="plate" name="plate" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled selected hidden> -- select an option -- </option></select>
+		  </div>
+		  <div class="form-group">
+		    <label for="location">Location*</label> </label>  <span title="insert help text here">&#9432</span>
+		    <select class="selectpicker form-control" id="location" name="location" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled selected hidden> -- select an option -- </option></select>
+		  </div>
+		  <div class="form-group">
+		  	<label for="assay_name">Assay name*</label> </label>  <span title="insert help text here">&#9432</span>
+		    <input type="text" class="form-control" id="assay_name" name="assay_name" placeholder="" required>
+		  </div>
+		  <div class="form-group">
+		  	<label for="assay_name">Temperature</label> </label>  <span title="insert help text here">&#9432</span>
+		    <input type="text" class="form-control" id="temperature" name="temperature" placeholder="">
+		  </div>
+		  <div class="form-group">
+		  	<label for="assay_name">Shake interval (min)</label> </label>  <span title="insert help text here">&#9432</span>
+		    <input type="text" class="form-control" id="shake_interval_min" name="shake_interval_min" placeholder="">
+		  </div>
+		  <div class="form-group">
+		  	<label for="assay_name">Scan interval (min)</label> </label>  <span title="insert help text here">&#9432</span>
+		    <input type="text" class="form-control" id="scan_interval_min" name="scan_interval_min" placeholder="">
+		  </div>
+		  <div class="form-group">
+		  	<label for="assay_name">Duration (min)</label> </label>  <span title="insert help text here">&#9432</span>
+		    <input type="text" class="form-control" id="duration_min" name="duration_min" placeholder="">
+		  </div>
+		</div>
+		<div class="col-md-6 col-sm-6">
+		  <div class="form-group">
+		  	<label for="assay_name">Salt type</label> </label>  <span title="insert help text here">&#9432</span>
+		    <input type="text" class="form-control" id="salt_type" name="salt_type" placeholder="">
+		  </div>
+		  <div class="form-group">
+		  	<label for="assay_name">Salt concentration</label> </label>  <span title="insert help text here">&#9432</span>
+		    <input type="text" class="form-control" id="salt_conc" name="salt_conc" placeholder="">
+		  </div>
+		  <div class="form-group">
+		  	<label for="assay_name">Substrate type</label> </label>  <span title="insert help text here">&#9432</span>
+		    <input type="text" class="form-control" id="substrate_type" name="substrate_type" placeholder="">
+		  </div>
+		  <div class="form-group">
+		  	<label for="assay_name">Substrate concentration</label> </label>  <span title="insert help text here">&#9432</span>
+		    <input type="text" class="form-control" id="substrate_conc" name="substrate_conc" placeholder="">
+		  </div>
+		  <div class="form-group">
+		  	<label for="assay_name">Surfactant type</label> </label>  <span title="insert help text here">&#9432</span>
+		    <input type="text" class="form-control" id="surfact_type" name="surfact_type" placeholder="">
+		  </div>
+		  <div class="form-group">
+		  	<label for="assay_name">Surfactant concentration</label> </label>  <span title="insert help text here">&#9432</span>
+		    <input type="text" class="form-control" id="surfact_conc" name="surfact_conc" placeholder="">
+		  </div>
+		  <div class="form-group">
+				<label for="assay_name">Start date and time</label> </label>  <span title="insert help text here">&#9432</span>
+        <div class='input-group date'>
+            <input type='text' class="form-control" style="cursor: pointer" id='start_date_time' name="start_date_time">
+            <span class="input-group-addon">
+                <span class="glyphicon glyphicon-calendar"></span>
+            </span>
+        </div>
+
+        <script type="text/javascript">
+            $(function () {
+                $('#start_date_time').datetimepicker({format:'YYYY-MM-DD HH:mm:ss'});
+            });
+        </script>
+		  </div>
+		  <div class="form-group">
+		  	<label for="assay_name">Other</label> </label>  <span title="insert help text here">&#9432</span>
+		    <input type="text" class="form-control" id="other_assay_attr" name="other_assay_attr" placeholder="">
+		  </div>
+		  <div class="form-group">
+			  	<input id="input-b1" name="plate_file" type="file" class="file" data-browse-on-zone-click="true" accept=".csv">
+			</div>
+		</div>
+		<div class="col-md-12 text-right">
+			<div class="form-group">
+			    <button class="btn btn-warning" type="submit">Create assay</button>
+			</div>
+		</div>
+	</form>
+	
+	{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+	{% endwith %}
+	
+	</div>
+
+	<script>
+		var plates = JSON.parse('{{ plates | tojson | safe}}');
+		var locations = JSON.parse('{{ locations | tojson | safe}}');
+			
+		var plate_selector = document.getElementById("plate");
+		for(index in plates) {
+				name = plates[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    plate_selector.options[plate_selector.options.length] = option;
+		}
+		
+		if (typeof plates[0] == 'undefined') {
+			$("#plate").selectpicker('val', "");
+		}
+		
+		var location_selector = document.getElementById("location");
+		for(index in locations) {
+		    name = locations[index];
+				var option = new Option(name, index);
+				option.setAttribute("data-tokens", name);
+		    location_selector.options[location_selector.options.length] = option;
+		}
+		
+		if (typeof locations[0] == 'undefined') {
+			$("#location").selectpicker('val', "");
+		}
+	</script>
+
+</body>
+
+{% endblock %}

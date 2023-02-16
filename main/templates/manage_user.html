@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% block title %}Manage Users{% endblock %}
+{% block content %}
+
+<body>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Manage Users</h1>
+  </div>
+  <form method="post" action="/editUserAdmin">
+		<div class="form-group">
+			<label for="user_ID">User</label> <span title="insert help text here">&#9432</span>
+			<small class="form-text text-muted"><span style='padding-left:20px' class='glyphicon glyphicon-eye-close'></span> = inactive</small>
+		  <select class="selectpicker form-control" id="user_ID" name="user_ID" data-show-icon="true" data-live-search="true" placeholder="" required><option value="" title=" -- select an option -- " disabled hidden> -- select an option -- </option></select>
+		</div>
+	  <div class="form-group">
+	  	<label for="username">username</label> <span title="insert help text here">&#9432</span>
+	    <input type="text" class="form-control" id="username" name="username" placeholder="" readonly>
+	  </div>
+	  <div class="form-group">
+	  	<label for="email">Email</label> <span title="insert help text here">&#9432</span>
+	    <input type="text" class="form-control" id="email" name="email" placeholder="" readonly>
+	  </div>
+	  <div class="form-group form-check">
+		  <input class="form-check-input" type="checkbox" id="activated" name="activated" disabled>
+		  <label class="form-check-label" for="activated">Active</label> <span title="If checked, allows the user to log in">&#9432</span>
+		</div>
+		<div class="form-group">
+			<label for="security_points">Security Points</label> <span title="insert help text here">&#9432</span>
+			<select class="selectpicker form-control" id="security_points" name="security_points" data-live-search="true" required disabled multiple>
+			  <optgroup label="Assays">
+			    <option value='100' title='100'>100: Can access View Assay activity</option>
+					<option value='110' title='110'>110: Upload assays</option>
+					<option value='115' title='115'>115: Can access Edit Assay activity</option>
+					<option value='120' title='120'>120: Edit only assays created by self</option>
+					<option value='130' title='130'>130: Edit all assays</option>
+					<option value='140' title='140'>140: Delete only assays created by self</option>
+					<option value='150' title='150'>150: Delete all assays</option>
+					<option value='160' title='160'>160: Well edit only assays created by self</option>
+					<option value='170' title='170'>170: Well edit all assays</option>
+			  </optgroup>
+			  <optgroup label="Samples"> <span title="insert help text here">&#9432</span>
+			  	<option value='200' title='200'>200: Can access Manage Samples activity</option>
+					<option value='210' title='210'>210: Create samples</option>
+					<option value='220' title='220'>220: Edit only samples created by self</option>
+					<option value='230' title='230'>230: Edit all samples</option>
+					<option value='240' title='240'>240: Delete only samples created by self</option>
+					<option value='250' title='250'>250: Delete all samples</option>
+			  </optgroup>
+			  <optgroup label="Admin: Plate Templates"> <span title="insert help text here">&#9432</span>
+			    <option value='500' title='500'>500: Can access Manage Plate Templates activity</option>
+					<option value='510' title='510'>510: Create plate templates</option>
+					<option value='520' title='520'>520: Edit plate templates</option>
+					<option value='530' title='530'>530: Delete plate templates</option>
+			  </optgroup>
+			  <optgroup label="Admin: Locations"> <span title="insert help text here">&#9432</span>
+			    <option value='600' title='600'>600: Can access Manage Locations activity</option>
+					<option value='610' title='610'>610: Create new locations for your team</option>
+					<option value='620' title='620'>620: Update location in your team</option>
+					<option value='630' title='630'>630: Delete location in your team</option>
+			  </optgroup>
+			  <optgroup label="Admin: Teams"> <span title="insert help text here">&#9432</span>
+			    <option hidden value='700' title='700'>700: Can access Manage Team activity</option>
+					<option hidden value='720' title='720'>720: Update research team settings</option>
+					<option hidden value='730' title='730'>730: Can delete a research team</option>
+			  </optgroup>
+			  <optgroup label="Admin: Users"> <span title="insert help text here">&#9432</span>
+			    <option value='800' title='800'>800: Can access Manage Users activity</option>
+					<option value='810' title='810'>810: Can activate new and inactive users</option>
+					<option value='820' title='820'>820: Can inactivate users</option>
+					<option value='830' title='830'>830: Can modify non-admin security points of any user</option>
+					<option value='840' title='840'>840: Can modify admin security points of any user</option>
+					<option value='850' title='850'>850: Can delete a user</option>
+			  </optgroup>
+			  <optgroup label="Data Reporting"> <span title="insert help text here">&#9432</span>
+			    <option value='900' title='900'>900: May access data designated by any research team for analytics</option>
+			  </optgroup>
+			</select>
+		</div>
+		<div class="form-group">
+			<button class="btn btn-primary" type="submit" id="submitButton" disabled>Update user</button>
+			<button class="btn btn-danger" type="button" id="deleteButton" disabled>Delete user</button>
+			<button class="btn btn-link" type ="button" id="cancelSelection" onclick="location.href='/manageUser'" disabled>Cancel selection</button>
+		</div>
+			
+	</form>
+	
+	{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+	{% endwith %}
+	
+	</div>
+
+	<script>	
+		var START_ADMIN_SEC_PTS = 500;
+	
+		// Declare selectors
+		var user_selector = document.getElementById('user_ID');
+		
+		// Delete button
+		var delete_button = document.getElementById('deleteButton');
+		delete_button.onclick = function() {
+				post('/deleteUser', {user_ID: user_selector.value});
+		};
+		
+		// Reload when selector changes
+		user_selector.addEventListener('change', function() {
+		    post('/manageUser', {user_ID: user_selector.value});
+		});
+	
+		// Populate selector with available records
+		var users = {{ users | tojson | safe}};
+		
+		var user_ID = '{{user_ID}}';
+		
+		for(index in users) {
+				name = users[index][0];
+				active = users[index][1];
+				option = new Option(name, index);
+				if (active == 0) {
+					content = name + "<span style='padding-left:12px' class='glyphicon glyphicon-eye-close'></span>";
+				} else {
+					content = name;
+				}		
+				option.setAttribute("data-tokens", name);
+				option.setAttribute("data-content", content);
+		    user_selector.options[user_selector.options.length] = option;
+		}
+		
+		// Adapt form for editing a selected record
+		var security_points = {{ sec_pts | tojson | safe}};
+		if (user_ID !== '') {
+			user_selector.value = user_ID;
+			var user_data = {{ user_data | tojson | safe}};
+			document.getElementById("submitButton").disabled = false;
+			document.getElementById("cancelSelection").disabled = false;
+			document.getElementById("deleteButton").disabled = false;
+			document.getElementById("activated").disabled = false;
+			$(function () {
+      	$("#security_points").prop('disabled', false);
+				$("#security_points").selectpicker('refresh');
+      });   
+		} else {
+			$("#user_ID").selectpicker('val', "");
+			var user_data = '';
+		}
+		
+		// Populate form fields with available data	
+		var username_text = document.getElementById("username");
+		if (typeof user_data['username'] !== 'undefined') {
+			username_text.value = user_data['username'];
+		} else {
+			username_text.value = "";
+		}
+		
+		var email_text = document.getElementById("email");
+		if (typeof user_data['email'] !== 'undefined') {
+			email_text.value = user_data['email'];
+		} else {
+			email_text.value = "";
+		}
+		
+		var active_check = document.getElementById("activated");
+		if (typeof user_data['activated'] !== 'undefined') {
+			active_check.checked = Boolean(Number(user_data['activated']));
+		}
+		
+		var security_point_list = user_data['security_points'];
+		if (typeof security_point_list !== 'undefined') {
+			$(function () {
+      	$("#security_points").selectpicker('val', security_point_list);
+      	$("#security_points").selectpicker('refresh');
+      });
+		}		
+		
+		// Disable components based on security points
+		var security_points = {{ sec_pts | tojson | safe}};
+
+		if (!security_points.includes(810) && !active_check.checked) {
+			active_check.disabled = true;
+		}
+		
+		if (!security_points.includes(820) && active_check.checked) {
+			active_check.disabled = true;
+		}
+		
+		if (!security_points.includes(830) && !security_points.includes(840)) {
+			$(function () {
+      	$("#security_points").prop('disabled', true);
+      	$("#security_points").selectpicker('refresh');
+      });
+		}
+		
+		if (!security_points.includes(830)) {
+			$(function () {
+				$("#security_points option").each(function() {
+				    if (Number(this.value) < START_ADMIN_SEC_PTS)
+				    	this.disabled = true;
+				});
+      	$("#security_points").selectpicker('refresh');
+      });
+		}
+		
+		if (!security_points.includes(840)) {
+			$(function () {
+				$("#security_points option").each(function() {
+				    if (Number(this.value) >= START_ADMIN_SEC_PTS)
+				    	this.disabled = true;
+				});
+      	$("#security_points").selectpicker('refresh');
+      });
+		}
+		
+		if (!security_points.includes(850)) {
+			document.getElementById("deleteButton").disabled = true;
+		}
+		
+	</script>
+
+</body>
+{% endblock %}
